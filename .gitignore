@@ -1,0 +1,25 @@
+# ignore everything
+*
+
+# but not subdirs
+!*/
+
+# and not these files
+!.gitignore
+!*.py
+!*.sh
+!*.png
+!*.jpg
+!*.tex
+!*.pdf
+!*.ps
+!*.eps
+!SConstruct
+
+# but do ignore figures that are animation frames
+frame*.png
+frame*/
+
+# and ignore anything in build dirs
+build/
+data/
