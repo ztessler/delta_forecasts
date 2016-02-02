@@ -15,6 +15,7 @@
 !*.ps
 !*.eps
 !SConstruct
+!SConscript
 
 # but do ignore figures that are animation frames
 frame*.png

@@ -1,0 +1,39 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import os
+import load_data as ld
+
+Import('*')
+
+# Import delta shapefile and regroup from polygons to multipolygons by delta
+env.Command(
+        target=['#data/deltas_shp/deltas.'+i for i in ['shp', 'shx', 'prj',
+                                                       'dbf', 'cpg']],
+        source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
+        action=ld.group_delta_shps,
+        )
+
+# Download relevant RGIS and BQART datasets from archive on daisy
+server = 'ztessler@daisy:'
+rgis_remote_dir = server + '/data/RGISarchive/Global/'
+bqart_remote_dir = server + '/data/RGISsediment/Global/'
+rgis_files = {'reservoir': os.path.join(rgis_remote_dir, 'Reservoir-Capacity',
+                            'UNH661', '06min', 'Static',
+                            'Global_Reservoir-Capacity_UNH661_06min_aLT2008.gdbc'),
+              'airtemp': os.path.join(rgis_remote_dir, 'AirTemperature',
+                            'NCEP', '60min', 'Static',
+                            'Global_AirTemperature_NCEP_60min_aLT1948-2010.gdbc'),
+              'relief': os.path.join(bqart_remote_dir, 'Relief-Max',
+                            'ETOPO1', '06min', 'Static',
+                            'Global_Relief-Max_ETOPO1_06min_Static.gdbc'),
+             }
+for name, remotepath in rgis_files.items():
+    localfile = os.path.join('#downloads', os.path.basename(remotepath))
+    env.Command(
+            target=localfile,
+            source=None,
+            action='scp {} $TARGET'.format(remotepath),
+            )
+
+
