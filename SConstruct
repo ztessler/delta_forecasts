@@ -13,4 +13,3 @@ SConscript('load_data/SConscript')
 SConscript('population/SConscript')
 
 Clean('.', 'data')
-NoClean('.', 'downloads')
