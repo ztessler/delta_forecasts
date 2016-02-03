@@ -10,6 +10,7 @@ env.Decider('MD5-timestamp')
 Export('env')
 
 SConscript('load_data/SConscript')
+SConscript('population/SConscript')
 
 Clean('.', 'data')
 NoClean('.', 'downloads')

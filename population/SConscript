@@ -8,10 +8,9 @@ Import('*')
 
 for year in [2000, 2005, 2010, 2015, 2020]:
     env.Command(
-            source=['#data/delta_shp/delta_shp.shp',
+            source=['#data/deltas_shp/deltas.shp',
                     '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{0}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{0}.tif'.format(year)],
-            target=['#data/delta_pop_count_{}.json'.format(year),
-                    '#data/delta_pop_dens_{}.json'.format(year)],
+            target='#data/delta_pop_{}.json'.format(year),
             action=pp.delta_population_stats,
             year=year)
                 
