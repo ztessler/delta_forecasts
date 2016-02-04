@@ -1,0 +1,16 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import os
+import process_srtm as ps
+
+Import('*')
+
+for delta in deltas:
+    env.Command(
+            source='#data/deltas_shp/deltas.shp',
+            target='#data/srtm/{}.tif'.format(delta),
+            action=ps.delta_srtm_composite,
+            delta=delta)
+                
+
