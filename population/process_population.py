@@ -17,26 +17,33 @@ def delta_population_stats(env, target, source):
     deltas = deltas.set_index('Delta')
     raster = rasterio.open(str(source[1]))
     nodata = raster.nodata
-    t = raster.affine
+    minlon, minlat, maxlon, maxlat = raster.bounds
     
     centroids = deltas.centroid
     bounds = deltas.bounds
     stats = {}
     for dname in deltas.index:
+        # delta location
         lon, lat = np.array(centroids.loc[dname])
-        minlon, minlat, maxlon, maxlat = bounds.loc[dname]
+        d_minlon, d_minlat, d_maxlon, d_maxlat = bounds.loc[dname]
+
+        # reproject delta shape
         laea = ccrs.LambertAzimuthalEqualArea(central_longitude=lon,
                                               central_latitude=lat)
         delta = deltas.loc[[dname]].to_crs(laea.proj4_params)['geometry']
 
-        maxy, minx = raster.index(minlon, minlat)
-        miny, maxx = raster.index(maxlon, maxlat)
-        window = ((miny, maxy+1), (minx, maxx+1))
+        # extract minimum raster around delta
+        d_maxy, d_minx = raster.index(d_minlon, d_minlat)
+        d_miny, d_maxx = raster.index(d_maxlon, d_maxlat)
+        window = ((d_miny, d_maxy+1), (d_minx, d_maxx+1))
         src = raster.read(1, window=window)
+
+        # get size, bounds, affine of raster subset
         src_height, src_width = src.shape
         src_bounds = raster.window_bounds(window)
-        src_affine = Affine(t.a, t.b, t.c+minx*t.a, t.d, t.e, t.f+miny*t.e)
+        src_affine = raster.window_transform(window)
 
+        # reproject raster
         dst_affine, dst_width, dst_height = calculate_default_transform(
                 raster.crs, laea.proj4_params, src_width, src_height,
                 *src_bounds)
@@ -44,6 +51,7 @@ def delta_population_stats(env, target, source):
         reproject(src, dst, src_affine, raster.crs, nodata, dst_affine,
                 laea.proj4_params, nodata, RESAMPLING.bilinear)
 
+        # calculate zonal stats
         _stats = zonal_stats(delta, dst, affine=dst_affine, nodata=nodata)
         _stats = _stats[0]   # delta only has a single Multipolygon feature
         stats[dname] = {
