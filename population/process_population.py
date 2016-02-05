@@ -13,8 +13,7 @@ def delta_population_stats(env, target, source):
     # centered on delta.  Extracts data from (global) raster, warps to same
     # projection and calculates zonal stats within delta
     year = env['year']
-    deltas = geopandas.GeoDataFrame.from_file(str(source[0]))
-    deltas = deltas.set_index('Delta')
+    deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
     raster = rasterio.open(str(source[1]))
     nodata = raster.nodata
     minlon, minlat, maxlon, maxlat = raster.bounds
