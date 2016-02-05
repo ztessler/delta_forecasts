@@ -28,8 +28,8 @@ def delta_srtm_composite(env, target, source):
         raise ValueError('resolution must be 1 or 3')
 
     srtm = SRTMSource(downloader=downloader,
-                       max_nx=(int(maxlon)-int(minlon)+1),
-                       max_ny=(int(maxlat)-int(minlat)+1))
+                       max_nx=(int(np.floor(maxlon))-int(np.floor(minlon))+1),
+                       max_ny=(int(np.floor(maxlat))-int(np.floor(minlat))+1))
     raster = srtm.fetch_raster(ccrs.PlateCarree(), extent, resolution)
     image, extent = raster[0]
     pix = 1./60/60*resolution
