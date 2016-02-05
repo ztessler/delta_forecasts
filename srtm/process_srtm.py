@@ -1,16 +1,20 @@
 import os
+import json
+import numpy as np
 import geopandas
 import rasterio
 from rasterio.features import rasterize
 from affine import Affine
+import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 from cartopy.io.srtm import SRTM1Source, SRTM3Source, SRTMDownloader
 
 def delta_srtm_composite(env, target, source):
     dname = env['delta']
     resolution=env['resolution']
-    deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
-    minlon, minlat, maxlon, maxlat = deltas['geometry'][dname].bounds
+    with open(str(source[0]), 'r') as f:
+        delta = sgeom.shape(json.load(f))
+    minlon, minlat, maxlon, maxlat = delta.bounds
     extent = (minlon, maxlon, minlat, maxlat)
 
     local_path_template = os.path.join(os.environ['HOME'], 'data', 'SRTM{resolution}', dname, '{y}{x}.hgt')
@@ -42,10 +46,9 @@ def delta_srtm_composite(env, target, source):
     return 0
 
 def clip_srtm_to_delta(env, target, source):
-    dname = env['delta']
     resolution=env['resolution']
-    deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
-    delta = deltas['geometry'][dname]
+    with open(str(source[0]), 'r') as f:
+        delta = sgeom.shape(json.load(f))
 
     nodata = -9999
 

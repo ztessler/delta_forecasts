@@ -20,15 +20,15 @@ with open('deltaIDs.csv', 'r') as deltaIDs:
     reader = csv.DictReader(deltaIDs)
     for d in reader:
         deltas[clean_delta_name(d['Delta'])] = int(d['deltaID'])
-#for testing
-deltas['Mekong'] = 26
+deltas = {'Mekong': 26} # for testing
+Export('deltas')
 
 srtm_resolution = 3
 
 SConscript('load_data/SConscript')
 SConscript('population/SConscript',
-        exports=['deltas', 'srtm_resolution'])
+        exports=['srtm_resolution'])
 SConscript('srtm/SConscript',
-        exports=['deltas', 'srtm_resolution'])
+        exports=['srtm_resolution'])
 
 Clean('.', 'data')

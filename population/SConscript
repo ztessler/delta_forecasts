@@ -13,5 +13,3 @@ for year in [2000, 2005, 2010, 2015, 2020]:
             target='#data/delta_pop_{}.json'.format(year),
             action=pp.delta_population_stats,
             year=year)
-                
-

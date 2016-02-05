@@ -14,6 +14,13 @@ env.Command(
         action=ld.group_delta_shps,
         )
 
+for delta in deltas:
+    env.Command(
+            target='#data/{0}/{0}.json'.format(delta),
+            source='#data/deltas_shp/deltas.shp',
+            action=ld.delta_geojson,
+            delta=delta)
+
 # Download relevant RGIS and BQART datasets from archive on daisy
 server = 'ztessler@daisy:'
 rgis_remote_dir = server + '/data/RGISarchive/Global/'
