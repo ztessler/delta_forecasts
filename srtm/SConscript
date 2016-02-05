@@ -6,11 +6,14 @@ import process_srtm as ps
 
 Import('*')
 
+resolution = 3
+deltas = ['Mekong']
 for delta in deltas:
     env.Command(
             source='#data/deltas_shp/deltas.shp',
-            target='#data/srtm/{}.tif'.format(delta),
+            target='#data/srtm{0}/{1}_full.tif'.format(resolution, delta),
             action=ps.delta_srtm_composite,
-            delta=delta)
+            delta=delta,
+            resolution=resolution)
                 
 
