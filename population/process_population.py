@@ -4,6 +4,7 @@ import numpy as np
 import geopandas
 from affine import Affine
 import rasterio
+from rasterio.features import rasterize
 from rasterio.warp import calculate_default_transform, reproject, RESAMPLING
 import cartopy.crs as ccrs
 from rasterstats import zonal_stats
@@ -64,7 +65,6 @@ def delta_population_stats(env, target, source):
 
 
 def clip_pop_to_delta(env, target, source):
-    dname = env['delta']
     delta = geopandas.read_file(str(source[0]))
 
     nodata = -9999
@@ -73,7 +73,7 @@ def clip_pop_to_delta(env, target, source):
         kwargs = src.meta.copy()
         del kwargs['transform']
 
-        mask = rasterize(delta, out_shape=src.shape, transform=src.affine, dtype=src.dtypes[0])
+        mask = rasterize(delta.loc[0, 'geometry'], default_value=1, fill=0, out_shape=src.shape, transform=src.affine, dtype=src.dtypes[0])
         window = rasterio.get_data_window(mask, 0)
         image = src.read(1, window=window)
         mask = mask[slice(*window[0]), slice(*window[1])]

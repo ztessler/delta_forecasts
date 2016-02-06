@@ -6,10 +6,23 @@ import process_population as pp
 
 Import('*')
 
-for year in [2000, 2005, 2010, 2015, 2020]:
+pop_tif = '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{0}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{0}.tif'
+
+years = [2000] #, 2005, 2010, 2015, 2020]
+for year in years:
     env.Command(
             source=['#data/deltas_shp/deltas.shp',
-                    '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{0}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{0}.tif'.format(year)],
+                    pop_tif.format(year)],
             target='#data/delta_pop_{}.json'.format(year),
             action=pp.delta_population_stats,
             year=year)
+
+for year in years:
+    for delta in deltas:
+        env.Command(
+            source=['#data/{0}/{0}.json'.format(delta),
+                    pop_tif.format(year)],
+            target='#data/{0}/{0}_pop_{1}.tif'.format(delta, year),
+            action=pp.clip_pop_to_delta,
+            delta=delta)
+
