@@ -18,7 +18,6 @@ for delta in deltas:
             source=['#data/{0}/{0}.json'.format(delta),
                     '#data/{0}/{0}_srtm{1}_full.tif'.format(delta, srtm_resolution)],
             target='#data/{0}/{0}_srtm{1}.tif'.format(delta, srtm_resolution),
-            action=ps.clip_srtm_to_delta,
-            resolution=srtm_resolution)
+            action=ps.clip_srtm_to_delta)
 
 

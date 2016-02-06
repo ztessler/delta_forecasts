@@ -44,7 +44,6 @@ def delta_srtm_composite(env, target, source):
     return 0
 
 def clip_srtm_to_delta(env, target, source):
-    resolution=env['resolution']
     delta = geopandas.read_file(str(source[0]))
 
     nodata = -9999
