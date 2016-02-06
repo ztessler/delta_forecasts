@@ -26,7 +26,7 @@ def delta_geojson(env, target, source):
     dname = env['delta']
     deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
     delta = deltas.loc[[dname]]
-    delta.to_file(str(target[0]), 'GeoJSON')
+    delta.reset_index().to_file(str(target[0]), 'GeoJSON')
 
     return 0
 
