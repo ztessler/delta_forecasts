@@ -65,8 +65,7 @@ def delta_population_stats(env, target, source):
 
 def clip_pop_to_delta(env, target, source):
     dname = env['delta']
-    with open(str(source[0]), 'r') as f:
-        delta = sgeom.shape(json.load(f))
+    delta = geopandas.read_file(str(source[0]))
 
     nodata = -9999
 

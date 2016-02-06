@@ -1,5 +1,4 @@
 import os
-import json
 import numpy as np
 import geopandas
 import rasterio
@@ -12,9 +11,8 @@ from cartopy.io.srtm import SRTM1Source, SRTM3Source, SRTMDownloader
 def delta_srtm_composite(env, target, source):
     dname = env['delta']
     resolution=env['resolution']
-    with open(str(source[0]), 'r') as f:
-        delta = sgeom.shape(json.load(f))
-    minlon, minlat, maxlon, maxlat = delta.bounds
+    delta = geopandas.read_file(str(source[0]))
+    minlon, minlat, maxlon, maxlat = delta.bounds.values[0]
     extent = (minlon, maxlon, minlat, maxlat)
 
     local_path_template = os.path.join(os.environ['HOME'], 'data', 'SRTM{resolution}', dname, '{y}{x}.hgt')
@@ -47,8 +45,7 @@ def delta_srtm_composite(env, target, source):
 
 def clip_srtm_to_delta(env, target, source):
     resolution=env['resolution']
-    with open(str(source[0]), 'r') as f:
-        delta = sgeom.shape(json.load(f))
+    delta = geopandas.read_file(str(source[0]))
 
     nodata = -9999
 
@@ -56,7 +53,7 @@ def clip_srtm_to_delta(env, target, source):
         kwargs = src.meta.copy()
         del kwargs['transform']
 
-        mask = rasterize(delta, out_shape=src.shape, transform=src.affine, dtype=src.dtypes[0])
+        mask = rasterize(delta.loc[0, 'geometry'], default_value=1, fill=0, out_shape=src.shape, transform=src.affine, dtype=src.dtypes[0])
         window = rasterio.get_data_window(mask, 0)
         image = src.read(1, window=window)
         mask = mask[slice(*window[0]), slice(*window[1])]

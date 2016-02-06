@@ -1,5 +1,4 @@
 import os
-import json
 import fiona
 import geopandas
 import shapely.geometry as sgeom
@@ -20,15 +19,15 @@ def group_delta_shps(env, target, source):
     deltas['Delta'] = deltas.index #index lost on saving to file
     deltas.crs = crs
 
-    deltas.to_file(str(target[0]))
+    deltas.to_file(str(target[0]), 'ESRI Shapefile')
     return 0
 
 def delta_geojson(env, target, source):
     dname = env['delta']
     deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
-    geom = deltas['geometry'][dname]
-    with open(str(target[0]), 'w') as outfile:
-        json.dump(sgeom.mapping(geom), outfile)
+    delta = deltas.loc[[dname]]
+    delta.to_file(str(target[0]), 'GeoJSON')
+
     return 0
 
 
