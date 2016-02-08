@@ -17,12 +17,20 @@ for year in years:
             action=pp.delta_population_stats,
             year=year)
 
-for year in years:
     for delta in deltas:
         env.Command(
-            source=['#data/{0}/{0}.json'.format(delta),
-                    pop_tif.format(year)],
-            target='#data/{0}/{0}_pop_{1}.tif'.format(delta, year),
-            action=pp.clip_pop_to_delta,
-            delta=delta)
+                source=['#data/{0}/{0}.json'.format(delta),
+                        pop_tif.format(year)],
+                target='#data/{0}/{0}_pop_{1}.tif'.format(delta, year),
+                action=pp.clip_pop_to_delta)
+
+        env.Command(
+                source=['#data/{0}/{0}.json'.format(delta),
+                        '#data/delta_pop_{0}.json'.format(year),
+                        '#data/{0}/{0}_srtm{1}.tif'.format(delta, srtm_resolution),
+                        '#data/{0}/{0}_pop_{1}.tif'.format(delta, year)],
+                target='#data/{0}/{0}_pop_by_srtm{1}_elevations_{2}.json'.format(delta, srtm_resolution, year),
+                action=pp.pop_elevation_bins,
+                delta=delta)
+
 

@@ -86,3 +86,58 @@ def clip_pop_to_delta(env, target, source):
             dst.write(image, 1)
 
         return 0
+
+def pop_elevation_bins(env, target, source):
+    delta = geopandas.read_file(str(source[0]))
+    with open(str(source[1])) as f:
+        delta_pop = json.load(f)[env['delta']]
+    lon, lat = np.array(delta.centroid.squeeze())
+    minlon, minlat, maxlon, maxlat = np.array(delta.bounds.squeeze())
+
+    laea = ccrs.LambertAzimuthalEqualArea(central_longitude=lon,
+                                          central_latitude=lat)
+    area_sqkm = delta.to_crs(laea.proj4_params)['geometry'].area.squeeze() / 1e6
+
+    with rasterio.open(str(source[2]), 'r') as srtm_fd:
+        srtm_raw = srtm_fd.read(1)
+        srtm_raw_crs = srtm_fd.crs
+        srtm_raw_affine = srtm_fd.affine
+        srtm_raw_width = srtm_fd.width
+        srtm_raw_height = srtm_fd.height
+        srtm_raw_nodata = srtm_fd.nodata
+
+    with rasterio.open(str(source[3]), 'r') as pop_fd:
+        kwargs = pop_fd.meta.copy()
+        pop_raw = pop_fd.read(1)
+        pop_raw_crs = pop_fd.crs
+        pop_raw_affine = pop_fd.affine
+        pop_raw_bounds = pop_fd.bounds
+        pop_raw_width = pop_fd.width
+        pop_raw_height = pop_fd.height
+        pop_raw_nodata = pop_fd.nodata
+
+    # estimate reprojection params and pixel sizes based on population grid
+    dst_crs = laea.proj4_params
+    dst_affine, dst_width, dst_height = calculate_default_transform(
+            pop_raw_crs, dst_crs, pop_raw_width, pop_raw_height,
+            *pop_raw_bounds)
+
+    pop = np.ones((dst_height, dst_width), dtype=rasterio.float64)
+    srtm = np.ones((dst_height, dst_width), dtype=rasterio.float64)
+
+    reproject(pop_raw, pop, pop_raw_affine, pop_raw_crs, pop_raw_nodata,
+            dst_affine, dst_crs, pop_raw_nodata, RESAMPLING.bilinear)
+    reproject(srtm_raw, srtm, srtm_raw_affine, srtm_raw_crs, srtm_raw_nodata,
+            dst_affine, dst_crs, srtm_raw_nodata, RESAMPLING.bilinear)
+
+    pops = {}
+    good = np.logical_and(pop != pop_raw_nodata, srtm != srtm_raw_nodata)
+    for elev in range(11):
+        under = np.logical_and(good, srtm <= elev)
+        over = np.logical_and(good, srtm > elev)
+        frac_under = under.sum() / float(good.sum())
+        pops[elev] = pop[under].mean() * frac_under * area_sqkm
+    with open(str(target[0]), 'w') as outfile:
+        json.dump(pops, outfile)
+
+    return 0
