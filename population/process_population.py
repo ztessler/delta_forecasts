@@ -1,6 +1,8 @@
 import os
 import json
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import geopandas
 from affine import Affine
 import rasterio
@@ -132,7 +134,7 @@ def pop_elevation_bins(env, target, source):
 
     pops = {}
     good = np.logical_and(pop != pop_raw_nodata, srtm != srtm_raw_nodata)
-    for elev in range(11):
+    for elev in range(35+1):
         under = np.logical_and(good, srtm <= elev)
         over = np.logical_and(good, srtm > elev)
         frac_under = under.sum() / float(good.sum())
@@ -140,4 +142,19 @@ def pop_elevation_bins(env, target, source):
     with open(str(target[0]), 'w') as outfile:
         json.dump(pops, outfile)
 
+    return 0
+
+def plot_hypsometric(env, target, source):
+    with open(str(source[0]), 'r') as infile:
+        pop = json.load(infile)
+    pop = {int(k): v for (k,v) in pop.iteritems()}
+    plt.style.use('ggplot')
+    f, a = plt.subplots(1, 1)
+    elevs = sorted(pop.keys())
+    pops = [pop[e] for e in elevs]
+    a.plot(elevs, pops)
+    a.set_title(env['delta'])
+    a.set_xlabel('Elevation, m')
+    a.set_ylabel('Population at or below elevation')
+    f.savefig(str(target[0]))
     return 0
