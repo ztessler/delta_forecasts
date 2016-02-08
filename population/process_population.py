@@ -67,8 +67,6 @@ def delta_population_stats(env, target, source):
 def clip_pop_to_delta(env, target, source):
     delta = geopandas.read_file(str(source[0]))
 
-    nodata = -9999
-
     with rasterio.open(str(source[1]), 'r') as src:
         kwargs = src.meta.copy()
         del kwargs['transform']
@@ -77,13 +75,12 @@ def clip_pop_to_delta(env, target, source):
         window = rasterio.get_data_window(mask, 0)
         image = src.read(1, window=window)
         mask = mask[slice(*window[0]), slice(*window[1])]
-        image[mask==0] = nodata
+        image[mask==0] = src.nodata
 
         kwargs.update({
             'height': window[0][1] - window[0][0],
             'width': window[1][1] - window[1][0],
-            'affine': src.window_transform(window),
-            'nodata': nodata})
+            'affine': src.window_transform(window)})
 
         with rasterio.open(str(target[0]), 'w', **kwargs) as dst:
             dst.write(image, 1)
