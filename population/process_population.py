@@ -146,12 +146,12 @@ def pop_elevation_bins(env, target, source):
 
 def plot_hypsometric(env, target, source):
     with open(str(source[0]), 'r') as infile:
-        pop = json.load(infile)
-    pop = {int(k): v for (k,v) in pop.iteritems()}
+        elevpop = json.load(infile)
+    elevpop = {int(elev): pop for (elev, pop) in elevpop.iteritems()}
     plt.style.use('ggplot')
     f, a = plt.subplots(1, 1)
-    elevs = sorted(pop.keys())
-    pops = [pop[e] for e in elevs]
+    elevs = sorted(elevpop.keys())
+    pops = [elevpop[elev] for elev in elevs]
     a.plot(elevs, pops)
     a.set_title(env['delta'])
     a.set_xlabel('Elevation, m')
