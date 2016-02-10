@@ -25,16 +25,34 @@ for delta in deltas:
 server = 'ztessler@daisy:'
 rgis_remote_dir = server + '/data/RGISarchive/Global/'
 bqart_remote_dir = server + '/data/RGISsediment/Global/'
-rgis_files = {'reservoir': os.path.join(rgis_remote_dir, 'Reservoir-Capacity',
-                            'UNH661', '06min', 'Static',
-                            'Global_Reservoir-Capacity_UNH661_06min_aLT2008.gdbc'),
-              'airtemp': os.path.join(rgis_remote_dir, 'AirTemperature',
-                            'NCEP', '60min', 'Static',
-                            'Global_AirTemperature_NCEP_60min_aLT1948-2010.gdbc'),
-              'relief': os.path.join(bqart_remote_dir, 'Relief-Max',
-                            'ETOPO1', '06min', 'Static',
-                            'Global_Relief-Max_ETOPO1_06min_Static.gdbc'),
-             }
+wbm_remote_dir = server + '/data/ModelRuns/'
+rgis_files = {
+        'network': os.path.join(
+            rgis_remote_dir, 'Network', 'STN+HydroSHEDS', '06min', 'Static',
+            'Global_Network_STN+HydroSHEDS_06min_Static.gdbn'),
+        'reservoir': os.path.join(
+            rgis_remote_dir, 'Reservoir-Capacity', 'UNH661', '06min', 'Static',
+            'Global_Reservoir-Capacity_UNH661_06min_aLT2008.gdbc'),
+        'airtemp': os.path.join(
+            rgis_remote_dir, 'AirTemperature', 'NCEP', '60min', 'Static',
+            'Global_AirTemperature_NCEP_60min_aLT1948-2010.gdbc'),
+        'relief': os.path.join(
+            bqart_remote_dir, 'Relief-Max', 'ETOPO1', '06min', 'Static',
+            'Global_Relief-Max_ETOPO1_06min_Static.gdbc'),
+        'lithology': os.path.join(
+            bqart_remote_dir, 'BQART-Lithology','BQART', '06min', 'Static',
+            'Global_BQART-Lithology_BQART_06min_Static.gdbc'),
+        'ice': os.path.join(
+            bqart_remote_dir, 'Ice-Cover','ICE5Gv102', '30min', 'Static',
+            'Global_Ice-Cover_ICE5Gv102_30min_Static.gdbc'),
+        'gnp': os.path.join(
+            bqart_remote_dir, 'BQART-GNP','BQART', '30min', 'Static',
+            'Global_BQART-GNP_BQART_30min_Static.gdbc'),
+        'discharge': os.path.join(
+            wbm_remote_dir, 'CMORPH-GPCP1dd_dTS2003-Present', 'RGISresults',
+            'Global', 'Discharge',
+            'Global_Discharge_CMORPH-GPCP1dd+Prist_06min_aLT.gdbc'),
+        }
 for name, remotepath in rgis_files.items():
     localfile = os.path.join('#downloads', os.path.basename(remotepath))
     download = env.Command(
@@ -43,5 +61,13 @@ for name, remotepath in rgis_files.items():
             action='scp {} $TARGET'.format(remotepath),
             )
     env.NoClean(download)
+
+    fileroot, fileext = os.path.splitext(localfile)
+    if fileext == '.gdbc':
+        nc = env.Command(
+                target='#data/Global/'+os.path.basename(fileroot)+'.nc',
+                source=localfile,
+                action='/Users/ztessler/opt/ghaas/bin/rgis2netcdf $SOURCE $TARGET')
+        env.NoClean(nc)
 
 

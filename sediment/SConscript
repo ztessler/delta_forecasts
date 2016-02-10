@@ -1,0 +1,18 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import os
+import process_population as pp
+
+Import('*')
+
+# convert rgis files to netCDF, use BQART model to estimate sed flux under
+# different anthro conditions (including none), use to estimate natural
+# subsidence rates based on sed flux, sediment retention ratio (see Syvitski and
+# Saito 2007 for ratios) and delta surface area
+
+# env.Command(
+        # source=
+        # target=
+        # action=
+        # )
