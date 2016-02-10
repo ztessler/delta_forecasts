@@ -20,7 +20,11 @@ with open('deltaIDs.csv', 'r') as deltaIDs:
     reader = csv.DictReader(deltaIDs)
     for d in reader:
         deltas[clean_delta_name(d['Delta'])] = int(d['deltaID'])
-deltas = {'Mekong': 26} # for testing
+
+deltas = { # for testing
+        'Mekong': 26,
+        'Nile': 30,
+         }
 Export('deltas')
 
 srtm_resolution = 3
@@ -31,4 +35,3 @@ SConscript('population/SConscript',
 SConscript('srtm/SConscript',
         exports=['srtm_resolution'])
 
-Clean('.', 'data')
