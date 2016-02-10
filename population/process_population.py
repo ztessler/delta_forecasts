@@ -1,8 +1,8 @@
 import os
-import json
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import pandas
 import geopandas
 from affine import Affine
 import rasterio
@@ -61,8 +61,7 @@ def delta_population_stats(env, target, source):
                 'pop_count':  _stats['mean'] * delta.area.iloc[0] / 1e6,  # people
                 }
     raster.close()
-    with open(str(target[0]), 'w') as outfile:
-        json.dump(stats, outfile)
+    pandas.DataFrame.from_dict(stats, orient='index').to_pickle(str(target[0]))
     return 0
 
 
@@ -91,8 +90,6 @@ def clip_pop_to_delta(env, target, source):
 
 def pop_elevation_bins(env, target, source):
     delta = geopandas.read_file(str(source[0]))
-    with open(str(source[1])) as f:
-        delta_pop = json.load(f)[env['delta']]
     lon, lat = np.array(delta.centroid.squeeze())
     minlon, minlat, maxlon, maxlat = np.array(delta.bounds.squeeze())
 
@@ -100,7 +97,7 @@ def pop_elevation_bins(env, target, source):
                                           central_latitude=lat)
     area_sqkm = delta.to_crs(laea.proj4_params)['geometry'].area.squeeze() / 1e6
 
-    with rasterio.open(str(source[2]), 'r') as srtm_fd:
+    with rasterio.open(str(source[1]), 'r') as srtm_fd:
         srtm_raw = srtm_fd.read(1)
         srtm_raw_crs = srtm_fd.crs
         srtm_raw_affine = srtm_fd.affine
@@ -108,7 +105,7 @@ def pop_elevation_bins(env, target, source):
         srtm_raw_height = srtm_fd.height
         srtm_raw_nodata = srtm_fd.nodata
 
-    with rasterio.open(str(source[3]), 'r') as pop_fd:
+    with rasterio.open(str(source[2]), 'r') as pop_fd:
         kwargs = pop_fd.meta.copy()
         pop_raw = pop_fd.read(1)
         pop_raw_crs = pop_fd.crs
@@ -132,28 +129,22 @@ def pop_elevation_bins(env, target, source):
     reproject(srtm_raw, srtm, srtm_raw_affine, srtm_raw_crs, srtm_raw_nodata,
             dst_affine, dst_crs, srtm_raw_nodata, RESAMPLING.bilinear)
 
-    pops = {}
     good = np.logical_and(pop != pop_raw_nodata, srtm != srtm_raw_nodata)
-    for elev in range(35+1):
+    pops = {}
+    elevs = range(35+1)
+    for elev in elevs:
         under = np.logical_and(good, srtm <= elev)
         over = np.logical_and(good, srtm > elev)
         frac_under = under.sum() / float(good.sum())
         pops[elev] = pop[under].mean() * frac_under * area_sqkm
-    with open(str(target[0]), 'w') as outfile:
-        json.dump(pops, outfile)
-
+    pandas.Series(pops, name='Population').to_pickle(str(target[0]))
     return 0
 
 def plot_hypsometric(env, target, source):
-    with open(str(source[0]), 'r') as infile:
-        elevpop = json.load(infile)
-    elevpop = {int(elev): pop for (elev, pop) in elevpop.iteritems()}
+    pops = pandas.read_pickle(str(source[0]))
     plt.style.use('ggplot')
     f, a = plt.subplots(1, 1)
-    elevs = sorted(elevpop.keys())
-    pops = [elevpop[elev] for elev in elevs]
-    a.plot(elevs, pops)
-    a.set_title(env['delta'])
+    pops.plot(ax=a, title=env['delta'])
     a.set_xlabel('Elevation, m')
     a.set_ylabel('Population at or below elevation')
     f.savefig(str(target[0]))

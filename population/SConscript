@@ -13,7 +13,7 @@ for year in years:
     env.Command(
             source=['#data/deltas_shp/deltas.shp',
                     pop_tif.format(year)],
-            target='#data/delta_pop_{}.json'.format(year),
+            target='#data/delta_pop_{}.pd'.format(year),
             action=pp.delta_population_stats,
             year=year)
 
@@ -26,15 +26,14 @@ for year in years:
 
         env.Command(
                 source=['#data/{0}/{0}.json'.format(delta),
-                        '#data/delta_pop_{0}.json'.format(year),
                         '#data/{0}/{0}_srtm{1}.tif'.format(delta, srtm_resolution),
                         '#data/{0}/{0}_pop_{1}.tif'.format(delta, year)],
-                target='#data/{0}/{0}_pop_by_srtm{1}_elevations_{2}.json'.format(delta, srtm_resolution, year),
+                target='#data/{0}/{0}_pop_by_srtm{1}_elevations_{2}.pd'.format(delta, srtm_resolution, year),
                 action=pp.pop_elevation_bins,
                 delta=delta)
 
         env.Command(
-                source='#data/{0}/{0}_pop_by_srtm{1}_elevations_{2}.json'.format(delta, srtm_resolution, year),
+                source='#data/{0}/{0}_pop_by_srtm{1}_elevations_{2}.pd'.format(delta, srtm_resolution, year),
                 target='#plots/{0}/{0}_hypsometric_srtm{1}_{2}.png'.format(delta, srtm_resolution, year),
                 action=pp.plot_hypsometric,
                 delta=delta)
