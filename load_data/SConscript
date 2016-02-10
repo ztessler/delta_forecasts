@@ -8,7 +8,7 @@ Import('*')
 
 # Import delta shapefile and regroup from polygons to multipolygons by delta
 env.Command(
-        target=['#data/deltas_shp/deltas.'+i for i in ['shp', 'shx', 'prj',
+        target=['#data/Global/deltas_shp/deltas.'+i for i in ['shp', 'shx', 'prj',
                                                        'dbf', 'cpg']],
         source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
         action=ld.group_delta_shps,
@@ -17,7 +17,7 @@ env.Command(
 for delta in deltas:
     env.Command(
             target='#data/{0}/{0}.json'.format(delta),
-            source='#data/deltas_shp/deltas.shp',
+            source='#data/Global/deltas_shp/deltas.shp',
             action=ld.delta_geojson,
             delta=delta)
 
