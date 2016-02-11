@@ -82,3 +82,9 @@ for name, remotepath in rgis_files.items():
                 target=ncfile,
                 source=dataroot+'.3.gdbd',
                 action='rgis2netcdf $SOURCE $TARGET')
+    # convert rgis-based nc files to georeferenced gtiffs
+    env.Command(
+            target=tiffile,
+            source=ncfile,
+            action=pr.georef_nc)
+
