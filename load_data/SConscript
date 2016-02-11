@@ -83,7 +83,7 @@ for name, remotepath in rgis_files.items():
         env.Command(
                 target=dataroot+'.1.gdbd',
                 source=localfile,
-                action='netCells2Grid -f BasinID -g discrete -t BasinID -d Global $SOURCE $TARGET')
+                action='netCells2Grid -f BasinID -g discrete -t BasinID -u BasinID -d Global $SOURCE $TARGET')
         env.Command(
                 target=dataroot+'.2.gdbd',
                 source=dataroot+'.1.gdbd',
