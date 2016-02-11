@@ -2,24 +2,9 @@
 # vim:filetype=python
 
 import os
-import load_data as ld
+import process_rgis as pr
 
 Import('*')
-
-# Import delta shapefile and regroup from polygons to multipolygons by delta
-env.Command(
-        target=['#data/Global/deltas_shp/deltas.'+i for i in ['shp', 'shx', 'prj',
-                                                       'dbf', 'cpg']],
-        source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
-        action=ld.group_delta_shps,
-        )
-
-for delta in deltas:
-    env.Command(
-            target='#data/{0}/{0}.json'.format(delta),
-            source='#data/Global/deltas_shp/deltas.shp',
-            action=ld.delta_geojson,
-            delta=delta)
 
 # Download relevant RGIS and BQART datasets from archive on daisy
 server = 'ztessler@daisy:'
@@ -65,6 +50,7 @@ for name, remotepath in rgis_files.items():
     fileroot, fileext = os.path.splitext(localfile)
     dataroot = '#data/Global/' + name
     ncfile = dataroot + '.nc'
+    tiffile = dataroot + '.tif'
     if fileext == '.gdbc':
         if 'Static' in fileroot:
             localfile_0 = localfile
@@ -93,8 +79,6 @@ for name, remotepath in rgis_files.items():
                 source=dataroot+'.2.gdbd',
                 action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
         env.Command(
-                target=dataroot+'.nc',
+                target=ncfile,
                 source=dataroot+'.3.gdbd',
                 action='rgis2netcdf $SOURCE $TARGET')
-
-

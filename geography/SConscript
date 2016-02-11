@@ -1,0 +1,23 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import os
+import process_delta_geog as geo
+
+Import('*')
+
+# Import delta shapefile and regroup from polygons to multipolygons by delta
+env.Command(
+        target=['#data/Global/deltas_shp/deltas.'+i for i in ['shp', 'shx', 'prj',
+                                                       'dbf', 'cpg']],
+        source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
+        action=geo.group_delta_shps,
+        )
+
+for delta in deltas:
+    env.Command(
+            target='#data/{0}/{0}.json'.format(delta),
+            source='#data/Global/deltas_shp/deltas.shp',
+            action=geo.delta_geojson,
+            delta=delta)
+

@@ -29,7 +29,8 @@ Export('deltas')
 
 srtm_resolution = 3
 
-SConscript('load_data/SConscript')
+SConscript('geography/SConscript')
+SConscript('rgis/SConscript')
 SConscript('population/SConscript',
         exports=['srtm_resolution'])
 SConscript('srtm/SConscript',
