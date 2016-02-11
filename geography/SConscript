@@ -21,3 +21,8 @@ for delta in deltas:
             action=geo.delta_geojson,
             delta=delta)
 
+env.Command(
+        source=['#data/Global/deltas_shp/deltas.shp',
+                '#data/Global/basins.tif'],
+        target='#data/Global/upstream_basin_ids.json',
+        action=geo.contributing_basins)
