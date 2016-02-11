@@ -27,7 +27,7 @@ rgis_remote_dir = server + '/data/RGISarchive/Global/'
 bqart_remote_dir = server + '/data/RGISsediment/Global/'
 wbm_remote_dir = server + '/data/ModelRuns/'
 rgis_files = {
-        'network': os.path.join(
+        'basins': os.path.join(
             rgis_remote_dir, 'Network', 'STN+HydroSHEDS', '06min', 'Static',
             'Global_Network_STN+HydroSHEDS_06min_Static.gdbn'),
         'reservoir': os.path.join(
@@ -63,11 +63,38 @@ for name, remotepath in rgis_files.items():
     env.NoClean(download)
 
     fileroot, fileext = os.path.splitext(localfile)
+    dataroot = '#data/Global/' + name
+    ncfile = dataroot + '.nc'
     if fileext == '.gdbc':
+        if 'Static' in fileroot:
+            localfile_0 = localfile
+            fileroot_0 ,fileext_0 = fileroot, fileext
+            localfile = dataroot + '.1.gdbc'
+            fileroot, fileext = os.path.splitext(localfile)
+            env.Command(
+                    target=localfile,
+                    source=localfile_0,
+                    action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
         nc = env.Command(
-                target='#data/Global/'+os.path.basename(fileroot)+'.nc',
+                target=ncfile,
                 source=localfile,
-                action='/Users/ztessler/opt/ghaas/bin/rgis2netcdf $SOURCE $TARGET')
-        env.NoClean(nc)
+                action='rgis2netcdf $SOURCE $TARGET')
+    elif name == 'basins':
+        env.Command(
+                target=dataroot+'.1.gdbd',
+                source=localfile,
+                action='netCells2Grid -f BasinID -g discrete -t BasinID -d Global $SOURCE $TARGET')
+        env.Command(
+                target=dataroot+'.2.gdbd',
+                source=dataroot+'.1.gdbd',
+                action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
+        env.Command(
+                target=dataroot+'.3.gdbd',
+                source=dataroot+'.2.gdbd',
+                action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
+        env.Command(
+                target=dataroot+'.nc',
+                source=dataroot+'.3.gdbd',
+                action='rgis2netcdf $SOURCE $TARGET')
 
 
