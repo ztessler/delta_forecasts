@@ -26,3 +26,8 @@ env.Command(
                 '#data/Global/basins.tif'],
         target='#data/Global/upstream_basin_ids.json',
         action=geo.contributing_basins)
+
+env.Command(
+        source='#data/Global/basins.tif',
+        target='#data/Global/basin_grid_areas.tif',
+        action=geo.raster_pixel_areas)
