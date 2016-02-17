@@ -5,7 +5,9 @@ from affine import Affine
 
 def georef_nc(env, target, source):
     nc = Dataset(str(source[0]))
-    data = nc.variables[nc.subject][:].squeeze()
+    var = nc.variables[nc.subject]
+    data = var[:].squeeze()
+    nodata = var.missing_value
     lat_bnds = nc.variables['latitude_bnds'][:]
     lon_bnds = nc.variables['longitude_bnds'][:]
 
@@ -18,7 +20,8 @@ def georef_nc(env, target, source):
     with rasterio.open(str(target[0]), 'w',
             driver='GTiff', width=xoff, height=yoff,
             crs={'init':'epsg:4326'}, transform=affine,
-            count=1, dtype=data.dtype) as dst:
+            count=1, nodata=nodata, dtype=data.dtype) as dst:
         dst.write(np.flipud(data), 1)
 
+    nc.close()
     return 0
