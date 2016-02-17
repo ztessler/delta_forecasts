@@ -50,7 +50,6 @@ for name, remotepath in rgis_files.items():
     fileroot, fileext = os.path.splitext(localfile)
     dataroot = '#data/Global/' + name
     ncfile = dataroot + '.nc'
-    tiffile = dataroot + '.tif'
     if fileext == '.gdbc':
         if 'Static' in fileroot:
             localfile_0 = localfile
@@ -82,9 +81,21 @@ for name, remotepath in rgis_files.items():
                 target=ncfile,
                 source=dataroot+'.3.gdbd',
                 action='rgis2netcdf $SOURCE $TARGET')
-    # convert rgis-based nc files to georeferenced gtiffs
-    env.Command(
-            target=tiffile,
-            source=ncfile,
-            action=pr.georef_nc)
 
+    # convert rgis-based nc files to georeferenced gtiffs and regrid to 06min if needed
+    tiffile = dataroot + '.0.tif'
+    tiffile_06min = dataroot + '.tif'
+    if '_06min_' not in remotepath:
+        env.Command(
+                target=tiffile,
+                source=ncfile,
+                action=pr.georef_nc)
+        env.Command(
+                target=tiffile_06min,
+                source=tiffile,
+                action=pr.regrid_to_06min)
+    else:
+        env.Command(
+                target=tiffile_06min,
+                source=ncfile,
+                action=pr.georef_nc)
