@@ -13,3 +13,12 @@ env.Command(
         target='#data/Global/upstream_areas.pd',
         action=pu.agg_over_basins,
         method='sum')
+
+env.Command(
+        source=['#data/Global/basins.tif',
+                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/airtemp.tif',
+                '#data/Global/06min_pixel_areas.tif'],
+        target='#data/Global/upstream_temps.pd',
+        action=pu.agg_over_basins,
+        method='weightedmean')
