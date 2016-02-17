@@ -1,5 +1,6 @@
 import numpy as np
 import json
+import pandas
 import geopandas
 import rasterio
 import shapely.geometry as sgeom
@@ -89,3 +90,25 @@ def raster_pixel_areas(env, target, source):
 
     with rasterio.open(str(target[0]), 'w', **kwargs) as dst:
         dst.write(areas, 1)
+
+
+def sum_basin_areas(env, target, source):
+    with rasterio.open(str(source[0]), 'r') as basins_rast:
+        basins = basins_rast.read(1)
+    with rasterio.open(str(source[1]), 'r') as areas_rast:
+        areas = areas_rast.read(1)
+    with open(str(source[2]), 'r') as f:
+        upstream = json.load(f)
+
+    upstream_area = {}
+    for delta in upstream:
+        ids = upstream[delta]['basin_ids']
+        area = 0.0
+        for basinid in ids:
+            area += areas[basins==basinid].sum()
+        upstream_area[delta] = area
+
+    pandas.Series(upstream_area, name='Upstream area').to_pickle(str(target[0]))
+    return 0
+
+
