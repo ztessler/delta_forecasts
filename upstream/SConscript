@@ -1,0 +1,16 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import os
+import process_upstream as pu
+
+Import('*')
+
+env.Command(
+        source=['#data/Global/basins.tif',
+                '#data/Global/basin_grid_areas.tif',
+                '#data/Global/upstream_basin_ids.json'],
+        target='#data/Global/upstream_areas.pd',
+        action=pu.agg_over_basins,
+        method='sum')
+

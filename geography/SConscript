@@ -31,10 +31,3 @@ env.Command(
         source='#data/Global/basins.tif',
         target='#data/Global/basin_grid_areas.tif',
         action=geo.raster_pixel_areas)
-env.Command(
-        source=['#data/Global/basins.tif',
-                '#data/Global/basin_grid_areas.tif',
-                '#data/Global/upstream_basin_ids.json'],
-        target='#data/Global/upstream_areas.pd',
-        action=geo.sum_basin_areas)
-

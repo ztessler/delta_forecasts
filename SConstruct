@@ -31,6 +31,7 @@ srtm_resolution = 3
 
 SConscript('geography/SConscript')
 SConscript('rgis/SConscript')
+SConscript('upstream/SConscript')
 SConscript('population/SConscript',
         exports=['srtm_resolution'])
 SConscript('srtm/SConscript',
