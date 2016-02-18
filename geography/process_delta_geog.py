@@ -50,10 +50,7 @@ def contributing_basins(env, target, source):
 
     data = OrderedDict()
     for s in stats:
-        deltainfo = OrderedDict()
-        deltainfo['DeltaID'] = int(s['properties']['DeltaID'])
-        deltainfo['basin_ids'] = sorted(s['properties']['basins'])
-        data[s['properties']['Delta']] = deltainfo
+        data[s['properties']['Delta']] = sorted(s['properties']['basins'])
 
     with open(str(target[0]), 'w') as outfile:
         json.dump(data, outfile)

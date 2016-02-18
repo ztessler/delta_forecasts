@@ -43,7 +43,7 @@ def agg_over_basins(env, target, source):
     aggregated = []
     keys = []
     for delta in upstream:
-        ids = upstream[delta]['basin_ids']
+        ids = upstream[delta]
         for basinid in ids:
             pixels = (basins==basinid)
             aggregated.append(aggregate(data[pixels], weights[pixels]))
