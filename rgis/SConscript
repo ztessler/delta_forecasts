@@ -66,6 +66,14 @@ for name, remotepath in rgis_files.items():
                 action='rgis2netcdf $SOURCE $TARGET')
     elif name == 'basins':
         env.Command(
+                target='#data/Global/basins.tsv',
+                source=localfile,
+                action='rgis2table $SOURCE > $TARGET')
+        env.Command(
+                target='#data/Global/basins.pd',
+                source='#data/Global/basins.tsv',
+                action=pr.tsv_to_pandas)
+        env.Command(
                 target=dataroot+'.1.gdbd',
                 source=localfile,
                 action='netCells2Grid -f BasinID -t BasinID -u BasinID -d Global $SOURCE $TARGET')

@@ -1,9 +1,16 @@
 import numpy as np
+import pandas
 from netCDF4 import Dataset
 import rasterio
 from rasterio.warp import reproject, RESAMPLING
 from affine import Affine
 
+
+def tsv_to_pandas(env, target, source):
+    p = pandas.read_csv(str(source[0]), sep='\t')
+    p = p.set_index('ID')
+    p.to_pickle(str(target[0]))
+    return 0
 
 def regrid_to_06min(env, target, source):
     dst_dx = 0.1
