@@ -21,9 +21,9 @@ rgis_files = {
         'airtemp': os.path.join(
             rgis_remote_dir, 'AirTemperature', 'NCEP', '60min', 'Static',
             'Global_AirTemperature_NCEP_60min_aLT1948-2010.gdbc'),
-        'relief': os.path.join(
-            bqart_remote_dir, 'Relief-Max', 'ETOPO1', '06min', 'Static',
-            'Global_Relief-Max_ETOPO1_06min_Static.gdbc'),
+        'elevation': os.path.join(
+            rgis_remote_dir, 'Elevation', 'ETOPO1bed', '06min', 'Static',
+            'Global_Elevation_ETOPO1bed_06min_Static.gdbc'),
         'lithology': os.path.join(
             bqart_remote_dir, 'BQART-Lithology','BQART', '06min', 'Static',
             'Global_BQART-Lithology_BQART_06min_Static.gdbc'),
