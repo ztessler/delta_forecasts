@@ -27,6 +27,13 @@ env.Command(
         action=geo.contributing_basins)
 
 env.Command(
+        source=['#data/Global/basins.pd',
+                '#data/Global/discharge.tif',
+                '#data/Global/upstream_basin_ids.json'],
+        target='#data/Global/basin_mouths.pd',
+        action=geo.locate_basin_mouths)
+
+env.Command(
         source='#data/Global/basins.tif',
         target='#data/Global/06min_pixel_areas.tif',
         action=geo.raster_pixel_areas)

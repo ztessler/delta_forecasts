@@ -1,5 +1,6 @@
 import numpy as np
 import json
+import pandas
 import geopandas
 import rasterio
 import shapely.geometry as sgeom
@@ -35,7 +36,6 @@ def delta_geojson(env, target, source):
     deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
     delta = deltas.loc[[dname]]
     delta.reset_index().to_file(str(target[0]), 'GeoJSON')
-
     return 0
 
 
@@ -54,6 +54,35 @@ def contributing_basins(env, target, source):
 
     with open(str(target[0]), 'w') as outfile:
         json.dump(data, outfile)
+    return 0
+
+
+def locate_basin_mouths(env, target, source):
+    basin_info = pandas.read_pickle(str(source[0]))
+    with rasterio.open(str(source[1]), 'r') as rast:
+        affine = rast.affine
+    with open(str(source[2]), 'r') as f:
+        basin_ids = json.load(f)
+
+    delta_basins = []
+    for delta, basins in basin_ids.iteritems():
+        delta_basins.extend([(delta, basin) for basin in basins])
+    index = pandas.MultiIndex.from_tuples(delta_basins)
+
+    mouths = pandas.DataFrame(index=index, columns=['x', 'y',
+                                                    'lon_center',
+                                                    'lat_center'])
+    for delta, basin in delta_basins:
+        lon = basin_info.loc[basin]['MouthXCoord']
+        lat = basin_info.loc[basin]['MouthYCoord']
+        x, y = ~affine * (lon, lat)
+
+        mouths.loc[delta, basin]['lon_center'] = lon
+        mouths.loc[delta, basin]['lat_center'] = lat
+        mouths.loc[delta, basin]['x'] = int(x)
+        mouths.loc[delta, basin]['y'] = int(y)
+
+    mouths.to_pickle(str(target[0]))
     return 0
 
 
