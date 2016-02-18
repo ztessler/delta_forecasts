@@ -40,15 +40,16 @@ def agg_over_basins(env, target, source):
     else:
         weights = np.ones_like(data)
 
-    aggregated = {}
+    aggregated = []
+    keys = []
     for delta in upstream:
         ids = upstream[delta]['basin_ids']
-        pixels = np.zeros_like(data, dtype=np.float)
         for basinid in ids:
-            pixels = np.logical_or(pixels, basins==basinid)
-        aggregated[delta] = aggregate(data[pixels], weights[pixels])
-
-    pandas.Series(aggregated).to_pickle(str(target[0]))
+            pixels = (basins==basinid)
+            aggregated.append(aggregate(data[pixels], weights[pixels]))
+            keys.append((delta, basinid))
+    index = pandas.MultiIndex.from_tuples(keys, names=('Delta', 'BasinID'))
+    pandas.Series(aggregated, index=index).to_pickle(str(target[0]))
     return 0
 
 
