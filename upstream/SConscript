@@ -22,3 +22,16 @@ env.Command(
         target='#data/Global/upstream_temps.pd',
         action=pu.agg_over_basins,
         method='weightedmean')
+
+env.Command(
+        source=['#data/Global/basins.tif',
+                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/elevation.tif'],
+        target='#data/Global/upstream_relief.m.pd',
+        action=pu.agg_over_basins,
+        method='max')
+
+env.Command(
+        source='#data/Global/upstream_relief.m.pd',
+        target='#data/Global/upstream_relief.pd',
+        action=pu.convert_m_to_km)
