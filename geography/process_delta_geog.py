@@ -8,6 +8,9 @@ from rasterstats import zonal_stats
 from collections import OrderedDict
 
 
+def clean_delta_name(delta):
+    return delta.replace(' ','_').replace('-','_')
+
 
 def group_delta_shps(env, target, source):
     deltas = geopandas.GeoDataFrame.from_file(str(source[0]))
@@ -19,6 +22,7 @@ def group_delta_shps(env, target, source):
                        'geometry': lambda s: sgeom.MultiPolygon(list(s)),
                         })
     deltas = geopandas.GeoDataFrame(deltas)
+    deltas = deltas.rename(index={d: clean_delta_name(d) for d in deltas.index})
     deltas['Delta'] = deltas.index #index lost on saving to file
     deltas.crs = crs
 
