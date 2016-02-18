@@ -57,3 +57,10 @@ def convert_m_to_km(env, target, source):
     p = pandas.read_pickle(str(source[0]))
     (p / 1e3).to_pickle(str(target[0]))
     return 0
+
+
+def clip_neg_to_zero(env, target, source):
+    p = pandas.read_pickle(str(source[0]))
+    p[p<0] = 0
+    p.to_pickle(str(target[0]))
+    return 0
