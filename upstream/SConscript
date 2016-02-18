@@ -40,3 +40,9 @@ env.Command(
         source='#data/Global/upstream_relief.2.pd',
         target='#data/Global/upstream_relief.pd',
         action=pu.clip_neg_to_zero)
+
+env.Command(
+        source=['#data/Global/discharge.tif',
+                '#data/Global/basin_mouths.pd'],
+        target='#data/Global/upstream_discharge.pd',
+        action=pu.discharge_at_mouths)

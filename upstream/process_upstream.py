@@ -64,3 +64,16 @@ def clip_neg_to_zero(env, target, source):
     p[p<0] = 0
     p.to_pickle(str(target[0]))
     return 0
+
+
+def discharge_at_mouths(env, target, source):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        globaldis = rast.read(1)
+    mouths = pandas.read_pickle(str(source[1]))
+    discharge = pandas.Series(index=mouths.index)
+
+    for (delta, basin), mouth in mouths.iterrows():
+        discharge.loc[delta, basin] = globaldis[mouth.y, mouth.x]
+
+    discharge.to_pickle(str(target[0]))
+    return 0
