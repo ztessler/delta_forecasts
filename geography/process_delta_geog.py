@@ -8,10 +8,9 @@ from rasterstats import zonal_stats
 from collections import OrderedDict
 
 
-def group_delta_shps(env, target, source):
-    shpfile = str(source[0])
 
-    deltas = geopandas.GeoDataFrame.from_file(shpfile)
+def group_delta_shps(env, target, source):
+    deltas = geopandas.GeoDataFrame.from_file(str(source[0]))
     crs = deltas.crs
 
     deltas = deltas.groupby('Delta')\
@@ -23,7 +22,7 @@ def group_delta_shps(env, target, source):
     deltas['Delta'] = deltas.index #index lost on saving to file
     deltas.crs = crs
 
-    deltas.to_file(str(target[0]), 'ESRI Shapefile')
+    deltas.to_file(str(target[0]), driver='GeoJSON')
     return 0
 
 
