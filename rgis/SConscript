@@ -51,7 +51,7 @@ for name, remotepath in rgis_files.items():
     dataroot = '#data/Global/' + name
     ncfile = dataroot + '.nc'
     if fileext == '.gdbc':
-        if 'Static' in fileroot:
+        if ('Static' in fileroot) or ('_aLT' in fileroot):
             localfile_0 = localfile
             fileroot_0 ,fileext_0 = fileroot, fileext
             localfile = dataroot + '.1.gdbc'
