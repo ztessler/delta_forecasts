@@ -22,16 +22,19 @@ def regrid_to_06min(env, target, source):
     data06 = np.zeros((dst_height, dst_width))
 
     with rasterio.open(str(source[0]), 'r') as src:
-        reproject(src.read(1),
-                  data06,
-                  src_transform=src.affine,
-                  src_crs=src.crs,
-                  src_nodata=src.nodata,
-                  dst_transform=dst_affine,
-                  dst_crs=src.crs,
-                  dst_nodata=src.nodata,
-                  resampling=RESAMPLING.bilinear)
         kwargs = src.meta
+        if src.affine == dst_affine and src.shape == (dst_height, dst_width):
+            data06 = src.read(1)
+        else:
+            reproject(src.read(1),
+                      data06,
+                      src_transform=src.affine,
+                      src_crs=src.crs,
+                      src_nodata=src.nodata,
+                      dst_transform=dst_affine,
+                      dst_crs=src.crs,
+                      dst_nodata=src.nodata,
+                      resampling=RESAMPLING.bilinear)
 
     kwargs.update({
 	    'transform': dst_affine,
