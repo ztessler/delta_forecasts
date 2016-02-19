@@ -57,7 +57,7 @@ def georef_nc(env, target, source):
     sx = np.diff(lon_bnds).mean()
     sy = np.diff(lat_bnds).mean()
 
-    affine = Affine.scale(sx, -sy) * Affine.translation(-xoff/2., -yoff/2.)
+    affine = Affine.translation(lon_bnds.min(), lat_bnds.max()) * Affine.scale(sx, -sy)
 
     with rasterio.open(str(target[0]), 'w',
             driver='GTiff', width=xoff, height=yoff,
