@@ -33,7 +33,7 @@ def agg_over_basins(env, target, source):
     with open(str(source[1]), 'r') as f:
         upstream = json.load(f)
     with rasterio.open(str(source[2]), 'r') as data_rast:
-        data = data_rast.read(1)
+        data = data_rast.read(1, masked=True)
     if method in ['weightedsum', 'weightedmean']:
         with rasterio.open(str(source[3]), 'r') as weight_rast:
             weights = weight_rast.read(1)
@@ -48,6 +48,7 @@ def agg_over_basins(env, target, source):
             pixels = (basins==basinid)
             aggregated.append(aggregate(data[pixels], weights[pixels]))
             keys.append((delta, basinid))
+    aggregated = [a if a is not np.ma.masked else env['fill'] for a in aggregated]
     index = pandas.MultiIndex.from_tuples(keys, names=('Delta', 'BasinID'))
     pandas.Series(aggregated, index=index).to_pickle(str(target[0]))
     return 0

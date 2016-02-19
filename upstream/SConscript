@@ -54,4 +54,5 @@ env.Command(
                 '#data/Global/06min_pixel_areas.tif'],
         target='#data/Global/upstream_ice_percent.pd',
         action=pu.agg_over_basins,
-        method='weightedmean')
+        method='weightedmean',
+        fill=0)
