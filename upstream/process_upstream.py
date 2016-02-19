@@ -48,7 +48,11 @@ def agg_over_basins(env, target, source):
             pixels = (basins==basinid)
             aggregated.append(aggregate(data[pixels], weights[pixels]))
             keys.append((delta, basinid))
-    aggregated = [a if a is not np.ma.masked else env['fill'] for a in aggregated]
+    if np.ma.masked in aggregated:
+        fill = env['fill']
+        if fill == 'mean':
+            fill = (data * weights).sum() / weights[~data.mask].sum()
+    aggregated = [a if a is not np.ma.masked else fill for a in aggregated]
     index = pandas.MultiIndex.from_tuples(keys, names=('Delta', 'BasinID'))
     pandas.Series(aggregated, index=index).to_pickle(str(target[0]))
     return 0
