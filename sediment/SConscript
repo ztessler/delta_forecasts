@@ -2,7 +2,7 @@
 # vim:filetype=python
 
 import os
-import process_population as pp
+import process_sediment as ps
 
 Import('*')
 
@@ -11,8 +11,7 @@ Import('*')
 # subsidence rates based on sed flux, sediment retention ratio (see Syvitski and
 # Saito 2007 for ratios) and delta surface area
 
-# env.Command(
-        # source=
-        # target=
-        # action=
-        # )
+env.Command(
+        source='#data/Global/upstream_ice_percent.pd',
+        target='#data/Global/bqart_I.pd',
+        action=ps.compute_I)
