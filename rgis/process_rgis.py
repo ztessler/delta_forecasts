@@ -1,3 +1,4 @@
+import shutil
 import numpy as np
 import pandas
 from netCDF4 import Dataset
@@ -68,5 +69,15 @@ def georef_nc(env, target, source):
             count=1, nodata=nodata, dtype=data.dtype) as dst:
         dst.write(np.flipud(data), 1)
 
+    nc.close()
+    return 0
+
+def clip_nc_neg(env, target, source):
+    shutil.copy(str(source[0]), str(target[0]))
+    nc = Dataset(str(target[0]), 'a')
+    data = nc.variables[env['varname']][:]
+    mask = data.mask
+    data[np.logical_and(data<0, ~data.mask)] = 0
+    nc.variables[env['varname']][:] = data
     nc.close()
     return 0

@@ -91,6 +91,14 @@ for name, remotepath in rgis_files.items():
                 action='rgis2netcdf $SOURCE $TARGET')
 
     # convert rgis-based nc files to georeferenced gtiffs and regrid to 06min if needed
+    if name == 'discharge':
+        clippednc = dataroot+'.1.nc'
+        env.Command(
+                source=ncfile,
+                target=clippednc,
+                action=pr.clip_nc_neg,
+                varname=name)
+        ncfile = clippednc
     tiffile = dataroot + '.0.tif'
     tiffile_06min = dataroot + '.tif'
     env.Command(
