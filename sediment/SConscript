@@ -15,3 +15,11 @@ env.Command(
         source='#data/Global/upstream_ice_percent.pd',
         target='#data/Global/bqart_I.pd',
         action=ps.compute_I)
+
+env.Command(
+        source=['#data/Global/reservoir.tif',
+                '#data/Global/discharge.tif',
+                '#data/Global/basins.tif',
+                '#data/Global/upstream_basin_ids.json'],
+        target='#data/Global/upstream_trapping_eff.pd',
+        action=ps.res_trapping)
