@@ -66,3 +66,24 @@ env.Command(
         action=pu.agg_over_basins,
         method='weightedmean',
         fill='mean')
+
+env.Command(
+        source=['#data/Global/basins.tif',
+                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/per_capita_gdp.tif',
+                '#data/Global/06min_pixel_areas.tif'],
+        target='#data/Global/upstream_per_capita_gdp.pd',
+        action=pu.agg_over_basins,
+        method='weightedmean',
+        fill='mean')
+
+for year in years:
+    env.Command(
+            source=['#data/Global/basins.tif',
+                    '#data/Global/upstream_basin_ids.json',
+                    '#data/Global/pop_dens_{}.tif'.format(year),
+                    '#data/Global/06min_pixel_areas.tif'],
+            target='#data/Global/upstream_pop_dens_{}.pd'.format(year),
+            action=pu.agg_over_basins,
+            method='weightedmean',
+            fill='mean')
