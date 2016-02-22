@@ -51,3 +51,13 @@ def compute_Eh(env, target, source):
     Eh[np.logical_and(gdp<15000, popdens>200)] = 2
     Eh.to_pickle(str(target[0]))
     return 0
+
+
+def compute_B(env, target, source):
+    I = pandas.read_pickle(str(source[0]))
+    L = pandas.read_pickle(str(source[1]))
+    Te = pandas.read_pickle(str(source[2]))
+    Eh = pandas.read_pickle(str(source[3]))
+    B = I * L * (1 - Te) * Eh
+    B.to_pickle(str(target[0]))
+    return 0

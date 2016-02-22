@@ -29,3 +29,11 @@ env.Command(
                 '#data/Global/upstream_pop_dens_2000.pd'], # .format(year)
         target='#data/Global/bqart_Eh.pd',
         action=ps.compute_Eh)
+
+env.Command(
+        source=['#data/Global/bqart_I.pd',
+                '#data/Global/upstream_lithology.pd',
+                '#data/Global/upstream_trapping_eff.pd',
+                '#data/Global/bqart_Eh.pd'],
+        target='#data/Global/bqart_B.pd',
+        action=ps.compute_B)
