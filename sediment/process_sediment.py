@@ -61,3 +61,17 @@ def compute_B(env, target, source):
     B = I * L * (1 - Te) * Eh
     B.to_pickle(str(target[0]))
     return 0
+
+
+def compute_Qs(env, target, source):
+    B = pandas.read_pickle(str(source[0]))
+    Q = pandas.read_pickle(str(source[1]))
+    A = pandas.read_pickle(str(source[2]))
+    R = pandas.read_pickle(str(source[3]))
+    T = pandas.read_pickle(str(source[4]))
+    w = 0.02 # for Qs units of kg/s.  Use w=0.0006 for MT/yt
+
+    T[T<2] = 2
+    Qs = w * B * Q**0.31 * A**0.5 * R * T
+    Qs.to_pickle(str(target[0]))
+    return 0

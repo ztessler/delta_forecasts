@@ -37,3 +37,12 @@ env.Command(
                 '#data/Global/bqart_Eh.pd'],
         target='#data/Global/bqart_B.pd',
         action=ps.compute_B)
+
+env.Command(
+        source=['#data/Global/bqart_B.pd',
+                '#data/Global/upstream_discharge.pd',
+                '#data/Global/upstream_areas.pd',
+                '#data/Global/upstream_relief.pd',
+                '#data/Global/upstream_temps.pd'],
+        target='#data/Global/bqart_Qs.pd',
+        action=ps.compute_Qs)
