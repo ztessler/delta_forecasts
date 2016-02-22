@@ -1,8 +1,12 @@
+import csv
 import numpy as np
+from scipy.ndimage import distance_transform_edt
 import json
 import pandas
 import geopandas
+import fiona
 import rasterio
+from rasterio.features import rasterize
 import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 from rasterstats import zonal_stats
@@ -118,3 +122,57 @@ def raster_pixel_areas(env, target, source):
 
     with rasterio.open(str(target[0]), 'w', **kwargs) as dst:
         dst.write(areas, 1)
+
+
+# def _get_clean_iso_alpha3(prop):
+    # isoa3 = prop['iso_alpha3']
+    # if isoa3 is None:
+        # if prop['NAME'] == 'In dispute SOUTH SUDAN/SUDAN':
+            # return 'SSD' # SOUTH SUDAN
+    # return prop['iso_alpha3']
+def rasterize_gnp(env, target, source):
+    def most_recent_data(c):
+        year = 0
+        gdp = None
+        for k, v in c.iteritems():
+            try:
+                if int(k) > year and v: # no data years have empty string values
+                    year = int(k)
+                    gdp = float(v)
+            except ValueError:
+                pass
+        return gdp
+
+    with rasterio.open(str(source[2]), 'r') as rast: # basin raster for grid geometry
+        mask = rast.read_masks(1)
+        meta = rast.meta.copy()
+    del meta['transform']
+
+    with open(str(source[1]), 'r') as fd: # gnp data in csv
+        fd.readline()
+        fd.readline()
+        fd.readline()
+        fd.readline()
+        reader = csv.DictReader(fd)
+        gdps = {}
+        for country in reader:
+            gdps[country['Country Code']] = most_recent_data(country)
+    gdps = {c: gdp if gdp is not None else meta['nodata'] for (c,gdp) in gdps.iteritems()}
+
+    with rasterio.open(str(target[0]), 'w', **meta) as rast:
+        with fiona.open(str(source[0]), 'r') as countries: # country boudaries
+            assert countries.crs == meta['crs']
+            gdp = rasterize(
+                    shapes=((feat['geometry'], gdps.get(feat['properties']['iso_alpha3'], meta['nodata']))
+                                for feat in countries),
+                    out_shape=(meta['height'], meta['width']),
+                    fill=meta['nodata'],
+                    transform=meta['affine'],
+                    dtype=meta['dtype'],
+                    )
+
+        # fill missing data and reset ocean mask
+        nearest = distance_transform_edt(gdp==meta['nodata'], return_distances=False, return_indices=True)
+        gdp = gdp[tuple(nearest)]
+        gdp[~mask.astype(bool)] = meta['nodata']
+        rast.write(gdp, 1)
