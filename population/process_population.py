@@ -149,3 +149,28 @@ def plot_hypsometric(env, target, source):
     a.set_ylabel('Population at or below elevation')
     f.savefig(str(target[0]))
     return 0
+
+def regrid_pop(env, target, source):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        meta = rast.meta
+        dst_shape = rast.shape
+    newpop = np.zeros(dst_shape)
+    del meta['transform']
+
+    with rasterio.open(str(source[1]), 'r') as pop:
+        reproject(pop.read(1),
+                  newpop,
+                  src_transform=pop.affine,
+                  src_crs=pop.crs,
+                  src_nodata=pop.nodata,
+                  dst_transform=meta['affine'],
+                  dst_crs=meta['crs'],
+                  dst_nodata=pop.nodata,
+                  resampling=RESAMPLING.average)
+    meta.update({
+        'nodata': pop.nodata,
+        })
+
+    with rasterio.open(str(target[0]), 'w', **meta) as dst:
+        dst.write(newpop, 1)
+    return 0

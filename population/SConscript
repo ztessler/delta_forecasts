@@ -17,6 +17,12 @@ for year in years:
             action=pp.delta_population_stats,
             year=year)
 
+    env.Command(
+            source=['#data/Global/basins.tif',
+                    pop_tif.format(year)],
+            target='#data/Global/pop_dens_{}.tif'.format(year),
+            action=pp.regrid_pop)
+
     for delta in deltas:
         env.Command(
                 source=['#data/{0}/{0}.json'.format(delta),
