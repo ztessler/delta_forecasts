@@ -42,5 +42,5 @@ env.Command(
         source=['/Users/ztessler/data/HIU.State.Gov_National_Boundaries/countries.json',
                 '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv',
                 '#data/Global/basins.tif'],
-        target='#data/Global/per_capita_gnp.tif',
+        target='#data/Global/per_capita_gdp.tif',
         action=geo.rasterize_gnp)
