@@ -27,6 +27,9 @@ deltas = { # for testing
          }
 Export('deltas')
 
+years = [2000] #, 2005, 2010, 2015, 2020]
+Export('years')
+
 srtm_resolution = 3
 
 SConscript('geography/SConscript')

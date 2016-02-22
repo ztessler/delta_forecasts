@@ -8,7 +8,6 @@ Import('*')
 
 pop_tif = '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{0}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{0}.tif'
 
-years = [2000] #, 2005, 2010, 2015, 2020]
 for year in years:
     env.Command(
             source=['#data/Global/deltas.json',
