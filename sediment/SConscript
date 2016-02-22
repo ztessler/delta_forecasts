@@ -23,3 +23,9 @@ env.Command(
                 '#data/Global/upstream_basin_ids.json'],
         target='#data/Global/upstream_trapping_eff.pd',
         action=ps.res_trapping)
+
+env.Command(
+        source=['#data/Global/upstream_per_capita_gdp.pd',
+                '#data/Global/upstream_pop_dens_2000.pd'], # .format(year)
+        target='#data/Global/bqart_Eh.pd',
+        action=ps.compute_Eh)

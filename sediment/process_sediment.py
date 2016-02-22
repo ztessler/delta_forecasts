@@ -41,3 +41,13 @@ def res_trapping(env, target, source):
     Te = pandas.Series(Te, index=index)
     Te.to_pickle(str(target[0]))
     return 0
+
+
+def compute_Eh(env, target, source):
+    gdp = pandas.read_pickle(str(source[0]))
+    popdens = pandas.read_pickle(str(source[1]))
+    Eh = pandas.Series(1.0, index=gdp.index)
+    Eh[np.logical_and(gdp>15000, popdens>200)] = 0.3
+    Eh[np.logical_and(gdp<15000, popdens>200)] = 2
+    Eh.to_pickle(str(target[0]))
+    return 0
