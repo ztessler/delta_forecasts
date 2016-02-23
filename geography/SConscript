@@ -13,6 +13,11 @@ env.Command(
         action=geo.group_delta_shps,
         )
 
+env.Command(
+        source='#data/Global/deltas.json',
+        target='#data/Global/delta_areas.pd',
+        action=geo.calc_delta_areas)
+
 for delta in deltas:
     env.Command(
             target='#data/{0}/{0}.json'.format(delta),

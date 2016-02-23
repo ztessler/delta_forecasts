@@ -35,6 +35,13 @@ def group_delta_shps(env, target, source):
     return 0
 
 
+def calc_delta_areas(env, target, source):
+    deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
+    crs = ccrs.AlbersEqualArea()
+    areas_sqkm = deltas.to_crs(crs.proj4_params).area / (1000**2)
+    areas_sqkm.to_pickle(str(target[0]))
+
+
 def delta_geojson(env, target, source):
     dname = env['delta']
     deltas = geopandas.GeoDataFrame.from_file(str(source[0])).set_index('Delta')
