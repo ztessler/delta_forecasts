@@ -75,3 +75,23 @@ def compute_Qs(env, target, source):
     Qs = w * B * Q**0.31 * A**0.5 * R * T
     Qs.to_pickle(str(target[0]))
     return 0
+
+
+def steady_state_subsidence(env, target, source):
+    import pint
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    area = Q_(
+            pandas.read_pickle(str(source[0])),
+            'km**2') # km**2
+    Qs = Q_(
+            pandas.read_pickle(str(source[1])).groupby(level='Delta').sum(),
+            'kg/s') # kg/s
+    # sediment density est., Blum and Roberts 2009, Nature GeoSci, mississippi value
+    density = Q_(1.5, 'g/cm**3') # g/cm**3, also in BT/km**3
+    subsidence = (Qs / density / area).to('mm/year')
+    subsidence.magnitude.to_pickle(str(target[0]))
+    return 0
+
+

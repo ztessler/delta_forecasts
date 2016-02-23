@@ -46,3 +46,9 @@ env.Command(
                 '#data/Global/upstream_temps.pd'],
         target='#data/Global/bqart_Qs.pd',
         action=ps.compute_Qs)
+
+env.Command(
+        source=['#data/Global/delta_areas.pd',
+                '#data/Global/bqart_Qs.pd'],
+        target='#data/Global/steady_state_subsidence.pd',
+        action=ps.steady_state_subsidence)
