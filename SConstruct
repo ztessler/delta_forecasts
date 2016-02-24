@@ -30,6 +30,32 @@ Export('deltas')
 years = [2000] #, 2005, 2010, 2015, 2020]
 Export('years')
 
+
+# EXPERIMENT configs
+experiments = {
+        'default': {
+            'reservoirs': '#data/Global/reservoir.tif',
+            'dis_raster': '#data/Global/discharge.tif',
+            'discharge': '#data/Global/upstream_discharge.pd',
+            'Te': '#data/Global/upstream_trapping_eff.pd',
+            'gdp': '#data/Global/upstream_per_capita_gdp.pd',
+            'pop': '#data/Global/upstream_pop_dens_2000.pd',
+            'Eh': '#data/Global/bqart_Eh.pd',
+            'B': '#data/Global/bqart_B.pd',
+            'Qs': '#data/Global/bqart_Qs.pd',
+            },
+        'contemp': {
+            'Qs': '#data/Global/experiments/contemp/bqart_Qs.pd',
+            },
+        'pristine': {
+            'Te': '#data/Global/upstream_zeros.pd',
+            'Eh': '#data/Global/upstream_ones.pd',
+            'B': '#data/Global/experiments/pristine/bqart_B.pd',
+            'Qs': '#data/Global/experiments/pristine/bqart_Qs.pd',
+            }
+        }
+Export('experiments')
+
 srtm_resolution = 3
 
 SConscript('geography/SConscript')

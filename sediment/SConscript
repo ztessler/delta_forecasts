@@ -16,56 +16,50 @@ env.Command(
         target='#data/Global/bqart_I.pd',
         action=ps.compute_I)
 
-env.Command(
-        source=['#data/Global/reservoir.tif',
-                '#data/Global/discharge.tif',
-                '#data/Global/basins.tif',
-                '#data/Global/upstream_basin_ids.json'],
-        target='#data/Global/upstream_trapping_eff.pd',
-        action=ps.res_trapping)
 
-env.Command(
-        source=['#data/Global/upstream_per_capita_gdp.pd',
-                '#data/Global/upstream_pop_dens_2000.pd'], # .format(year)
-        target='#data/Global/bqart_Eh.pd',
-        action=ps.compute_Eh)
+def get_config(exp):
+    config = experiments['default'].copy()
+    config.update(experiments[exp])
+    return config
 
-env.Command(
-        source=['#data/Global/bqart_I.pd',
-                '#data/Global/upstream_lithology.pd',
-                '#data/Global/upstream_trapping_eff.pd',
-                '#data/Global/bqart_Eh.pd'],
-        target='#data/Global/bqart_B.pd',
-        action=ps.compute_B)
+for experiment in experiments:
+    config = get_config(experiment)
 
-env.Command(
-        source=['#data/Global/bqart_I.pd',
-                '#data/Global/upstream_lithology.pd',
-                '#data/Global/upstream_zeros.pd',
-                '#data/Global/upstream_ones.pd'],
-        target='#data/Global/bqart_prist_B.pd',
-        action=ps.compute_B)
+    if 'zeros' not in config['Te']: # don't try and build zeros file
+        env.Command(
+                source=[config['reservoirs'],
+                        config['dis_raster'],
+                        '#data/Global/basins.tif',
+                        '#data/Global/upstream_basin_ids.json'],
+                target=config['Te'],
+                action=ps.res_trapping)
 
-env.Command(
-        source=['#data/Global/bqart_prist_B.pd',
-                '#data/Global/upstream_discharge.pd',
-                '#data/Global/upstream_areas.pd',
-                '#data/Global/upstream_relief.pd',
-                '#data/Global/upstream_temps.pd'],
-        target='#data/Global/bqart_prist_Qs.pd',
-        action=ps.compute_Qs)
+    if 'ones' not in config['Eh']: # don't try and build ones file
+        env.Command(
+                source=[config['gdp'],
+                        config['pop']],
+                target=config['Eh'],
+                action=ps.compute_Eh)
 
-env.Command(
-        source=['#data/Global/bqart_B.pd',
-                '#data/Global/upstream_discharge.pd',
-                '#data/Global/upstream_areas.pd',
-                '#data/Global/upstream_relief.pd',
-                '#data/Global/upstream_temps.pd'],
-        target='#data/Global/bqart_Qs.pd',
-        action=ps.compute_Qs)
+    env.Command(
+            source=['#data/Global/bqart_I.pd',
+                    '#data/Global/upstream_lithology.pd',
+                    config['Te'],
+                    config['Eh']],
+            target=config['B'],
+            action=ps.compute_B)
+
+    env.Command(
+            source=[config['B'],
+                    config['discharge'],
+                    '#data/Global/upstream_areas.pd',
+                    '#data/Global/upstream_relief.pd',
+                    '#data/Global/upstream_temps.pd'],
+            target=config['Qs'],
+            action=ps.compute_Qs)
 
 env.Command(
         source=['#data/Global/delta_areas.pd',
-                '#data/Global/bqart_Qs.pd'],
+                experiments['pristine']['Qs']],
         target='#data/Global/steady_state_subsidence.pd',
         action=ps.steady_state_subsidence)
