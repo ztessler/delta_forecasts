@@ -4,6 +4,23 @@ import pandas
 import rasterio
 
 
+def set_upstream_ones(env, target, source):
+    with open(str(source[0]), 'r') as f:
+        basin_ids = json.load(f)
+    keys = [(d, b) for (d, bs) in basin_ids.iteritems() for b in bs]
+    index = pandas.MultiIndex.from_tuples(keys)
+    ones = pandas.Series(1, index=index)
+    ones.to_pickle(str(target[0]))
+    return 0
+
+
+def set_upstream_zeros(env, target, source):
+    ones = pandas.read_pickle(str(source[0]))
+    zeros = ones * 0
+    zeros.to_pickle(str(target[0]))
+    return 0
+
+
 def agg_over_basins(env, target, source):
     '''
     Aggregate raster values within all basins contributing to each delta.

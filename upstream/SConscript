@@ -7,6 +7,16 @@ import process_upstream as pu
 Import('*')
 
 env.Command(
+        source='#data/Global/upstream_basin_ids.json',
+        target='#data/Global/upstream_ones.pd',
+        action=pu.set_upstream_ones)
+
+env.Command(
+        source='#data/Global/upstream_ones.pd',
+        target='#data/Global/upstream_zeros.pd',
+        action=pu.set_upstream_zeros)
+
+env.Command(
         source=['#data/Global/basins.tif',
                 '#data/Global/upstream_basin_ids.json',
                 '#data/Global/06min_pixel_areas.tif'],
