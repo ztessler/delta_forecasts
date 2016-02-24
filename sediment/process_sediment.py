@@ -10,10 +10,7 @@ def compute_I(env, target, source):
     I.to_pickle(str(target[0]))
     return 0
 
-# env.Command(
-        # source=['#data/Global/reservoir.tif',
-                # '#data/Global/discharge.tif'],
-        # target='#data/Global/trapping_eff_points.tif',
+
 def res_trapping(env, target, source):
     utilization = 0.67
     with rasterio.open(str(source[0]), 'r') as resrast,\

@@ -39,6 +39,23 @@ env.Command(
         action=ps.compute_B)
 
 env.Command(
+        source=['#data/Global/bqart_I.pd',
+                '#data/Global/upstream_lithology.pd',
+                '#data/Global/upstream_zeros.pd',
+                '#data/Global/upstream_ones.pd'],
+        target='#data/Global/bqart_prist_B.pd',
+        action=ps.compute_B)
+
+env.Command(
+        source=['#data/Global/bqart_prist_B.pd',
+                '#data/Global/upstream_discharge.pd',
+                '#data/Global/upstream_areas.pd',
+                '#data/Global/upstream_relief.pd',
+                '#data/Global/upstream_temps.pd'],
+        target='#data/Global/bqart_prist_Qs.pd',
+        action=ps.compute_Qs)
+
+env.Command(
         source=['#data/Global/bqart_B.pd',
                 '#data/Global/upstream_discharge.pd',
                 '#data/Global/upstream_areas.pd',
