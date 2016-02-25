@@ -61,5 +61,5 @@ for experiment in experiments:
 env.Command(
         source=['#data/Global/delta_areas.pd',
                 experiments['pristine']['Qs']],
-        target='#data/Global/steady_state_subsidence.pd',
+        target='#data/Global/natural_subsidence.pd',
         action=ps.steady_state_subsidence)
