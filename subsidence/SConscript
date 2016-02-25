@@ -10,4 +10,5 @@ env.Command(
         source=['#data/Global/delta_areas.pd',
                 experiments['pristine']['Qs']],
         target='#data/Global/natural_subsidence.pd',
-        action=ps.steady_state_subsidence)
+        action=ps.steady_state_subsidence,
+        eustatic_slr=experiments['pristine']['eustatic_slr'])

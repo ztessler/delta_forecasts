@@ -43,15 +43,18 @@ experiments = {
             'Eh': '#data/Global/bqart_Eh.pd',
             'B': '#data/Global/bqart_B.pd',
             'Qs': '#data/Global/bqart_Qs.pd',
+            'eustatic_slr': 3.0,
             },
         'contemp': {
             'Qs': '#data/Global/experiments/contemp/bqart_Qs.pd',
+            'eustatic_slr': 3.0,
             },
         'pristine': {
             'Te': '#data/Global/upstream_zeros.pd',
             'Eh': '#data/Global/upstream_ones.pd',
             'B': '#data/Global/experiments/pristine/bqart_B.pd',
             'Qs': '#data/Global/experiments/pristine/bqart_Qs.pd',
+            'eustatic_slr': 1.5,
             }
         }
 for experiment in experiments.keys():
