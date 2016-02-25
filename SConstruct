@@ -54,6 +54,10 @@ experiments = {
             'Qs': '#data/Global/experiments/pristine/bqart_Qs.pd',
             }
         }
+for experiment in experiments.keys():
+    config = experiments['default'].copy()
+    config.update(experiments[experiment])
+    experiments[experiment] = config
 Export('experiments')
 
 srtm_resolution = 3

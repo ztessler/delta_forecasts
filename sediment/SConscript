@@ -16,15 +16,7 @@ env.Command(
         target='#data/Global/bqart_I.pd',
         action=ps.compute_I)
 
-
-def get_config(exp):
-    config = experiments['default'].copy()
-    config.update(experiments[exp])
-    return config
-
-for experiment in experiments:
-    config = get_config(experiment)
-
+for experiment, config in experiments.iteritems():
     if 'zeros' not in config['Te']: # don't try and build zeros file
         env.Command(
                 source=[config['reservoirs'],
