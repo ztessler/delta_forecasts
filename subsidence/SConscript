@@ -12,3 +12,8 @@ env.Command(
         target='#data/Global/natural_subsidence.pd',
         action=ps.steady_state_subsidence,
         eustatic_slr=experiments['pristine']['eustatic_slr'])
+
+env.Command(
+        source='/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc',
+        target='#data/Global/groundwater.tif',
+        action='gdal_translate -of GTiff $SOURCE $TARGET')
