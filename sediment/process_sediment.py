@@ -2,6 +2,7 @@ import json
 import numpy as np
 import pandas
 import rasterio
+import pint
 
 
 def compute_I(env, target, source):
@@ -61,8 +62,11 @@ def compute_B(env, target, source):
 
 
 def compute_Qs(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
     B = pandas.read_pickle(str(source[0]))
-    Q = pandas.read_pickle(str(source[1]))
+    Q = Q_(pandas.read_pickle(str(source[1])), 'm**3/s').to('km**3/year').magnitude
     A = pandas.read_pickle(str(source[2]))
     R = pandas.read_pickle(str(source[3]))
     T = pandas.read_pickle(str(source[4]))
@@ -75,7 +79,6 @@ def compute_Qs(env, target, source):
 
 
 def steady_state_subsidence(env, target, source):
-    import pint
     ureg = pint.UnitRegistry()
     Q_ = ureg.Quantity
 
