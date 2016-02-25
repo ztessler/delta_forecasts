@@ -1,0 +1,13 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import os
+import process_subsidence as ps
+
+Import('*')
+
+env.Command(
+        source=['#data/Global/delta_areas.pd',
+                experiments['pristine']['Qs']],
+        target='#data/Global/natural_subsidence.pd',
+        action=ps.steady_state_subsidence)

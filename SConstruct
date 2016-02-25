@@ -70,4 +70,5 @@ SConscript('population/SConscript',
 SConscript('srtm/SConscript',
         exports=['srtm_resolution'])
 SConscript('sediment/SConscript')
+SConscript('subsidence/SConscript')
 

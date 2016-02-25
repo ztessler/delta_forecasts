@@ -49,9 +49,3 @@ for experiment, config in experiments.iteritems():
                     '#data/Global/upstream_temps.pd'],
             target=config['Qs'],
             action=ps.compute_Qs)
-
-env.Command(
-        source=['#data/Global/delta_areas.pd',
-                experiments['pristine']['Qs']],
-        target='#data/Global/natural_subsidence.pd',
-        action=ps.steady_state_subsidence)
