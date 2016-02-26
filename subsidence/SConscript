@@ -42,8 +42,17 @@ for experiment, config in experiments.iteritems():
             target='#data/Global/delta_groundwater_subsidence.pd',
             action=ps.groundwater_subsidence)
 
-
     # oil/gas
+    env.Command(
+            source=['/Users/ztessler/data/WorldPetroleumAssessment/tps_sumg/tps_sumg.shp',
+                    '#data/Global/deltas.json'],
+            target='#data/Global/delta_oilgas.pd',
+            action=ps.oilgas_locations)
+    env.Command(
+            source='#data/Global/delta_oilgas.pd',
+            target='#data/Global/delta_oilgas_subsidence.pd',
+            action=ps.oilgas_subsidence)
+
 
     # accelerated sea-level rise
 

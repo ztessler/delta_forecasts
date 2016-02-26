@@ -1,6 +1,10 @@
 import pandas
+import geopandas
+import fiona
 import pint
 import rasterio
+import shapely.geometry as sgeom
+import shapely.ops as sops
 
 
 def steady_state_subsidence(env, target, source):
@@ -58,5 +62,28 @@ def groundwater_subsidence(env, target, source):
 
     sub = 3 * drawdown/max_dd * natural_sub # Ericson 2006, sec. 4.2
     sub[sub<=0] = 0
+    sub.to_pickle(str(target[0]))
+    return 0
+
+
+def oilgas_locations(env, target, source):
+    oilgas_shpfile = str(source[0])
+    deltas = geopandas.read_file(str(source[1])).set_index('Delta')
+
+    with fiona.open(oilgas_shpfile, 'r') as oilgas_fields:
+        fields = []
+        for field in oilgas_fields:
+            shape = sgeom.shape(field['geometry']).buffer(0)
+            fields.append(shape)
+    fields = sops.unary_union(fields)
+    oilgas = deltas.intersects(fields)
+    oilgas['Mississippi'] = True # set manually, dataset is only for outside the US
+    oilgas.to_pickle(str(target[0]))
+    return 0
+
+
+def oilgas_subsidence(env, target, source):
+    oilgas = pandas.read_pickle(str(source[0]))
+    sub = oilgas * 1 #mm/year  Ericson 2006 sec 4.2
     sub.to_pickle(str(target[0]))
     return 0
