@@ -97,40 +97,6 @@ def locate_basin_mouths(env, target, source):
     return 0
 
 
-def raster_pixel_areas(env, target, source):
-    with rasterio.open(str(source[0]), 'r') as rast:
-        shape = rast.shape
-        rastcrs = rast.crs
-        affine = rast.affine
-        kwargs = rast.meta
-    del kwargs['transform']
-    areas = np.zeros(shape, dtype=np.float)
-
-    if rastcrs['init'] == 'epsg:4326':
-        geod = ccrs.PlateCarree().as_geodetic()
-    else:
-        raise NotImplementedError, 'Only works with lat/lon grid, assumes pixels rows have constant area'
-
-    lon0, lat0 = affine * (0,0)
-    lon1, lat1 = affine * shape[::-1]
-    dlon_2 = affine.a / 2.
-    dlat = affine.e
-    dlat_2 = dlat / 2.
-    lats = np.arange(lat0, lat1, dlat)
-    for j, lat in enumerate(lats):
-        lat_next = lat + dlat
-        laea = ccrs.LambertAzimuthalEqualArea(central_longitude=0,
-                                              central_latitude=lat+dlat_2)
-        poly = sgeom.Polygon(
-                laea.transform_points(geod,
-                                      np.array([-dlon_2, -dlon_2, dlon_2, dlon_2]),
-                                      np.array([lat, lat_next, lat_next, lat])))
-        areas[j,:] = poly.area / 1e6
-
-    with rasterio.open(str(target[0]), 'w', **kwargs) as dst:
-        dst.write(areas, 1)
-
-
 # def _get_clean_iso_alpha3(prop):
     # isoa3 = prop['iso_alpha3']
     # if isoa3 is None:

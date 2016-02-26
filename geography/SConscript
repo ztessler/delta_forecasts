@@ -3,6 +3,7 @@
 
 import os
 import process_delta_geog as geo
+import gis
 
 Import('*')
 
@@ -41,7 +42,7 @@ env.Command(
 env.Command(
         source='#data/Global/basins.tif',
         target='#data/Global/06min_pixel_areas.tif',
-        action=geo.raster_pixel_areas)
+        action=gis.raster_pixel_areas)
 
 env.Command(
         source=['/Users/ztessler/data/HIU.State.Gov_National_Boundaries/countries.json',
