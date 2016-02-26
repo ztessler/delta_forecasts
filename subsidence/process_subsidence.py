@@ -30,9 +30,21 @@ def steady_state_subsidence(env, target, source):
     subsidence.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
 
+
 def clean_groundwater_stats(env, target, source):
     groundwater = pandas.read_pickle(str(source[0]))
     groundwater.fillna(0, inplace=True)
     groundwater.to_pickle(str(target[0]))
     return 0
 
+
+def compute_drawdown(env, target, source):
+    Q_ = pint.UnitRegistry().Quantity
+
+    groundwater = Q_(pandas.read_pickle(str(source[0]))['mean'], 'm**3/year') * 1e6
+    areas = Q_(pandas.read_pickle(str(source[1])), 'km**2')
+    specific_yield = 0.2
+
+    drawdown = groundwater / (areas * specific_yield)  # Ericson 2006 eq. 5
+    drawdown.to('mm/year').magnitude.to_pickle(str(target[0]))
+    return 0

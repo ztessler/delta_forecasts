@@ -31,6 +31,11 @@ for experiment, config in experiments.iteritems():
             source='#data/Global/delta_groundwater.1.pd',
             target='#data/Global/delta_groundwater.pd',
             action=ps.clean_groundwater_stats)
+    env.Command(
+            source=['#data/Global/delta_groundwater.pd',
+                    '#data/Global/delta_areas.pd'],
+            target='#data/Global/delta_drawdown.pd',
+            action=ps.compute_drawdown)
 
     # oil/gas
 
