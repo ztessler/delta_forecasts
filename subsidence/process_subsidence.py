@@ -1,5 +1,6 @@
 import pandas
 import pint
+import rasterio
 
 
 def steady_state_subsidence(env, target, source):
@@ -29,4 +30,9 @@ def steady_state_subsidence(env, target, source):
     subsidence.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
 
+def clean_groundwater_stats(env, target, source):
+    groundwater = pandas.read_pickle(str(source[0]))
+    groundwater.fillna(0, inplace=True)
+    groundwater.to_pickle(str(target[0]))
+    return 0
 

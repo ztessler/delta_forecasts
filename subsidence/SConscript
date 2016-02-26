@@ -3,6 +3,7 @@
 
 import os
 import process_subsidence as ps
+import gis
 
 Import('*')
 
@@ -17,3 +18,26 @@ env.Command(
         source='/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc',
         target='#data/Global/groundwater.tif',
         action='gdal_translate -of GTiff -a_srs "epsg:4326" $SOURCE $TARGET')
+
+for experiment, config in experiments.iteritems():
+    # accelerated compaction:
+    # groundwater
+    env.Command(
+            source=['#data/Global/deltas.json',
+                    '#data/Global/groundwater.tif'],
+            target='#data/Global/delta_groundwater.1.pd',
+            action=gis.delta_zonal_stats)
+    env.Command(
+            source='#data/Global/delta_groundwater.1.pd',
+            target='#data/Global/delta_groundwater.pd',
+            action=ps.clean_groundwater_stats)
+
+    # oil/gas
+
+    # accelerated sea-level rise
+
+
+
+
+    pass
+
