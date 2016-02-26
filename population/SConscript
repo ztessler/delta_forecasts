@@ -13,9 +13,8 @@ for year in years:
     env.Command(
             source=['#data/Global/deltas.json',
                     pop_tif.format(year)],
-            target='#data/Global/delta_pop_{}.pd'.format(year),
-            action=pp.delta_population_stats,
-            year=year)
+            target='#data/Global/delta_pop_dens_{}.pd'.format(year),
+            action=gis.delta_zonal_stats)
 
     env.Command(
             source=['#data/Global/basins.tif',
