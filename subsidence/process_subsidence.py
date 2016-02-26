@@ -48,3 +48,15 @@ def compute_drawdown(env, target, source):
     drawdown = groundwater / (areas * specific_yield)  # Ericson 2006 eq. 5
     drawdown.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
+
+
+def groundwater_subsidence(env, target, source):
+    drawdown = pandas.read_pickle(str(source[0]))
+    natural_sub = pandas.read_pickle(str(source[1]))
+
+    max_dd = drawdown.max()
+
+    sub = 3 * drawdown/max_dd * natural_sub # Ericson 2006, sec. 4.2
+    sub[sub<=0] = 0
+    sub.to_pickle(str(target[0]))
+    return 0

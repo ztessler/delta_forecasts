@@ -36,6 +36,12 @@ for experiment, config in experiments.iteritems():
                     '#data/Global/delta_areas.pd'],
             target='#data/Global/delta_drawdown.pd',
             action=ps.compute_drawdown)
+    env.Command(
+            source=['#data/Global/delta_drawdown.pd',
+                    '#data/Global/natural_subsidence.pd'],
+            target='#data/Global/delta_groundwater_subsidence.pd',
+            action=ps.groundwater_subsidence)
+
 
     # oil/gas
 
