@@ -1,5 +1,8 @@
 import numpy as np
 import rasterio
+from rasterio.warp import RESAMPLING, reproject
+from affine import Affine
+from netCDF4 import Dataset
 import cartopy.crs as ccrs
 import shapely.geometry as sgeom
 
@@ -37,6 +40,34 @@ def regrid_to_06min(env, target, source):
 
     with rasterio.open(str(target[0]), 'w', **kwargs) as dst:
         dst.write(data06, 1)
+    return 0
+
+
+def regrid_to_raster(env, target, source):
+    resampling = getattr(RESAMPLING, env['method'])
+
+    with rasterio.open(str(source[0]), 'r') as rast:
+        meta = rast.meta
+        dst_shape = rast.shape
+    newdata = np.zeros(dst_shape)
+    del meta['transform']
+
+    with rasterio.open(str(source[1]), 'r') as src:
+        reproject(src.read(1),
+                  newdata,
+                  src_transform=src.affine,
+                  src_crs=src.crs,
+                  src_nodata=src.nodata,
+                  dst_transform=meta['affine'],
+                  dst_crs=meta['crs'],
+                  dst_nodata=src.nodata,
+                  resampling=resampling)
+    meta.update({
+        'nodata': src.nodata,
+        })
+
+    with rasterio.open(str(target[0]), 'w', **meta) as dst:
+        dst.write(newdata, 1)
     return 0
 
 

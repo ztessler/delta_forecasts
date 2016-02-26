@@ -3,6 +3,7 @@
 
 import os
 import process_population as pp
+import gis
 
 Import('*')
 
@@ -20,7 +21,8 @@ for year in years:
             source=['#data/Global/basins.tif',
                     pop_tif.format(year)],
             target='#data/Global/pop_dens_{}.tif'.format(year),
-            action=pp.regrid_pop)
+            action=gis.regrid_to_raster,
+            method='average')
 
     for delta in deltas:
         env.Command(
