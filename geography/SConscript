@@ -9,44 +9,44 @@ Import('*')
 
 # Import delta shapefile and regroup from polygons to multipolygons by delta
 env.Command(
-        target='#data/Global/deltas.json',
+        target=shared['deltas'],
         source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
         action=geo.group_delta_shps,
         )
 
 env.Command(
-        source='#data/Global/deltas.json',
-        target='#data/Global/delta_areas.pd',
+        source=shared['deltas'],
+        target=shared['delta_areas'],
         action=geo.calc_delta_areas)
 
 for delta in deltas:
     env.Command(
             target='#data/{0}/{0}.json'.format(delta),
-            source='#data/Global/deltas.json',
+            source=shared['deltas'],
             action=geo.delta_geojson,
             delta=delta)
 
 env.Command(
-        source=['#data/Global/deltas.json',
-                '#data/Global/basins.tif'],
-        target='#data/Global/basin_ids.pd',
+        source=[shared['deltas'],
+                shared['basins'].format(ver='',ext='tif')],
+        target=shared['basin_ids'],
         action=geo.contributing_basins)
 
 env.Command(
-        source=['#data/Global/basins.pd',
-                '#data/Global/discharge.tif',
-                '#data/Global/basin_ids.pd'],
-        target='#data/Global/basin_mouths.pd',
+        source=[shared['basins'].format(ver='', ext='pd'),
+                shared['discharge'].format(ver='', ext='tif'),
+                shared['basin_ids']],
+        target=shared['basin_mouths'].format(ver='', ext='pd'),
         action=geo.locate_basin_mouths)
 
 env.Command(
-        source='#data/Global/basins.tif',
-        target='#data/Global/06min_pixel_areas.tif',
+        source=shared['basins'].format(ver='',ext='tif'),
+        target=shared['pixel_areas_06min'],
         action=gis.raster_pixel_areas)
 
 env.Command(
         source=['/Users/ztessler/data/HIU.State.Gov_National_Boundaries/countries.json',
                 '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv',
-                '#data/Global/basins.tif'],
-        target='#data/Global/per_capita_gdp.tif',
+                shared['basins'].format(ver='',ext='tif')],
+        target=shared['per_capita_gdp'].format(ver='', ext='tif'),
         action=geo.rasterize_gnp)

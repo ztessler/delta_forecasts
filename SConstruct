@@ -32,46 +32,72 @@ Export('years')
 
 
 # EXPERIMENT configs
+defaults = {
+        'reservoir': '#data/experiments/{exp}/reservoir{ver}.{ext}',
+        'discharge': '#data/experiments/{exp}/discharge{ver}.{ext}',
+        'airtemp': '#data/experiments/{exp}/airtemp{ver}.{ext}',
+        # 'gnp': '#data/experiments/{exp}/gnp{ver}.{ext}',
+        'groundwater': '#data/experiments/{exp}/groundwater{ver}.{ext}',
+        'ice': '#data/experiments/{exp}/ice{ver}.{ext}',
+        'lithology': '#data/experiments/{exp}/lithology{ver}.{ext}',
+        'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
+        'relief': '#data/experiments/{exp}/relief{ver}.{ext}',
+        'pop_dens': '#data/experiments/{exp}/pop_dens_{year}{ver}.{ext}',
+        'I': '#data/experiments/{exp}/bqart_I.pd',
+        'Te': '#data/experiments/{exp}/bqart_Te.pd',
+        'Eh': '#data/experiments/{exp}/bqart_Eh.pd',
+        'B': '#data/experiments/{exp}/bqart_B.pd',
+        'Qs': '#data/experiments/{exp}/bqart_Qs.pd',
+        'drawdown': '#data/experiments/{exp}/drawdown.pd',
+        'groundwater_subsidence': '#data/experiments/{exp}/groundwater_subsidence.pd',
+        'oilgas': '#data/experiments/{exp}/oilgas.pd',
+        'oilgas_subsidence': '#data/experiments/{exp}/oilgas_subsidence.pd',
+        'basins': '#data/Global/basins{ver}.{ext}',
+        'basin_ids': '#data/Global/basin_ids.pd',
+        'basin_mouths': '#data/Global/basin_mouths.pd',
+        'basin_areas': '#data/Global/basin_areas.pd',
+        'natural_subsidence': '#data/Global/natural_subsidence.pd',
+        'deltas': '#data/Global/deltas.json',
+        'delta_areas': '#data/Global/delta_areas.pd',
+        'pixel_areas_06min': '#data/Global/pixel_areas_06min.tif',
+        'zeros': '#data/Global/zeros.pd',
+        'ones': '#data/Global/ones.pd',
+        'eustatic_slr': 3.0,
+        }
 experiments = {
-        'default': {
-            'reservoirs': '#data/Global/reservoir.tif',
-            'dis_raster': '#data/Global/discharge.tif',
-            'discharge': '#data/Global/upstream_discharge.pd',
-            'Te': '#data/Global/upstream_trapping_eff.pd',
-            'gdp': '#data/Global/upstream_per_capita_gdp.pd',
-            'pop': '#data/Global/upstream_pop_dens_2000.pd',
-            'Eh': '#data/Global/bqart_Eh.pd',
-            'B': '#data/Global/bqart_B.pd',
-            'Qs': '#data/Global/bqart_Qs.pd',
-            'eustatic_slr': 3.0,
-            },
+        'shared': {},
         'contemp': {
-            'Qs': '#data/Global/experiments/contemp/bqart_Qs.pd',
+            # 'Qs': '#data/experiments/{}/bqart_Qs.pd',
             'eustatic_slr': 3.0,
             },
         'pristine': {
-            'Te': '#data/Global/upstream_zeros.pd',
-            'Eh': '#data/Global/upstream_ones.pd',
-            'B': '#data/Global/experiments/pristine/bqart_B.pd',
-            'Qs': '#data/Global/experiments/pristine/bqart_Qs.pd',
+            'Te': defaults['zeros'],
+            'Eh': defaults['ones'],
+            # 'B': '#data/experiments/{}/bqart_B.pd',
+            # 'Qs': '#data/experiments/{}/bqart_Qs.pd',
             'eustatic_slr': 1.5,
             }
         }
 for experiment in experiments.keys():
-    config = experiments['default'].copy()
+    config = defaults.copy()
     config.update(experiments[experiment])
+    for name, path in config.items():
+        if isinstance(path, str):
+            config[name] = path.format(exp=experiment, year='{year}', ver='{ver}', ext='{ext}')
     experiments[experiment] = config
+shared = experiments['shared']
 Export('experiments')
+Export('shared')
 
 srtm_resolution = 3
 
 SConscript('geography/SConscript')
-SConscript('rgis/SConscript')
-SConscript('upstream/SConscript')
 SConscript('population/SConscript',
         exports=['srtm_resolution'])
 SConscript('srtm/SConscript',
         exports=['srtm_resolution'])
+SConscript('rgis/SConscript')
+SConscript('upstream/SConscript')
 SConscript('sediment/SConscript')
 SConscript('subsidence/SConscript')
 

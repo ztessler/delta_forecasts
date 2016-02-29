@@ -11,31 +11,30 @@ Import('*')
 # subsidence rates based on sed flux, sediment retention ratio (see Syvitski and
 # Saito 2007 for ratios) and delta surface area
 
-env.Command(
-        source='#data/Global/upstream_ice_percent.pd',
-        target='#data/Global/bqart_I.pd',
-        action=ps.compute_I)
-
 for experiment, config in experiments.iteritems():
-    if 'zeros' not in config['Te']: # don't try and build zeros file
+    if experiment != 'pristine':
         env.Command(
-                source=[config['reservoirs'],
-                        config['dis_raster'],
-                        '#data/Global/basins.tif',
-                        '#data/Global/basin_ids.pd'],
+                source=[shared['reservoir'].format(ver='', ext='tif'),
+                        shared['discharge'].format(ver='', ext='tif'),
+                        shared['basins'].format(ver='', ext='tif'),
+                        shared['basin_ids']],
                 target=config['Te'],
                 action=ps.res_trapping)
 
-    if 'ones' not in config['Eh']: # don't try and build ones file
         env.Command(
-                source=[config['gdp'],
-                        config['pop']],
+                source=[config['per_capita_gdp'].format(ver='', ext='pd'),
+                        config['pop_dens'].format(year=2000, ver='', ext='pd')],
                 target=config['Eh'],
                 action=ps.compute_Eh)
 
     env.Command(
-            source=['#data/Global/bqart_I.pd',
-                    '#data/Global/upstream_lithology.pd',
+            source=config['ice'].format(ver='', ext='pd'),
+            target=config['I'].format(ver='', ext='pd'),
+            action=ps.compute_I)
+
+    env.Command(
+            source=[config['I'],
+                    config['lithology'].format(ver='', ext='pd'),
                     config['Te'],
                     config['Eh']],
             target=config['B'],
@@ -43,9 +42,9 @@ for experiment, config in experiments.iteritems():
 
     env.Command(
             source=[config['B'],
-                    config['discharge'],
-                    '#data/Global/upstream_areas.pd',
-                    '#data/Global/upstream_relief.pd',
-                    '#data/Global/upstream_temps.pd'],
+                    config['discharge'].format(ver='', ext='pd'),
+                    shared['basin_areas'],
+                    config['relief'].format(ver='', ext='pd'),
+                    config['airtemp'].format(ver='', ext='pd')],
             target=config['Qs'],
             action=ps.compute_Qs)

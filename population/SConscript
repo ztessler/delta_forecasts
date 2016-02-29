@@ -11,15 +11,15 @@ pop_tif = '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to
 
 for year in years:
     env.Command(
-            source=['#data/Global/deltas.json',
+            source=[shared['deltas'],
                     pop_tif.format(year)],
             target='#data/Global/delta_pop_dens_{}.pd'.format(year),
             action=gis.delta_zonal_stats)
 
     env.Command(
-            source=['#data/Global/basins.tif',
+            source=[shared['basins'].format(ver='', ext='tif'),
                     pop_tif.format(year)],
-            target='#data/Global/pop_dens_{}.tif'.format(year),
+            target=shared['pop_dens'].format(year=year, ver='', ext='tif'),
             action=gis.regrid_to_raster,
             method='average')
 
