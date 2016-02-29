@@ -20,6 +20,7 @@ def res_trapping(env, target, source):
         resvol = resrast.read(1, masked=True) * utilization * (1000**3) # convert km**3 to m**3
         dis = disrast.read(1, masked=True)  # m**3 / s
         basins = basinrast.read(1, masked=True)
+    resvol.mask[resvol==0] = True
     basin_ids = pandas.read_pickle(str(source[3]))
     residence_time = resvol / dis / (60 * 60 * 24 * 365) # years
     trapping_eff = 1 - 0.05/np.sqrt(residence_time)
