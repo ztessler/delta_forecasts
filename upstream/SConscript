@@ -7,18 +7,18 @@ import process_upstream as pu
 Import('*')
 
 env.Command(
-        source='#data/Global/upstream_basin_ids.json',
+        source='#data/Global/basin_ids.pd',
         target='#data/Global/upstream_ones.pd',
         action=pu.set_upstream_ones)
 
 env.Command(
-        source='#data/Global/upstream_ones.pd',
+        source='#data/Global/basin_ids.pd',
         target='#data/Global/upstream_zeros.pd',
         action=pu.set_upstream_zeros)
 
 env.Command(
         source=['#data/Global/basins.tif',
-                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/basin_ids.pd',
                 '#data/Global/06min_pixel_areas.tif'],
         target='#data/Global/upstream_areas.pd',
         action=pu.agg_over_basins,
@@ -26,7 +26,7 @@ env.Command(
 
 env.Command(
         source=['#data/Global/basins.tif',
-                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/basin_ids.pd',
                 '#data/Global/airtemp.tif',
                 '#data/Global/06min_pixel_areas.tif'],
         target='#data/Global/upstream_temps.pd',
@@ -35,7 +35,7 @@ env.Command(
 
 env.Command(
         source=['#data/Global/basins.tif',
-                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/basin_ids.pd',
                 '#data/Global/elevation.tif'],
         target='#data/Global/upstream_relief.1.pd',
         action=pu.agg_over_basins,
@@ -59,7 +59,7 @@ env.Command(
 
 env.Command(
         source=['#data/Global/basins.tif',
-                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/basin_ids.pd',
                 '#data/Global/ice.tif',
                 '#data/Global/06min_pixel_areas.tif'],
         target='#data/Global/upstream_ice_percent.pd',
@@ -69,7 +69,7 @@ env.Command(
 
 env.Command(
         source=['#data/Global/basins.tif',
-                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/basin_ids.pd',
                 '#data/Global/lithology.tif',
                 '#data/Global/06min_pixel_areas.tif'],
         target='#data/Global/upstream_lithology.pd',
@@ -79,7 +79,7 @@ env.Command(
 
 env.Command(
         source=['#data/Global/basins.tif',
-                '#data/Global/upstream_basin_ids.json',
+                '#data/Global/basin_ids.pd',
                 '#data/Global/per_capita_gdp.tif',
                 '#data/Global/06min_pixel_areas.tif'],
         target='#data/Global/upstream_per_capita_gdp.pd',
@@ -90,7 +90,7 @@ env.Command(
 for year in years:
     env.Command(
             source=['#data/Global/basins.tif',
-                    '#data/Global/upstream_basin_ids.json',
+                    '#data/Global/basin_ids.pd',
                     '#data/Global/pop_dens_{}.tif'.format(year),
                     '#data/Global/06min_pixel_areas.tif'],
             target='#data/Global/upstream_pop_dens_{}.pd'.format(year),

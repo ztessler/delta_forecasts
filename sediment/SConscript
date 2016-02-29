@@ -22,7 +22,7 @@ for experiment, config in experiments.iteritems():
                 source=[config['reservoirs'],
                         config['dis_raster'],
                         '#data/Global/basins.tif',
-                        '#data/Global/upstream_basin_ids.json'],
+                        '#data/Global/basin_ids.pd'],
                 target=config['Te'],
                 action=ps.res_trapping)
 

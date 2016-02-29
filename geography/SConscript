@@ -29,13 +29,13 @@ for delta in deltas:
 env.Command(
         source=['#data/Global/deltas.json',
                 '#data/Global/basins.tif'],
-        target='#data/Global/upstream_basin_ids.json',
+        target='#data/Global/basin_ids.pd',
         action=geo.contributing_basins)
 
 env.Command(
         source=['#data/Global/basins.pd',
                 '#data/Global/discharge.tif',
-                '#data/Global/upstream_basin_ids.json'],
+                '#data/Global/basin_ids.pd'],
         target='#data/Global/basin_mouths.pd',
         action=geo.locate_basin_mouths)
 

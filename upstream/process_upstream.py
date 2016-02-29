@@ -5,18 +5,15 @@ import rasterio
 
 
 def set_upstream_ones(env, target, source):
-    with open(str(source[0]), 'r') as f:
-        basin_ids = json.load(f)
-    keys = [(d, b) for (d, bs) in basin_ids.iteritems() for b in bs]
-    index = pandas.MultiIndex.from_tuples(keys)
-    ones = pandas.Series(1, index=index)
+    basin_ids = pandas.read_pickle(str(source[0]))
+    ones = pandas.Series(1, index=basin_ids.index)
     ones.to_pickle(str(target[0]))
     return 0
 
 
 def set_upstream_zeros(env, target, source):
-    ones = pandas.read_pickle(str(source[0]))
-    zeros = ones * 0
+    basin_ids = pandas.read_pickle(str(source[0]))
+    zeros = pandas.Series(0, index=basin_ids.index)
     zeros.to_pickle(str(target[0]))
     return 0
 
@@ -47,8 +44,7 @@ def agg_over_basins(env, target, source):
 
     with rasterio.open(str(source[0]), 'r') as basins_rast:
         basins = basins_rast.read(1)
-    with open(str(source[1]), 'r') as f:
-        upstream = json.load(f)
+    basin_ids = pandas.read_pickle(str(source[1]))
     with rasterio.open(str(source[2]), 'r') as data_rast:
         data = data_rast.read(1, masked=True)
     if method in ['weightedsum', 'weightedmean']:
@@ -58,20 +54,15 @@ def agg_over_basins(env, target, source):
         weights = np.ones_like(data)
 
     aggregated = []
-    keys = []
-    for delta in upstream:
-        ids = upstream[delta]
-        for basinid in ids:
-            pixels = (basins==basinid)
-            aggregated.append(aggregate(data[pixels], weights[pixels]))
-            keys.append((delta, basinid))
+    for delta, basinid in basin_ids.index:
+        pixels = (basins==basinid)
+        aggregated.append(aggregate(data[pixels], weights[pixels]))
     if np.ma.masked in aggregated:
         fill = env['fill']
         if fill == 'mean':
             fill = (data * weights).sum() / weights[~data.mask].sum()
     aggregated = [a if a is not np.ma.masked else fill for a in aggregated]
-    index = pandas.MultiIndex.from_tuples(keys, names=('Delta', 'BasinID'))
-    pandas.Series(aggregated, index=index).to_pickle(str(target[0]))
+    pandas.Series(aggregated, index=basin_ids.index).to_pickle(str(target[0]))
     return 0
 
 

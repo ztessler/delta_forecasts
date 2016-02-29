@@ -1,7 +1,6 @@
 import csv
 import numpy as np
 from scipy.ndimage import distance_transform_edt
-import json
 import pandas
 import geopandas
 import fiona
@@ -63,8 +62,14 @@ def contributing_basins(env, target, source):
     for s in stats:
         data[s['properties']['Delta']] = sorted(s['properties']['basins'])
 
-    with open(str(target[0]), 'w') as outfile:
-        json.dump(data, outfile)
+    tups = []
+    for delta, basins in data.iteritems():
+        for basin in basins:
+            tups.append((delta, basin))
+
+    index = pandas.MultiIndex.from_tuples(tups, names=['Delta', 'BasinID'])
+    df = pandas.DataFrame(index=index)
+    df.to_pickle(str(target[0]))
     return 0
 
 
@@ -72,18 +77,12 @@ def locate_basin_mouths(env, target, source):
     basin_info = pandas.read_pickle(str(source[0]))
     with rasterio.open(str(source[1]), 'r') as rast:
         affine = rast.affine
-    with open(str(source[2]), 'r') as f:
-        basin_ids = json.load(f)
+    basin_ids = pandas.read_pickle(str(source[2]))
 
-    delta_basins = []
-    for delta, basins in basin_ids.iteritems():
-        delta_basins.extend([(delta, basin) for basin in basins])
-    index = pandas.MultiIndex.from_tuples(delta_basins)
-
-    mouths = pandas.DataFrame(index=index, columns=['x', 'y',
-                                                    'lon_center',
-                                                    'lat_center'])
-    for delta, basin in delta_basins:
+    mouths = pandas.DataFrame(index=basin_ids.index, columns=['x', 'y',
+                                                              'lon_center',
+                                                              'lat_center'])
+    for delta, basin in basin_ids.index:
         lon = basin_info.loc[basin]['MouthXCoord']
         lat = basin_info.loc[basin]['MouthYCoord']
         x, y = ~affine * (lon, lat)
