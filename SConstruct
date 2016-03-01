@@ -33,48 +33,82 @@ Export('years')
 
 # EXPERIMENT configs
 defaults = {
-        'reservoir': '#data/experiments/{exp}/reservoir{ver}.{ext}',
-        'discharge': '#data/experiments/{exp}/discharge{ver}.{ext}',
-        'airtemp': '#data/experiments/{exp}/airtemp{ver}.{ext}',
-        # 'gnp': '#data/experiments/{exp}/gnp{ver}.{ext}',
-        'groundwater': '#data/experiments/{exp}/groundwater{ver}.{ext}',
-        'ice': '#data/experiments/{exp}/ice{ver}.{ext}',
-        'lithology': '#data/experiments/{exp}/lithology{ver}.{ext}',
-        'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
-        'relief': '#data/experiments/{exp}/relief{ver}.{ext}',
-        'pop_dens': '#data/experiments/{exp}/pop_dens_{year}{ver}.{ext}',
+        'deltas': '#data/Global/deltas.json',
+        'delta_areas': '#data/Global/delta_areas.pd',
+        'delta_pop_dens': '#data/experiments/{exp}/delta_pop_dens_{year}.pd',
+        'delta_map': '#data/{delta}/{delta}.json',
+        'delta_pop_rast':
+            '#data/gpwv4/{delta}_pop_{year}.tif',
+        'delta_srtm_rast':
+            '#data/srtm{srtm}/{delta}_srtm.tif',
+        'delta_srtm_full_rast':
+            '#data/srtm{srtm}/{delta}_srtm_full.tif',
+        'delta_pop_elevations':
+            '#data/{delta}/experiments/{exp}/{delta}_pop_{year}_elevations.pd',
+        'delta_hypso_plot':
+            '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{year}.png',
+
+        'basins_rast': '#data/rgis/basins{ver}.{ext}',
+        'reservoir_rast': '#data/rgis/reservoir{ver}.{ext}',
+        'discharge_rast': '#data/rgis/discharge{ver}.{ext}',
+        'airtemp_rast': '#data/rgis/airtemp{ver}.{ext}',
+        'groundwater_rast': '#data/wada/groundwater{ver}.{ext}',
+        'ice_rast': '#data/rgis/ice{ver}.{ext}',
+        'lithology_rast': '#data/rgis/lithology{ver}.{ext}',
+        'relief_rast': '#data/rgis/relief{ver}.{ext}',
+        # 'gnp_rast': '#data/rgis/gnp{ver}.{ext}',
+        'oilgas_vect': '#data/usgs/oilgas/oilgas.shp',
+        'oilgas_vect': '/Users/ztessler/data/WorldPetroleumAssessment/tps_sumg/tps_sumg.shp',
+
+        'pop_dens_source_rast': '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{year}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{year}.tif',
+        'pop_dens_rast': '#data/experiments/{exp}/pop_dens_{year}{ver}.{ext}',
+
+        'national_borders_vect': '/Users/ztessler/data/HIU.State.Gov_National_Boundaries/countries.json',
+        'per_capita_gdp_table': '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv',
+        'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
+
+        'basins': '#data/experiments/{exp}/basins{ver}.{ext}',
+        'reservoirs': '#data/experiments/{exp}/reservoir{ver}.pd',
+        'discharge': '#data/experiments/{exp}/discharge{ver}.pd',
+        'airtemp': '#data/experiments/{exp}/airtemp{ver}.pd',
+        'groundwater': '#data/experiments/{exp}/groundwater{ver}.pd',
+        'ice': '#data/experiments/{exp}/ice{ver}.pd',
+        'lithology': '#data/experiments/{exp}/lithology{ver}.pd',
+        'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.pd',
+        'relief': '#data/experiments/{exp}/relief{ver}.pd',
+        'pop_dens': '#data/experiments/{exp}/pop_dens_{year}{ver}.pd',
+
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',
         'Eh': '#data/experiments/{exp}/bqart_Eh.pd',
         'B': '#data/experiments/{exp}/bqart_B.pd',
         'Qs': '#data/experiments/{exp}/bqart_Qs.pd',
-        'drawdown': '#data/experiments/{exp}/drawdown.pd',
+
+        'groundwater_drawdown': '#data/experiments/{exp}/drawdown.pd',
         'groundwater_subsidence': '#data/experiments/{exp}/groundwater_subsidence.pd',
+
         'oilgas': '#data/experiments/{exp}/oilgas.pd',
         'oilgas_subsidence': '#data/experiments/{exp}/oilgas_subsidence.pd',
-        'basins': '#data/Global/basins{ver}.{ext}',
-        'basin_ids': '#data/Global/basin_ids.pd',
-        'basin_mouths': '#data/Global/basin_mouths.pd',
-        'basin_areas': '#data/Global/basin_areas.pd',
-        'natural_subsidence': '#data/Global/natural_subsidence.pd',
-        'deltas': '#data/Global/deltas.json',
-        'delta_areas': '#data/Global/delta_areas.pd',
-        'pixel_areas_06min': '#data/Global/pixel_areas_06min.tif',
-        'zeros': '#data/Global/zeros.pd',
-        'ones': '#data/Global/ones.pd',
+        'basin_ids': '#data/experiments/{exp}/basin_ids.pd',
+        'basin_mouths': '#data/experiments/{exp}/basin_mouths.pd',
+        'basin_areas': '#data/experiments/{exp}/basin_areas.pd',
+
+        'natural_subsidence': '#data/experiments/pristine/natural_subsidence.pd',
+
+        'basin_pixel_areas': '#data/experiments/{exp}/basin_pixel_areas.tif',
+        'zeros': '#data/experiments/{exp}/zeros.pd',
+        'ones': '#data/experiments/{exp}/ones.pd',
+
         'eustatic_slr': 3.0,
+        'srtm': 3,
         }
 experiments = {
-        'shared': {},
         'contemp': {
-            # 'Qs': '#data/experiments/{}/bqart_Qs.pd',
             'eustatic_slr': 3.0,
             },
         'pristine': {
             'Te': defaults['zeros'],
             'Eh': defaults['ones'],
-            # 'B': '#data/experiments/{}/bqart_B.pd',
-            # 'Qs': '#data/experiments/{}/bqart_Qs.pd',
             'eustatic_slr': 1.5,
             }
         }
@@ -83,19 +117,14 @@ for experiment in experiments.keys():
     config.update(experiments[experiment])
     for name, path in config.items():
         if isinstance(path, str):
-            config[name] = path.format(exp=experiment, year='{year}', ver='{ver}', ext='{ext}')
+            config[name] = path.format(exp=experiment, year='{year}', ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}')
     experiments[experiment] = config
-shared = experiments['shared']
 Export('experiments')
-Export('shared')
 
-srtm_resolution = 3
 
 SConscript('geography/SConscript')
-SConscript('population/SConscript',
-        exports=['srtm_resolution'])
-SConscript('srtm/SConscript',
-        exports=['srtm_resolution'])
+SConscript('population/SConscript')
+SConscript('srtm/SConscript')
 SConscript('rgis/SConscript')
 SConscript('upstream/SConscript')
 SConscript('sediment/SConscript')

@@ -13,101 +13,102 @@ rgis_remote_dir = server + '/data/RGISarchive/Global/'
 bqart_remote_dir = server + '/data/RGISsediment/Global/'
 wbm_remote_dir = server + '/data/ModelRuns/'
 rgis_files = {
-        'basins': os.path.join(
+        'basins_rast': os.path.join(
             rgis_remote_dir, 'Network', 'STN+HydroSHEDS', '06min', 'Static',
             'Global_Network_STN+HydroSHEDS_06min_Static.gdbn'),
-        'reservoir': os.path.join(
+        'reservoir_rast': os.path.join(
             rgis_remote_dir, 'Reservoir-Capacity', 'UNH661', '06min', 'Static',
             'Global_Reservoir-Capacity_UNH661_06min_aLT2008.gdbc'),
-        'airtemp': os.path.join(
+        'airtemp_rast': os.path.join(
             rgis_remote_dir, 'AirTemperature', 'NCEP', '60min', 'Static',
             'Global_AirTemperature_NCEP_60min_aLT1948-2010.gdbc'),
-        'relief': os.path.join(
+        'relief_rast': os.path.join(
             rgis_remote_dir, 'Elevation', 'ETOPO1bed', '06min', 'Static',
             'Global_Elevation_ETOPO1bed_06min_Static.gdbc'),
-        'lithology': os.path.join(
+        'lithology_rast': os.path.join(
             bqart_remote_dir, 'BQART-Lithology','BQART', '06min', 'Static',
             'Global_BQART-Lithology_BQART_06min_Static.gdbc'),
-        'ice': os.path.join(
+        'ice_rast': os.path.join(
             bqart_remote_dir, 'Ice-Cover','ICE5Gv102', '30min', 'Static',
             'Global_Ice-Cover_ICE5Gv102_30min_Static.gdbc'),
-        # 'gnp': os.path.join(
+        # 'gnp_rast': os.path.join(
             # bqart_remote_dir, 'BQART-GNP','BQART', '30min', 'Static',
             # 'Global_BQART-GNP_BQART_30min_Static.gdbc'),
-        'discharge': os.path.join(
+        'discharge_rast': os.path.join(
             wbm_remote_dir, 'CMORPH-GPCP1dd_dTS2003-Present', 'RGISresults',
             'Global', 'Discharge',
             'Global_Discharge_CMORPH-GPCP1dd+Prist_06min_aLT.gdbc'),
         }
-for name, remotepath in rgis_files.items():
-    localfile = os.path.join('#downloads', os.path.basename(remotepath))
-    download = env.Command(
-            target=localfile,
-            source=None,
-            action='scp {} $TARGET'.format(remotepath),
-            )
-    env.NoClean(download)
+for experiment, config in experiments.iteritems():
+    for name, remotepath in rgis_files.items():
+        if 'rgis' not in config[name].split('/'):
+            continue
+        localfile = os.path.join('#downloads', os.path.basename(remotepath))
+        download = env.Command(
+                target=localfile,
+                source=None,
+                action='scp {} $TARGET'.format(remotepath),
+                )
+        env.NoClean(download)
 
-    fileroot, fileext = os.path.splitext(localfile)
-    # dataroot = '#data/Global/' + name
-    dataroot = shared[name]
-    ncfile = dataroot.format(ver='', ext='nc')
-    if fileext == '.gdbc':
-        if ('Static' in fileroot) or ('_aLT' in fileroot):
-            localfile_0 = localfile
-            fileroot_0 ,fileext_0 = fileroot, fileext
-            localfile = dataroot.format(ver='.1', ext='gdbc')
-            fileroot, fileext = os.path.splitext(localfile)
+        fileroot, fileext = os.path.splitext(localfile)
+        ncfile = config[name].format(ver='', ext='nc')
+        if fileext == '.gdbc':
+            if ('Static' in fileroot) or ('_aLT' in fileroot):
+                localfile_0 = localfile
+                fileroot_0 ,fileext_0 = fileroot, fileext
+                localfile = config[name].format(ver='.1', ext='gdbc')
+                fileroot, fileext = os.path.splitext(localfile)
+                env.Command(
+                        target=localfile,
+                        source=localfile_0,
+                        action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
+            nc = env.Command(
+                    target=ncfile,
+                    source=localfile,
+                    action='rgis2netcdf $SOURCE $TARGET')
+        elif name == 'basins_rast':
             env.Command(
-                    target=localfile,
-                    source=localfile_0,
+                    target=config['basins'].format(ver='', ext='tsv'),
+                    source=localfile,
+                    action='rgis2table $SOURCE > $TARGET')
+            env.Command(
+                    target=config['basins'].format(ver='', ext='pd'),
+                    source=config['basins'].format(ver='', ext='tsv'),
+                    action=pr.tsv_to_pandas)
+            env.Command(
+                    target=config[name].format(ver='.1', ext='gdbd'),
+                    source=localfile,
+                    action='netCells2Grid -f BasinID -t BasinID -u BasinID -d Global $SOURCE $TARGET')
+            env.Command(
+                    target=config[name].format(ver='.2', ext='gdbd'),
+                    source=config[name].format(ver='.1', ext='gdbd'),
+                    action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
+            env.Command(
+                    target=config[name].format(ver='.3', ext='gdbd'),
+                    source=config[name].format(ver='.2', ext='gdbd'),
                     action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
-        nc = env.Command(
-                target=ncfile,
-                source=localfile,
-                action='rgis2netcdf $SOURCE $TARGET')
-    elif name == 'basins':
-        env.Command(
-                target=shared['basins'].format(ver='', ext='tsv'),
-                source=localfile,
-                action='rgis2table $SOURCE > $TARGET')
-        env.Command(
-                target=shared['basins'].format(ver='', ext='pd'),
-                source=shared['basins'].format(ver='', ext='tsv'),
-                action=pr.tsv_to_pandas)
-        env.Command(
-                target=dataroot.format(ver='.1', ext='gdbd'),
-                source=localfile,
-                action='netCells2Grid -f BasinID -t BasinID -u BasinID -d Global $SOURCE $TARGET')
-        env.Command(
-                target=dataroot.format(ver='.2', ext='gdbd'),
-                source=dataroot.format(ver='.1', ext='gdbd'),
-                action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
-        env.Command(
-                target=dataroot.format(ver='.3', ext='gdbd'),
-                source=dataroot.format(ver='.2', ext='gdbd'),
-                action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
-        env.Command(
-                target=ncfile,
-                source=dataroot.format(ver='.3', ext='gdbd'),
-                action='rgis2netcdf $SOURCE $TARGET')
+            env.Command(
+                    target=ncfile,
+                    source=config[name].format(ver='.3', ext='gdbd'),
+                    action='rgis2netcdf $SOURCE $TARGET')
 
-    # convert rgis-based nc files to georeferenced gtiffs and regrid to 06min if needed
-    if name == 'discharge':
-        clippednc = dataroot.format(ver='.1', ext='nc')
+        # convert rgis-based nc files to georeferenced gtiffs and regrid to 06min if needed
+        if name == 'discharge_rast':
+            clippednc = config[name].format(ver='.1', ext='nc')
+            env.Command(
+                    source=ncfile,
+                    target=clippednc,
+                    action=pr.clip_nc_neg,
+                    varname='discharge')
+            ncfile = clippednc
+        tiffile = config[name].format(ver='.1', ext='tif')
+        tiffile_06min = config[name].format(ver='', ext='tif')
         env.Command(
+                target=tiffile,
                 source=ncfile,
-                target=clippednc,
-                action=pr.clip_nc_neg,
-                varname=name)
-        ncfile = clippednc
-    tiffile = dataroot.format(ver='.1', ext='tif')
-    tiffile_06min = dataroot.format(ver='', ext='tif')
-    env.Command(
-            target=tiffile,
-            source=ncfile,
-            action=gis.georef_nc)
-    env.Command(
-            target=tiffile_06min,
-            source=tiffile,
-            action=gis.regrid_to_06min)
+                action=gis.georef_nc)
+        env.Command(
+                target=tiffile_06min,
+                source=tiffile,
+                action=gis.regrid_to_06min)

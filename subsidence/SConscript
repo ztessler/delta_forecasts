@@ -7,50 +7,57 @@ import gis
 
 Import('*')
 
-env.Command(
-        source=[shared['delta_areas'],
-                experiments['pristine']['Qs']],
-        target=shared['natural_subsidence'],
-        action=ps.steady_state_subsidence,
-        eustatic_slr=experiments['pristine']['eustatic_slr'])
-
-env.Command(
-        source='/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc',
-        target=shared['groundwater'].format(ver='', ext='tif'),
-        action='gdal_translate -of GTiff -a_srs "epsg:4326" $SOURCE $TARGET')
-
-env.Command(
-        source=['/Users/ztessler/data/WorldPetroleumAssessment/tps_sumg/tps_sumg.shp',
-                shared['deltas']],
-        target=shared['oilgas'],
-        action=ps.oilgas_locations)
-
 for experiment, config in experiments.iteritems():
+    env.Command(
+            source=[config['delta_areas'],
+                    experiments['pristine']['Qs']],
+            target=config['natural_subsidence'],
+            action=ps.steady_state_subsidence,
+            eustatic_slr=experiments['pristine']['eustatic_slr'])
+
+    if 'wada' in config['groundwater_rast']:
+        env.Command(
+                source='/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc',
+                target=config['groundwater_rast'].format(ver='', ext='tif'),
+                action='gdal_translate -of GTiff -a_srs "epsg:4326" $SOURCE $TARGET')
+
+    if 'usgs' in config['oilgas_vect']:
+        env.Command(
+                source='/Users/ztessler/data/WorldPetroleumAssessment/tps_sumg/tps_sumg.shp',
+                target=config['oilgas_vect'],
+                action='cp -r $(dirname $SOURCE) $(dirname $TARGET)')
+
+    env.Command(
+            source=[config['oilgas_vect'],
+                    config['deltas']],
+            target=config['oilgas'],
+            action=ps.oilgas_locations)
+
     # accelerated compaction:
     # groundwater
     env.Command(
-            source=[shared['deltas'],
-                    shared['groundwater'].format(ver='', ext='tif')],
-            target=config['groundwater'].format(ver='.1', ext='pd'),
+            source=[config['deltas'],
+                    config['groundwater_rast'].format(ver='', ext='tif')],
+            target=config['groundwater'].format(ver='.1'),
             action=gis.delta_zonal_stats)
     env.Command(
-            source=config['groundwater'].format(ver='.1', ext='pd'),
-            target=config['groundwater'].format(ver='', ext='pd'),
+            source=config['groundwater'].format(ver='.1'),
+            target=config['groundwater'].format(ver=''),
             action=ps.clean_groundwater_stats)
     env.Command(
-            source=[config['groundwater'].format(ver='', ext='pd'),
-                    shared['delta_areas']],
-            target=config['drawdown'],
+            source=[config['groundwater'].format(ver=''),
+                    config['delta_areas']],
+            target=config['groundwater_drawdown'],
             action=ps.compute_drawdown)
     env.Command(
-            source=[config['drawdown'],
-                    shared['natural_subsidence']],
+            source=[config['groundwater_drawdown'],
+                    config['natural_subsidence']],
             target=config['groundwater_subsidence'],
             action=ps.groundwater_subsidence)
 
     # oil/gas
     env.Command(
-            source=shared['oilgas'],
+            source=config['oilgas'],
             target=config['oilgas_subsidence'],
             action=ps.oilgas_subsidence)
 

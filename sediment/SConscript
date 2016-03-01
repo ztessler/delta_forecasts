@@ -14,10 +14,10 @@ Import('*')
 for experiment, config in experiments.iteritems():
     if experiment != 'pristine':
         env.Command(
-                source=[shared['reservoir'].format(ver='', ext='tif'),
-                        shared['discharge'].format(ver='', ext='tif'),
-                        shared['basins'].format(ver='', ext='tif'),
-                        shared['basin_ids']],
+                source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                        config['discharge_rast'].format(ver='', ext='tif'),
+                        config['basins_rast'].format(ver='', ext='tif'),
+                        config['basin_ids']],
                 target=config['Te'],
                 action=ps.res_trapping)
 
@@ -29,7 +29,7 @@ for experiment, config in experiments.iteritems():
 
     env.Command(
             source=config['ice'].format(ver='', ext='pd'),
-            target=config['I'].format(ver='', ext='pd'),
+            target=config['I'],
             action=ps.compute_I)
 
     env.Command(
@@ -43,7 +43,7 @@ for experiment, config in experiments.iteritems():
     env.Command(
             source=[config['B'],
                     config['discharge'].format(ver='', ext='pd'),
-                    shared['basin_areas'],
+                    config['basin_areas'],
                     config['relief'].format(ver='', ext='pd'),
                     config['airtemp'].format(ver='', ext='pd')],
             target=config['Qs'],

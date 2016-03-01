@@ -6,18 +6,20 @@ import process_srtm as ps
 
 Import('*')
 
-for delta in deltas:
-    env.Command(
-            source='#data/{0}/{0}.json'.format(delta),
-            target='#data/{0}/{0}_srtm{1}_full.tif'.format(delta, srtm_resolution),
-            action=ps.delta_srtm_composite,
-            delta=delta,
-            resolution=srtm_resolution)
+for experiment, config in experiments.iteritems():
+    for delta in deltas:
+        env.Command(
+                source=config['delta_map'].format(delta=delta),
+                target=config['delta_srtm_full_rast'].format(
+                            delta=delta, srtm=config['srtm']),
+                action=ps.delta_srtm_composite,
+                delta=delta,
+                resolution=config['srtm'])
 
-    env.Command(
-            source=['#data/{0}/{0}.json'.format(delta),
-                    '#data/{0}/{0}_srtm{1}_full.tif'.format(delta, srtm_resolution)],
-            target='#data/{0}/{0}_srtm{1}.tif'.format(delta, srtm_resolution),
-            action=ps.clip_srtm_to_delta)
-
-
+        env.Command(
+                source=[config['delta_map'].format(delta=delta),
+                        config['delta_srtm_full_rast'].format(
+                            delta=delta, srtm=config['srtm'])],
+                target=config['delta_srtm_rast'].format(
+                            delta=delta, srtm=config['srtm']),
+                action=ps.clip_srtm_to_delta)

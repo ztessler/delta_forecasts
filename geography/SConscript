@@ -8,45 +8,47 @@ import gis
 Import('*')
 
 # Import delta shapefile and regroup from polygons to multipolygons by delta
-env.Command(
-        target=shared['deltas'],
-        source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
-        action=geo.group_delta_shps,
-        )
-
-env.Command(
-        source=shared['deltas'],
-        target=shared['delta_areas'],
-        action=geo.calc_delta_areas)
-
-for delta in deltas:
+for experiment, config in experiments.iteritems():
     env.Command(
-            target='#data/{0}/{0}.json'.format(delta),
-            source=shared['deltas'],
-            action=geo.delta_geojson,
-            delta=delta)
+            target=config['deltas'],
+            source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
+            action=geo.group_delta_shps,
+            )
 
-env.Command(
-        source=[shared['deltas'],
-                shared['basins'].format(ver='',ext='tif')],
-        target=shared['basin_ids'],
-        action=geo.contributing_basins)
+    env.Command(
+            source=config['deltas'],
+            target=config['delta_areas'],
+            action=geo.calc_delta_areas)
 
-env.Command(
-        source=[shared['basins'].format(ver='', ext='pd'),
-                shared['discharge'].format(ver='', ext='tif'),
-                shared['basin_ids']],
-        target=shared['basin_mouths'].format(ver='', ext='pd'),
-        action=geo.locate_basin_mouths)
+    # import ipdb;ipdb.set_trace()
+    for delta in deltas:
+        env.Command(
+                target=config['delta_map'].format(delta=delta),
+                source=config['deltas'],
+                action=geo.delta_geojson,
+                delta=delta)
 
-env.Command(
-        source=shared['basins'].format(ver='',ext='tif'),
-        target=shared['pixel_areas_06min'],
-        action=gis.raster_pixel_areas)
+    env.Command(
+            source=[config['deltas'],
+                    config['basins_rast'].format(ver='',ext='tif')],
+            target=config['basin_ids'],
+            action=geo.contributing_basins)
 
-env.Command(
-        source=['/Users/ztessler/data/HIU.State.Gov_National_Boundaries/countries.json',
-                '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv',
-                shared['basins'].format(ver='',ext='tif')],
-        target=shared['per_capita_gdp'].format(ver='', ext='tif'),
-        action=geo.rasterize_gnp)
+    env.Command(
+            source=[config['basins'].format(ver='', ext='pd'),
+                    config['discharge_rast'].format(ver='', ext='tif'),
+                    config['basin_ids']],
+            target=config['basin_mouths'].format(ver='', ext='pd'),
+            action=geo.locate_basin_mouths)
+
+    env.Command(
+            source=config['basins_rast'].format(ver='',ext='tif'),
+            target=config['basin_pixel_areas'],
+            action=gis.raster_pixel_areas)
+
+    env.Command(
+            source=[config['national_borders_vect'],
+                    config['per_capita_gdp_table'],
+                    config['basins_rast'].format(ver='',ext='tif')],
+            target=config['per_capita_gdp_rast'].format(ver='', ext='tif'),
+            action=geo.rasterize_gnp)

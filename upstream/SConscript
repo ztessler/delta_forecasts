@@ -6,95 +6,95 @@ import process_upstream as pu
 
 Import('*')
 
-env.Command(
-        source=shared['basin_ids'],
-        target=shared['ones'],
-        action=pu.set_upstream_ones)
-
-env.Command(
-        source=shared['basin_ids'],
-        target=shared['zeros'],
-        action=pu.set_upstream_zeros)
-
-env.Command(
-        source=[shared['basins'].format(ver='', ext='tif'),
-                shared['basin_ids'],
-                shared['pixel_areas_06min']],
-        target=shared['basin_areas'],
-        action=pu.agg_over_basins,
-        method='sum')
-
 for experiment, config in experiments.iteritems():
     env.Command(
-            source=[shared['basins'].format(ver='', ext='tif'),
-                    shared['basin_ids'],
-                    shared['airtemp'].format(ver='', ext='tif'),
-                    shared['pixel_areas_06min']],
-            target=config['airtemp'].format(ver='', ext='pd'),
+            source=config['basin_ids'],
+            target=config['ones'],
+            action=pu.set_upstream_ones)
+
+    env.Command(
+            source=config['basin_ids'],
+            target=config['zeros'],
+            action=pu.set_upstream_zeros)
+
+    env.Command(
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['basin_ids'],
+                    config['basin_pixel_areas']],
+            target=config['basin_areas'],
+            action=pu.agg_over_basins,
+            method='sum')
+
+    env.Command(
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['basin_ids'],
+                    config['airtemp_rast'].format(ver='', ext='tif'),
+                    config['basin_pixel_areas']],
+            target=config['airtemp'].format(ver=''),
             action=pu.agg_over_basins,
             method='weightedmean')
 
     env.Command(
-            source=[shared['basins'].format(ver='', ext='tif'),
-                    shared['basin_ids'],
-                    shared['relief'].format(ver='', ext='tif')],
-            target=config['relief'].format(ver='.1', ext='pd'),
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['basin_ids'],
+                    config['relief_rast'].format(ver='', ext='tif')],
+            target=config['relief'].format(ver='.1'),
             action=pu.agg_over_basins,
             method='max')
 
     env.Command(
             source=config['relief'].format(ver='.1', ext='pd'),
-            target=config['relief'].format(ver='.2', ext='pd'),
+            target=config['relief'].format(ver='.2'),
             action=pu.convert_m_to_km)
 
     env.Command(
             source=config['relief'].format(ver='.2', ext='pd'),
-            target=config['relief'].format(ver='', ext='pd'),
+            target=config['relief'].format(ver=''),
             action=pu.clip_neg_to_zero)
 
     env.Command(
-            source=[shared['discharge'].format(ver='', ext='tif'),
-                    shared['basin_mouths']],
-            target=config['discharge'].format(ver='', ext='pd'),
+            source=[config['discharge_rast'].format(ver='', ext='tif'),
+                    config['basin_mouths']],
+            target=config['discharge'].format(ver=''),
             action=pu.discharge_at_mouths)
 
     env.Command(
-            source=[shared['basins'].format(ver='', ext='tif'),
-                    shared['basin_ids'],
-                    shared['ice'].format(ver='', ext='tif'),
-                    shared['pixel_areas_06min']],
-            target=config['ice'].format(ver='', ext='pd'),
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['basin_ids'],
+                    config['ice_rast'].format(ver='', ext='tif'),
+                    config['basin_pixel_areas']],
+            target=config['ice'].format(ver=''),
             action=pu.agg_over_basins,
             method='weightedmean',
             fill=0)
 
     env.Command(
-            source=[shared['basins'].format(ver='', ext='tif'),
-                    shared['basin_ids'],
-                    shared['lithology'].format(ver='', ext='tif'),
-                    shared['pixel_areas_06min']],
-            target=config['lithology'].format(ver='', ext='pd'),
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['basin_ids'],
+                    config['lithology_rast'].format(ver='', ext='tif'),
+                    config['basin_pixel_areas']],
+            target=config['lithology'].format(ver=''),
             action=pu.agg_over_basins,
             method='weightedmean',
             fill='mean')
 
     env.Command(
-            source=[shared['basins'].format(ver='', ext='tif'),
-                    shared['basin_ids'],
-                    shared['per_capita_gdp'].format(ver='', ext='tif'),
-                    shared['pixel_areas_06min']],
-            target=config['per_capita_gdp'].format(ver='', ext='pd'),
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['basin_ids'],
+                    config['per_capita_gdp_rast'].format(ver='', ext='tif'),
+                    config['basin_pixel_areas']],
+            target=config['per_capita_gdp'].format(ver=''),
             action=pu.agg_over_basins,
             method='weightedmean',
             fill='mean')
 
     for year in years:
         env.Command(
-                source=[shared['basins'].format(ver='', ext='tif'),
-                        shared['basin_ids'],
-                        shared['pop_dens'].format(year=year, ver='', ext='tif'),
-                        shared['pixel_areas_06min']],
-                target=config['pop_dens'].format(year=year, ver='', ext='pd'),
+                source=[config['basins_rast'].format(ver='', ext='tif'),
+                        config['basin_ids'],
+                        config['pop_dens_rast'].format(year=year, ver='', ext='tif'),
+                        config['basin_pixel_areas']],
+                target=config['pop_dens'].format(year=year, ver=''),
                 action=pu.agg_over_basins,
                 method='weightedmean',
                 fill='mean')
