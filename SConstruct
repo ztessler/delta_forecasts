@@ -94,6 +94,7 @@ defaults = {
         'basin_areas': '#data/experiments/{exp}/basin_areas.pd',
 
         'natural_subsidence': '#data/experiments/pristine/natural_subsidence.pd',
+        'sed_aggradation': '#data/experiments/{exp}/sed_aggradation.pd',
 
         'basin_pixel_areas': '#data/experiments/{exp}/basin_pixel_areas.tif',
         'zeros': '#data/experiments/{exp}/zeros.pd',

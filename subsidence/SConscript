@@ -7,13 +7,18 @@ import gis
 
 Import('*')
 
+env.Command(
+        source=experiments['pristine']['sed_aggradation'],
+        target=experiments['pristine']['natural_subsidence'],
+        action=ps.steady_state_subsidence,
+        eustatic_slr=experiments['pristine']['eustatic_slr'])
+
 for experiment, config in experiments.iteritems():
     env.Command(
             source=[config['delta_areas'],
-                    experiments['pristine']['Qs']],
-            target=config['natural_subsidence'],
-            action=ps.steady_state_subsidence,
-            eustatic_slr=experiments['pristine']['eustatic_slr'])
+                    config['Qs']],
+            target=config['sed_aggradation'],
+            action=ps.sed_aggradation)
 
     if 'wada' in config['groundwater_rast']:
         env.Command(
@@ -61,7 +66,5 @@ for experiment, config in experiments.iteritems():
             target=config['oilgas_subsidence'],
             action=ps.oilgas_subsidence)
 
-
     # accelerated sea-level rise
-
 
