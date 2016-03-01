@@ -67,4 +67,11 @@ for experiment, config in experiments.iteritems():
             action=ps.oilgas_subsidence)
 
     # accelerated sea-level rise
-
+    env.Command(
+            source=[config['sed_aggradation'],
+                    config['natural_subsidence'],
+                    config['groundwater_subsidence'],
+                    config['oilgas_subsidence']],
+            eustatic_slr=config['eustatic_slr'],
+            target=config['rslr'],
+            action=ps.compute_rslr)

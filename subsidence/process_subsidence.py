@@ -113,3 +113,16 @@ def oilgas_subsidence(env, target, source):
     sub = oilgas * 1 #mm/year  Ericson 2006 sec 4.2
     sub.to_pickle(str(target[0]))
     return 0
+
+
+def compute_rslr(env, target, source):
+    aggradation = pandas.read_pickle(str(source[0]))
+    natural_sub = pandas.read_pickle(str(source[1]))
+    groundwater_sub = pandas.read_pickle(str(source[2]))
+    oilgas_sub = pandas.read_pickle(str(source[3]))
+    eustatic_slr = env['eustatic_slr']
+
+    # Ericson 2006 Eq. 2
+    rslr = eustatic_slr + natural_sub + groundwater_sub + oilgas_sub - aggradation
+    rslr.to_pickle(str(target[0]))
+
