@@ -33,9 +33,16 @@ Export('years')
 
 # EXPERIMENT configs
 defaults = {
+        'deltas_source': ('tessler2015',
+            '/Users/ztessler/data/deltas/global_map_shp/global_map.shp'),
         'deltas': '#data/Global/deltas.json',
         'delta_areas': '#data/Global/delta_areas.pd',
+
+        'pop_dens_source': ('gpwv4',
+            '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{year}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{year}.tif'),
+        'pop_dens_rast': '#data/experiments/{exp}/pop_dens_{year}{ver}.{ext}',
         'delta_pop_dens': '#data/experiments/{exp}/delta_pop_dens_{year}.pd',
+
         'delta_map': '#data/{delta}/{delta}.json',
         'delta_pop_rast':
             '#data/gpwv4/{delta}_pop_{year}.tif',
@@ -48,23 +55,31 @@ defaults = {
         'delta_hypso_plot':
             '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{year}.png',
 
+        'basins_source': 'rgis',
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
+        'reservoir_source': 'rgis',
         'reservoir_rast': '#data/rgis/reservoir{ver}.{ext}',
+        'discharge_source': 'rgis',
         'discharge_rast': '#data/rgis/discharge{ver}.{ext}',
+        'airtemp_source': 'rgis',
         'airtemp_rast': '#data/rgis/airtemp{ver}.{ext}',
-        'groundwater_rast': '#data/wada/groundwater{ver}.{ext}',
+        'ice_source': 'rgis',
         'ice_rast': '#data/rgis/ice{ver}.{ext}',
+        'lithology_source': 'rgis',
         'lithology_rast': '#data/rgis/lithology{ver}.{ext}',
+        'relief_source': 'rgis',
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
         # 'gnp_rast': '#data/rgis/gnp{ver}.{ext}',
+        'groundwater_source': ('wada', '/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc'),
+        'groundwater_rast': '#data/wada/groundwater{ver}.{ext}',
+        'oilgas_source': ('usgs',
+            '/Users/ztessler/data/WorldPetroleumAssessment/tps_sumg/tps_sumg.shp'),
         'oilgas_vect': '#data/usgs/oilgas/oilgas.shp',
-        'oilgas_vect': '/Users/ztessler/data/WorldPetroleumAssessment/tps_sumg/tps_sumg.shp',
 
-        'pop_dens_source_rast': '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{year}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{year}.tif',
-        'pop_dens_rast': '#data/experiments/{exp}/pop_dens_{year}{ver}.{ext}',
-
-        'national_borders_vect': '/Users/ztessler/data/HIU.State.Gov_National_Boundaries/countries.json',
-        'per_capita_gdp_table': '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv',
+        'national_borders_source': ('HIU.State.Gov',
+            '/Users/ztessler/data/HIU.State.Gov_National_Boundaries/countries.json'),
+        'per_capita_gdp_source': ('worldbank',
+            '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv'),
         'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
 
         'basins': '#data/experiments/{exp}/basins{ver}.{ext}',

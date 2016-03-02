@@ -41,7 +41,7 @@ rgis_files = {
         }
 for experiment, config in experiments.iteritems():
     for name, remotepath in rgis_files.items():
-        if 'rgis' not in config[name].split('/'):
+        if config[name.replace('rast', 'source')] != 'rgis':
             continue
         localfile = os.path.join('#downloads', os.path.basename(remotepath))
         download = env.Command(

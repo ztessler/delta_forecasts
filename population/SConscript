@@ -8,41 +8,40 @@ import gis
 Import('*')
 
 for experiment, config in experiments.iteritems():
-    if 'GPWv4_beta' not in config['pop_dens_source_rast'].split('/'):
-        continue
-    for year in years:
-        env.Command(
-                source=[config['deltas'],
-                        config['pop_dens_source_rast'].format(year=year)],
-                target=config['delta_pop_dens'].format(year=year, ver=''),
-                action=gis.delta_zonal_stats)
-
-        env.Command(
-                source=[config['basins_rast'].format(ver='', ext='tif'),
-                        config['pop_dens_source_rast'].format(year=year)],
-                target=config['pop_dens_rast'].format(year=year, ver='', ext='tif'),
-                action=gis.regrid_to_raster,
-                method='average')
-
-        for delta in deltas:
+    if config['pop_dens_source'][0] == 'gpwv4':
+        for year in years:
             env.Command(
-                    source=[config['delta_map'].format(delta=delta),
-                            config['pop_dens_source_rast'].format(year=year)],
-                    target=config['delta_pop_rast'].format(delta=delta,
-                                                           year=year),
-                    action=pp.clip_pop_to_delta)
+                    source=[config['deltas'],
+                            config['pop_dens_source'][1].format(year=year)],
+                    target=config['delta_pop_dens'].format(year=year, ver=''),
+                    action=gis.delta_zonal_stats)
 
             env.Command(
-                    source=[config['delta_map'].format(delta=delta),
-                            config['delta_srtm_rast'].format(delta=delta, srtm=config['srtm']),
-                            config['delta_pop_rast'].format(delta=delta, year=year)],
-                    target=config['delta_pop_elevations'].format(delta=delta, year=year),
-                    action=pp.pop_elevation_bins,
-                    delta=delta)
+                    source=[config['basins_rast'].format(ver='', ext='tif'),
+                            config['pop_dens_source'][1].format(year=year)],
+                    target=config['pop_dens_rast'].format(year=year, ver='', ext='tif'),
+                    action=gis.regrid_to_raster,
+                    method='average')
 
-            env.Command(
-                    source=config['delta_pop_elevations'].format(delta=delta, year=year),
-                    target=config['delta_hypso_plot'].format(delta=delta, year=year),
-                    action=pp.plot_hypsometric,
-                    delta=delta)
+            for delta in deltas:
+                env.Command(
+                        source=[config['delta_map'].format(delta=delta),
+                                config['pop_dens_source'][1].format(year=year)],
+                        target=config['delta_pop_rast'].format(delta=delta,
+                                                               year=year),
+                        action=pp.clip_pop_to_delta)
+
+                env.Command(
+                        source=[config['delta_map'].format(delta=delta),
+                                config['delta_srtm_rast'].format(delta=delta, srtm=config['srtm']),
+                                config['delta_pop_rast'].format(delta=delta, year=year)],
+                        target=config['delta_pop_elevations'].format(delta=delta, year=year),
+                        action=pp.pop_elevation_bins,
+                        delta=delta)
+
+                env.Command(
+                        source=config['delta_pop_elevations'].format(delta=delta, year=year),
+                        target=config['delta_hypso_plot'].format(delta=delta, year=year),
+                        action=pp.plot_hypsometric,
+                        delta=delta)
 

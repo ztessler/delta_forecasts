@@ -11,7 +11,7 @@ Import('*')
 for experiment, config in experiments.iteritems():
     env.Command(
             target=config['deltas'],
-            source='/Users/ztessler/data/deltas/global_map_shp/global_map.shp',
+            source=config['deltas_source'][1],
             action=geo.group_delta_shps,
             )
 
@@ -47,8 +47,8 @@ for experiment, config in experiments.iteritems():
             action=gis.raster_pixel_areas)
 
     env.Command(
-            source=[config['national_borders_vect'],
-                    config['per_capita_gdp_table'],
+            source=[config['national_borders_source'][1],
+                    config['per_capita_gdp_source'][1],
                     config['basins_rast'].format(ver='',ext='tif')],
             target=config['per_capita_gdp_rast'].format(ver='', ext='tif'),
             action=geo.rasterize_gnp)
