@@ -6,7 +6,7 @@ import csv
 
 SetOption('max_drift', 1)
 
-env = Environment(ENV=os.environ)
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
 env.Decider('MD5-timestamp')
 Export('env')
 
