@@ -3,6 +3,7 @@
 
 import os
 import csv
+import json
 
 SetOption('max_drift', 1)
 
@@ -33,6 +34,7 @@ Export('years')
 
 # EXPERIMENT configs
 defaults = {
+        'config_out': '#data/experiments/{exp}/config_{exp}.json',
         'deltas_source': ('tessler2015',
             '/Users/ztessler/data/deltas/global_map_shp/global_map.shp'),
         'deltas': '#data/Global/deltas.json',
@@ -146,4 +148,16 @@ SConscript('rgis/SConscript')
 SConscript('upstream/SConscript')
 SConscript('sediment/SConscript')
 SConscript('subsidence/SConscript')
+
+def save_config(env, target, source):
+    config = env['config']
+    with open(str(target[0]), 'w') as f:
+        json.dump(config, f)
+    return 0
+for experiment, config in experiments.iteritems():
+    env.Command(
+            target=config['config_out'],
+            source=None,
+            action=save_config,
+            config=config)
 
