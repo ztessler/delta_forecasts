@@ -4,6 +4,7 @@
 import os
 import csv
 import json
+from collections import OrderedDict
 
 SetOption('max_drift', 1)
 
@@ -21,11 +22,11 @@ with open('deltaIDs.csv', 'r') as deltaIDs:
     reader = csv.DictReader(deltaIDs)
     for d in reader:
         deltas[clean_delta_name(d['Delta'])] = int(d['deltaID'])
-
 deltas = { # for testing
         'Mekong': 26,
         'Nile': 30,
          }
+deltas = OrderedDict(sorted(deltas.items(), key=lambda t: t[0]))
 Export('deltas')
 
 years = [2000] #, 2005, 2010, 2015, 2020]
