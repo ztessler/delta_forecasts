@@ -45,3 +45,7 @@ for experiment, config in experiments.iteritems():
                         action=pp.plot_hypsometric,
                         delta=delta)
 
+env.Command(
+        source=None,
+        target='#downloads/pop_growth_rates.xls',
+        action='wget "http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F02_POPULATION_GROWTH_RATE.XLS" -O $TARGET')
