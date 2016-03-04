@@ -87,6 +87,8 @@ defaults = {
             '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv'),
         'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
 
+        'pop_growth_rate_source': ('un','http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F02_POPULATION_GROWTH_RATE.XLS'),
+
         'basins': '#data/experiments/{exp}/basins{ver}.{ext}',
         'reservoirs': '#data/experiments/{exp}/reservoir{ver}.pd',
         'discharge': '#data/experiments/{exp}/discharge{ver}.pd',
