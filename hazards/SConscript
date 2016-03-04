@@ -1,0 +1,26 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import os
+import process_hazards as ph
+import gis
+
+Import('*')
+
+
+for experiment, config in experiments.iteritems():
+    env.Command(
+            target=config['storm_surge_zip'],
+            source=None,
+            action='wget "' + config['storm_surge_source'][1] + '" -O $TARGET')
+    pathname = os.path.dirname(config['storm_surge_vect'])
+    basename = os.path.basename(pathname)
+    env.Command(
+            target=[config['storm_surge_vect'].replace('.shp', ext) for ext in ['.shp', '.shx',
+                                                                                '.cpg', '.dbf',
+                                                                                '.prj', '.qpj']],
+            source=config['storm_surge_zip'],
+            action=['unzip $SOURCE -d $$(dirname $TARGET)',
+                    'DIRPATH=$$(dirname $TARGET); NAME=$$(basename $${DIRPATH}); for i in $${DIRPATH}/*; do mv "$$i" "$${DIRPATH}/$$NAME.$${i##*.}"; done'])
+
+

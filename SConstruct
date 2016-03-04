@@ -88,6 +88,9 @@ defaults = {
         'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
 
         'pop_growth_rate_source': ('un','http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F02_POPULATION_GROWTH_RATE.XLS'),
+        'storm_surge_source': ('UNISDR', 'http://data.hdx.rwlabs.org/dataset/87ce9e07-4914-49e6-81cc-3e4913d1ea02/resource/9d30760e-292f-4e81-9f5f-8a526977aa68/download/SS-world.zip'),
+        'storm_surge_zip': '#data/unisdr/storm_surge.zip',
+        'storm_surge_vect': '#data/unisdr/storm_surge/storm_surge.shp',
 
         'basins': '#data/experiments/{exp}/basins{ver}.{ext}',
         'reservoirs': '#data/experiments/{exp}/reservoir{ver}.pd',
@@ -153,6 +156,7 @@ SConscript('rgis/SConscript')
 SConscript('upstream/SConscript')
 SConscript('sediment/SConscript')
 SConscript('subsidence/SConscript')
+SConscript('hazards/SConscript')
 
 def save_config(env, target, source):
     config = env['config']
