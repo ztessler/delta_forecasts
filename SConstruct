@@ -55,6 +55,8 @@ defaults = {
             '#data/srtm{srtm}/{delta}_srtm_full.tif',
         'delta_pop_elevations':
             '#data/{delta}/experiments/{exp}/{delta}_pop_{year}_elevations.pd',
+        'deltas_pop_elevations':
+            '#data/experiments/{exp}/delta_pop_{year}_elevations.pd',
         'delta_hypso_plot':
             '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{year}.png',
 

@@ -23,6 +23,7 @@ for experiment, config in experiments.iteritems():
                     action=gis.regrid_to_raster,
                     method='average')
 
+            elev_files = []
             for delta in deltas:
                 env.Command(
                         source=[config['delta_map'].format(delta=delta),
@@ -38,12 +39,20 @@ for experiment, config in experiments.iteritems():
                         target=config['delta_pop_elevations'].format(delta=delta, year=year),
                         action=pp.pop_elevation_bins,
                         delta=delta)
+                elev_files.append(config['delta_pop_elevations'].format(delta=delta,
+                                                                        year=year))
 
                 env.Command(
                         source=config['delta_pop_elevations'].format(delta=delta, year=year),
                         target=config['delta_hypso_plot'].format(delta=delta, year=year),
                         action=pp.plot_hypsometric,
                         delta=delta)
+
+            env.Command(
+                    source=elev_files,
+                    target=config['deltas_pop_elevations'].format(year=year),
+                    action=pp.group_delta_pop_elevations,
+                    deltas=deltas)
 
 env.Command(
         source=None,

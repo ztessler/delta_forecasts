@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from collections import OrderedDict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas
@@ -85,6 +86,17 @@ def pop_elevation_bins(env, target, source):
         pops[elev] = pop[under].mean() * frac_under * area_sqkm
     pandas.Series(pops, name='Population').to_pickle(str(target[0]))
     return 0
+
+
+def group_delta_pop_elevations(env, target, source):
+    deltas = env['deltas']
+    delta_pop_series = OrderedDict()
+    for delta, dfile in zip(deltas, source):
+        delta_pop_series[delta] = pandas.read_pickle(str(dfile))
+    pops = pandas.DataFrame.from_dict(delta_pop_series, orient='columns')
+    pops.to_pickle(str(target[0]))
+    return 0
+
 
 def plot_hypsometric(env, target, source):
     pops = pandas.read_pickle(str(source[0]))
