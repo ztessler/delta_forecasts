@@ -88,7 +88,7 @@ defaults = {
         'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
 
         'pop_growth_rate_source': ('un','http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F02_POPULATION_GROWTH_RATE.XLS'),
-        'storm_surge_source': ('UNISDR', 'http://data.hdx.rwlabs.org/dataset/87ce9e07-4914-49e6-81cc-3e4913d1ea02/resource/9d30760e-292f-4e81-9f5f-8a526977aa68/download/SS-world.zip'),
+        'storm_surge_source': ('unisdr', 'http://data.hdx.rwlabs.org/dataset/87ce9e07-4914-49e6-81cc-3e4913d1ea02/resource/9d30760e-292f-4e81-9f5f-8a526977aa68/download/SS-world.zip'),
         'storm_surge_zip': '#data/unisdr/storm_surge.zip',
         'storm_surge_vect': '#data/unisdr/storm_surge/storm_surge.shp',
 
@@ -102,6 +102,7 @@ defaults = {
         'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.pd',
         'relief': '#data/experiments/{exp}/relief{ver}.pd',
         'pop_dens': '#data/experiments/{exp}/pop_dens_{year}{ver}.pd',
+        'storm_surge': '#data/experiments/{exp}/storm_surge_10yr_return.pd',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',

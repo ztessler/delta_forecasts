@@ -7,20 +7,24 @@ import gis
 
 Import('*')
 
-
 for experiment, config in experiments.iteritems():
-    env.Command(
-            target=config['storm_surge_zip'],
-            source=None,
-            action='wget "' + config['storm_surge_source'][1] + '" -O $TARGET')
-    pathname = os.path.dirname(config['storm_surge_vect'])
-    basename = os.path.basename(pathname)
-    env.Command(
-            target=[config['storm_surge_vect'].replace('.shp', ext) for ext in ['.shp', '.shx',
-                                                                                '.cpg', '.dbf',
-                                                                                '.prj', '.qpj']],
-            source=config['storm_surge_zip'],
-            action=['unzip $SOURCE -d $$(dirname $TARGET)',
-                    'DIRPATH=$$(dirname $TARGET); NAME=$$(basename $${DIRPATH}); for i in $${DIRPATH}/*; do mv "$$i" "$${DIRPATH}/$$NAME.$${i##*.}"; done'])
+    if config['storm_surge_source'][0] == 'unisdr':
+        env.Command(
+                target=config['storm_surge_zip'],
+                source=None,
+                action='wget "' + config['storm_surge_source'][1] + '" -O $TARGET')
 
+        env.Command(
+                target=[config['storm_surge_vect'].replace('.shp', ext) for ext in ['.shp', '.shx',
+                                                                                    '.cpg', '.dbf',
+                                                                                    '.prj', '.qpj']],
+                source=config['storm_surge_zip'],
+                action=['unzip $SOURCE -d $$(dirname $TARGET)',
+                        'DIRPATH=$$(dirname $TARGET); NAME=$$(basename $${DIRPATH}); for i in $${DIRPATH}/*; do mv "$$i" "$${DIRPATH}/$$NAME.$${i##*.}"; done'])
 
+        env.Command(
+                target=config['storm_surge'],
+                source=[config['deltas'],
+                        config['storm_surge_vect']],
+                action=ph.storm_surge_agg_points,
+                return_level='T_10')
