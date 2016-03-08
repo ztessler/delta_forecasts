@@ -85,9 +85,11 @@ def groundwater_subsidence(env, target, source):
     natural_sub = pandas.read_pickle(str(source[1]))
 
     max_dd = drawdown.max()
-
-    sub = 3 * drawdown/max_dd * natural_sub # Ericson 2006, sec. 4.2
-    sub[sub<=0] = 0
+    if max_dd > 0:
+        sub = 3.0 * drawdown/max_dd * natural_sub # Ericson 2006, sec. 4.2
+        sub[sub<=0] = 0
+    else:
+        sub = 0.0 * natural_sub
     sub.to_pickle(str(target[0]))
     return 0
 
