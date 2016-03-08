@@ -1,3 +1,4 @@
+import numpy as np
 import pandas
 import geopandas
 import fiona
@@ -126,5 +127,8 @@ def compute_rslr(env, target, source):
 
     # Ericson 2006 Eq. 2
     rslr = eustatic_slr + natural_sub + groundwater_sub + oilgas_sub - aggradation
+
+    eps = np.finfo(np.float).eps
+    rslr[rslr<eps] = 0.0
     rslr.to_pickle(str(target[0]))
 
