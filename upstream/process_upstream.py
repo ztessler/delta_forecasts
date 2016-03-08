@@ -6,14 +6,14 @@ import rasterio
 
 def set_upstream_ones(env, target, source):
     basin_ids = pandas.read_pickle(str(source[0]))
-    ones = pandas.Series(1, index=basin_ids.index)
+    ones = pandas.Series(1.0, index=basin_ids.index)
     ones.to_pickle(str(target[0]))
     return 0
 
 
 def set_upstream_zeros(env, target, source):
     basin_ids = pandas.read_pickle(str(source[0]))
-    zeros = pandas.Series(0, index=basin_ids.index)
+    zeros = pandas.Series(0.0, index=basin_ids.index)
     zeros.to_pickle(str(target[0]))
     return 0
 
