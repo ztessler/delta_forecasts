@@ -20,6 +20,18 @@ for experiment, config in experiments.iteritems():
             target=config['delta_areas'],
             action=geo.calc_delta_areas)
 
+    env.Command(
+            source=config['delta_areas'],
+            target=config['delta_zeros'],
+            action=geo.set_delta_val,
+            val=0.0)
+
+    env.Command(
+            source=config['delta_areas'],
+            target=config['delta_ones'],
+            action=geo.set_delta_val,
+            val=1.0)
+
     # import ipdb;ipdb.set_trace()
     for delta in deltas:
         env.Command(

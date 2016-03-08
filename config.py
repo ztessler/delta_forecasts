@@ -61,7 +61,10 @@ defaults = {
         'lithology_rast': '#data/rgis/lithology{ver}.{ext}',
         'relief_source': 'rgis',
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
-        # 'gnp_rast': '#data/rgis/gnp{ver}.{ext}',
+
+        'zeros_rast': '#data/Global/zeros.tif',
+        'ones_rast': '#data/Global/ones.tif',
+
         'groundwater_source': ('wada', '/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc'),
         'groundwater_rast': '#data/wada/groundwater{ver}.{ext}',
         'oilgas_source': ('usgs',
@@ -127,8 +130,9 @@ experiments = {
         'pristine': {
             'Te': defaults['upstream_zeros'],
             'Eh': defaults['upstream_ones'],
-            'oilgas_source': (None, None),
-            'oilgas': defaults['delta_zeros'],
+            'oilgas_source': ('zeros', None),
+            'groundwater_source': ('zeros', None),
+            'groundwater_rast': '#data/experiments/{exp}/groundwater.tif',
             'eustatic_slr': 1.5,
             }
         }

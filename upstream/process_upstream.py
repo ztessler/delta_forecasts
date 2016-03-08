@@ -4,17 +4,21 @@ import pandas
 import rasterio
 
 
-def set_upstream_ones(env, target, source):
-    basin_ids = pandas.read_pickle(str(source[0]))
-    ones = pandas.Series(1.0, index=basin_ids.index)
-    ones.to_pickle(str(target[0]))
+def make_rast_val(env, target, source):
+    val = env['val']
+    with rasterio.open(str(source[0]), 'r') as rast:
+        meta = rast.meta.copy()
+    assert val != meta['nodata']
+    del meta['transform']
+    with rasterio.open(str(target[0]), 'w', **meta) as dst:
+        data = np.ones(dst.shape, dtype=type(val)) * val
+        dst.write(data, 1)
     return 0
 
-
-def set_upstream_zeros(env, target, source):
+def set_upstream_val(env, target, source):
     basin_ids = pandas.read_pickle(str(source[0]))
-    zeros = pandas.Series(0.0, index=basin_ids.index)
-    zeros.to_pickle(str(target[0]))
+    series = pandas.Series(env['val'], index=basin_ids.index)
+    series.to_pickle(str(target[0]))
     return 0
 
 

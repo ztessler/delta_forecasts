@@ -16,6 +16,13 @@ def clean_delta_name(delta):
     return delta.replace(' ','_').replace('-','_')
 
 
+def set_delta_val(env, target, source):
+    deltas = pandas.read_pickle(str(source[0]))
+    series = pandas.Series(env['val'], index=deltas.index)
+    series.to_pickle(str(target[0]))
+    return 0
+
+
 def group_delta_shps(env, target, source):
     deltas = geopandas.GeoDataFrame.from_file(str(source[0]))
     crs = deltas.crs

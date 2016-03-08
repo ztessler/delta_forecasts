@@ -27,6 +27,12 @@ for experiment, config in experiments.iteritems():
                 source=config['groundwater_source'][1],
                 target=config['groundwater_rast'].format(ver='', ext='tif'),
                 action='gdal_translate -of GTiff -a_srs "epsg:4326" $SOURCE $TARGET')
+    elif config['groundwater_source'][0] is 'zeros':
+        env.Command(
+                source=config['zeros_rast'],
+                target=config['groundwater_rast'],
+                action='cp $SOURCE $TARGET')
+
     env.Command(
             source=[config['deltas'],
                     config['groundwater_rast'].format(ver='', ext='tif')],
@@ -48,23 +54,29 @@ for experiment, config in experiments.iteritems():
             action=ps.groundwater_subsidence)
 
     # oil/gas
-    if config['oilgas_source'][0] == 'usgs':
+    if config['oilgas_source'][0] is 'zeros':
         env.Command(
-                source=config['oilgas_source'][1],
-                target=config['oilgas_vect'],
-                action=['cp $$(dirname $SOURCE)/* $$(dirname $TARGET)',
-                        'DIRPATH=$$(dirname $TARGET); NAME=$$(basename $${DIRPATH}); for i in $${DIRPATH}/*; do mv "$$i" "$${DIRPATH}/$$NAME.$${i##*.}"; done']
-                    )
+                source=config['delta_zeros'],
+                target=config['oilgas_subsidence'],
+                action='cp $SOURCE $TARGET')
+    else:
+        if config['oilgas_source'][0] == 'usgs':
+            env.Command(
+                    source=config['oilgas_source'][1],
+                    target=config['oilgas_vect'],
+                    action=['cp $$(dirname $SOURCE)/* $$(dirname $TARGET)',
+                            'DIRPATH=$$(dirname $TARGET); NAME=$$(basename $${DIRPATH}); for i in $${DIRPATH}/*; do mv "$$i" "$${DIRPATH}/$$NAME.$${i##*.}"; done']
+                        )
+            env.Command(
+                    source=[config['oilgas_vect'],
+                            config['deltas']],
+                    target=config['oilgas'],
+                    action=ps.oilgas_locations)
         env.Command(
-                source=[config['oilgas_vect'],
-                        config['deltas']],
-                target=config['oilgas'],
-                action=ps.oilgas_locations)
+                source=config['oilgas'],
+                target=config['oilgas_subsidence'],
+                action=ps.oilgas_subsidence)
 
-    env.Command(
-            source=config['oilgas'],
-            target=config['oilgas_subsidence'],
-            action=ps.oilgas_subsidence)
 
     # accelerated sea-level rise
     env.Command(

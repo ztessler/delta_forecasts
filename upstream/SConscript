@@ -8,14 +8,27 @@ Import('*')
 
 for experiment, config in experiments.iteritems():
     env.Command(
-            source=config['basin_ids'],
-            target=config['ones'],
-            action=pu.set_upstream_ones)
+            source=config['basins_rast'].format(ver='', ext='tif'),
+            target=config['zeros_rast'],
+            action=pu.make_rast_val,
+            val=0.0)
+    env.Command(
+            source=config['basins_rast'].format(ver='', ext='tif'),
+            target=config['ones_rast'],
+            action=pu.make_rast_val,
+            val=1.0)
 
     env.Command(
             source=config['basin_ids'],
-            target=config['zeros'],
-            action=pu.set_upstream_zeros)
+            target=config['upstream_zeros'],
+            action=pu.set_upstream_val,
+            val=0.0)
+
+    env.Command(
+            source=config['basin_ids'],
+            target=config['upstream_ones'],
+            action=pu.set_upstream_val,
+            val=1.0)
 
     env.Command(
             source=[config['basins_rast'].format(ver='', ext='tif'),
