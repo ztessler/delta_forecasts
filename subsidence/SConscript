@@ -55,11 +55,12 @@ for experiment, config in experiments.iteritems():
                 action=['cp $$(dirname $SOURCE)/* $$(dirname $TARGET)',
                         'DIRPATH=$$(dirname $TARGET); NAME=$$(basename $${DIRPATH}); for i in $${DIRPATH}/*; do mv "$$i" "$${DIRPATH}/$$NAME.$${i##*.}"; done']
                     )
-    env.Command(
-            source=[config['oilgas_vect'],
-                    config['deltas']],
-            target=config['oilgas'],
-            action=ps.oilgas_locations)
+        env.Command(
+                source=[config['oilgas_vect'],
+                        config['deltas']],
+                target=config['oilgas'],
+                action=ps.oilgas_locations)
+
     env.Command(
             source=config['oilgas'],
             target=config['oilgas_subsidence'],
