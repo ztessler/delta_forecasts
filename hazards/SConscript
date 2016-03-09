@@ -26,5 +26,4 @@ for experiment, config in experiments.iteritems():
                 target=config['storm_surge'],
                 source=[config['deltas'],
                         config['storm_surge_vect']],
-                action=ph.storm_surge_agg_points,
-                return_level='T_10')
+                action=ph.storm_surge_agg_points)
