@@ -92,7 +92,7 @@ defaults = {
         'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.pd',
         'relief': '#data/experiments/{exp}/relief{ver}.pd',
         'pop_dens': '#data/experiments/{exp}/pop_dens_{year}{ver}.pd',
-        'storm_surge': '#data/experiments/{exp}/storm_surge_10yr_return.pd',
+        'storm_surge': '#data/experiments/{exp}/storm_surge_return_levels.pd',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',
