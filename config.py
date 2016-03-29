@@ -119,29 +119,55 @@ defaults = {
         'delta_zeros': '#data/experiments/{exp}/delta_zeros.pd',
         'delta_ones': '#data/experiments/{exp}/delta_ones.pd',
 
-        'eustatic_slr': 3.0,
         'srtm': 3,
+        'eustatic_slr': 3.0,
         }
 
 experiments = {
-        'contemp': {
-            'eustatic_slr': 3.0,
-            },
+        'contemp': defaults,
         'pristine': {
+            'parent': 'contemp',
             'Te': defaults['upstream_zeros'],
             'Eh': defaults['upstream_ones'],
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
             'groundwater_rast': '#data/experiments/{exp}/groundwater.tif',
             'eustatic_slr': 1.5,
-            }
+            },
         }
+
+# first fill in configs with parent values
+done = False
+while not done: # iterate until all parents and grandparents and great... have been filled in
+    done = True
+    updated_experiments = {}
+    for experiment in experiments.keys():
+        overrides = experiments[experiment]
+        if 'parent' in overrides:
+            done = False
+            parent = overrides['parent']
+            try:
+                grandparent = experiments[parent]['parent']
+            except KeyError:
+                grandparent = None
+            expanded = experiments[parent].copy()
+            expanded.update(overrides)
+            if grandparent:
+                expanded['parent'] = grandparent
+            else:
+                del expanded['parent']
+            updated_experiments[experiment] = expanded
+        else:
+            updated_experiments[experiment] = overrides
+    experiments = updated_experiments
+# then set experiment directories for output files
 for experiment in experiments.keys():
-    config = defaults.copy()
-    config.update(experiments[experiment])
+    config = experiments[experiment]
     for name, path in config.items():
         try:
             config[name] = path.format(exp=experiment, year='{year}', ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}')
         except AttributeError:
             pass
     experiments[experiment] = config
+
+
