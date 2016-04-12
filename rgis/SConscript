@@ -37,7 +37,7 @@ rgis_files = {
         'discharge_rast': os.path.join(
             wbm_remote_dir, 'CMORPH-GPCP1dd_dTS2003-Present', 'RGISresults',
             'Global', 'Discharge',
-            'Global_Discharge_CMORPH-GPCP1dd+Prist_06min_aLT.gdbc'),
+            'Global_Discharge_CMORPH-GPCP1dd+Prist_06min_aLT.gdbc.gz'),
         }
 for experiment, config in experiments.iteritems():
     for name, remotepath in rgis_files.items():
@@ -49,6 +49,12 @@ for experiment, config in experiments.iteritems():
                 source=None,
                 action='scp {} $TARGET'.format(remotepath),
                 )
+        if localfile[-3:] == '.gz':
+            download = env.Command(
+                    target=localfile[:-3],
+                    source=localfile,
+                    action='gunzip $SOURCE')
+            localfile = localfile[:-3]
         env.NoClean(download)
 
         fileroot, fileext = os.path.splitext(localfile)
