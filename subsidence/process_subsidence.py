@@ -1,3 +1,4 @@
+import csv
 import numpy as np
 import pandas
 import geopandas
@@ -6,6 +7,29 @@ import pint
 import rasterio
 import shapely.geometry as sgeom
 import shapely.ops as sops
+from interval import interval
+from collections import defaultdict
+
+
+def import_rslr_lit(env, target, source):
+    deltas = pandas.read_pickle(str(source[0]))
+    deltas[:] = np.nan
+    ranges = defaultdict(list)
+    with open(str(source[1])) as f:
+        reader = csv.DictReader(f)
+        for entry in reader:
+            rslr = entry['RSLR, mm/y']
+            if '-' in rslr:
+                rslr = np.mean(map(float, rslr.split('-')))
+            else:
+                try:
+                    rslr = float(rslr)
+                except ValueError:
+                    rslr = np.nan
+            ranges[entry['Delta']].append(rslr)
+    for delta, rslrs in ranges.iteritems():
+        deltas[delta] = np.nanmean(rslrs)
+    deltas.to_pickle(str(target[0]))
 
 
 def sed_aggradation(env, target, source):
@@ -26,8 +50,43 @@ def sed_aggradation(env, target, source):
     # mississippi values from storage/load estimates are in this range. use 50%
     retention_frac = 0.5
 
+    # biogenic sediment ??
+
     aggradation = Qs * retention_frac / sed_density / area
     aggradation.to('mm/year').magnitude.to_pickle(str(target[0]))
+    return 0
+
+
+def accomodation_space(env, target, source):
+    deltas = pandas.read_pickle(str(source[0]))
+    space = pandas.Series(index=deltas.index)
+    shape_factor = env['shape_factor']
+    with open(str(source[1])) as f:
+        reader = csv.DictReader(f)
+        for entry in reader:
+            delta = entry['Delta']
+            if delta in deltas:
+                area = Q_(float(entry['Ad, km2']), 'km**2')
+                depth = Q_(float(entry['Dsh, m']), 'm')
+                space[delta] = (shape_factor * area * depth).to('km**3').magnitude
+    # retention[retention.isnull()] = retention.mean()
+    retention[retention.isnull()] = 1
+    retention.to_pickle(str(target[0]))
+    return 0
+
+
+def import_sed_retention_ratio(env, target, source):
+    deltas = pandas.read_pickle(str(source[0]))
+    retention = pandas.Series(index=deltas.index)
+    with open(str(source[1])) as f:
+        reader = csv.DictReader(f)
+        for entry in reader:
+            delta = entry['Delta']
+            if delta in deltas:
+                retention[delta] = float(entry['TVs/OAdDsh'])
+    # retention[retention.isnull()] = retention.mean()
+    retention[retention.isnull()] = 1
+    retention.to_pickle(str(target[0]))
     return 0
 
 

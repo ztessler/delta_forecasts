@@ -65,6 +65,15 @@ defaults = {
         'zeros_rast': '#data/Global/zeros.tif',
         'ones_rast': '#data/Global/ones.tif',
 
+        'rslr_lit_source': ('higgins', '/Users/ztessler/data/RSLR/higgins_rslr.csv'),
+        # 'rslr_lit_source': ('higgins', '/Users/ztessler/data/RSLR/syvitski_2009_rslr.csv'),
+        'rslr_lit': '#data/experiments/{exp}/rslr_lit.pd',
+
+        'sed_morph_source': ('syvitski_saito_2007', '/Users/ztessler/data/RSLR/syvitski_saito_2007_morph.csv'),
+        'sed_retention': '#data/experiments/{exp}/sed_retention.pd',
+        'accomodation_space': '#data/experiments/{exp}/accomodation_space.pd',
+        'shape_factor': .5,
+
         'groundwater_source': ('wada', '/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc'),
         'groundwater_rast': '#data/wada/groundwater{ver}.{ext}',
         'oilgas_source': ('usgs',

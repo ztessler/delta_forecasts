@@ -7,13 +7,39 @@ import gis
 
 Import('*')
 
+
+###
+# Alternative: bqart sediment flux to estimate natural subsidence is sensitve to
+# errors and the size of the delta, plus need to make several assumptions about
+# sed density, fractionation, (and biogenic production?) to estimate rslr.
+# Instead, use literature values of RSLR to back out natural subsidence.
+# probably more accurate than use of literature values of natural subsidence and
+# computing rslr per Ericson 2006.  Lit values of contemporary RSLR, back out
+# relationship between sediment flux and agg rate (solve for combined
+# retention/seddensity/biogenic terms)
+###
+
+
 env.Command(
         source=experiments['pristine']['sed_aggradation'],
         target=experiments['pristine']['natural_subsidence'],
         action=ps.steady_state_subsidence,
         eustatic_slr=experiments['pristine']['eustatic_slr'])
 
+
 for experiment, config in experiments.iteritems():
+    env.Command(
+            source=[config['delta_zeros'],
+                    config['sed_morph_source'][1]],
+            target=config['sed_retention'],
+            action=ps.import_sed_retention_ratio)
+
+    env.Command(
+            source=[config['delta_zeros'],
+                    config['rslr_lit_source'][1]],
+            target=config['rslr_lit'],
+            action=ps.import_rslr_lit)
+
     env.Command(
             source=[config['delta_areas'],
                     config['Qs']],
