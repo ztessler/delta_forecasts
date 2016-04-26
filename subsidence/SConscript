@@ -113,3 +113,13 @@ for experiment, config in experiments.iteritems():
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr'],
             action=ps.compute_rslr)
+
+    env.Command(
+            source=[config['natural_subsidence'],
+                    config['sed_aggradataion'],
+                    config['groundwater_drawdown'],
+                    config['oilgas'],
+                    config['rslr_lit_source'][1]],
+            eustatic_slr=config['eustatic_slr'],
+            target=config['rslr_regres'],
+            action=ps.rslr_regression_model)

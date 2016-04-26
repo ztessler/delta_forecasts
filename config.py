@@ -65,8 +65,9 @@ defaults = {
         'zeros_rast': '#data/Global/zeros.tif',
         'ones_rast': '#data/Global/ones.tif',
 
-        'rslr_lit_source': ('higgins', '/Users/ztessler/data/RSLR/higgins_rslr.csv'),
-        # 'rslr_lit_source': ('higgins', '/Users/ztessler/data/RSLR/syvitski_2009_rslr.csv'),
+        # 'rslr_lit_source': ('higgins2014', '/Users/ztessler/data/RSLR/higgins_rslr.csv'),
+        'rslr_lit_source': ('higgins2014_agg', '/Users/ztessler/data/RSLR/higgins_rslr_summary.csv'),
+        # 'rslr_lit_source': ('syvitski2009', '/Users/ztessler/data/RSLR/syvitski_2009_rslr.csv'),
         'rslr_lit': '#data/experiments/{exp}/rslr_lit.pd',
 
         'sed_morph_source': ('syvitski_saito_2007', '/Users/ztessler/data/RSLR/syvitski_saito_2007_morph.csv'),

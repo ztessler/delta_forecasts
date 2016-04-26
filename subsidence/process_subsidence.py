@@ -191,3 +191,50 @@ def compute_rslr(env, target, source):
     rslr[rslr<eps] = 0.0
     rslr.to_pickle(str(target[0]))
 
+
+def rslr_regression_model(env, target, source):
+    nat_sub = pandas.read_pickle(str(source[0]))
+    agg = pandas.read_pickle(str(source[1]))
+    drawdown = pandas.read_pickle(str(source[2]))
+    oilgas = pandas.read_pickle(str(source[3]))
+    rslr_lit = pandas.read_pickle(str(source[4]))
+    eustatic_slr = env['eustatic_slr']
+
+    # import statsmodels.formula.api as smf
+    rslr_lit = rslr_lit.reindex(nat_sub.index).dropna()
+    subsidence = rslr_lit - eustatic_slr
+
+    drivers = pandas.DataFrame({'subsidence': subsidence,
+                                'nat_sub': nat_sub,
+                                'agg': agg,
+                                'drawdown': drawdown,
+                                'oilgas': oilgas.astype(float)})
+    train = drivers.reindex(rslr_lit.index)
+
+    nat_sub = nat_sub.reindex(rslr_lit.index)
+    agg = agg.reindex(rslr_lit.index)
+    drawdown = drawdown.reindex(rslr_lit.index)
+    oilgas = oilgas.reindex(rslr_lit.index)
+
+    model = smf.ols(formula='subsidence ~ nat_sub + agg + drawdown + oilgas', data=drivers)
+    results = model.fit()
+    print results.summary()
+    # rslr_est = pandas.Series(index=deltas)
+
+    from scipy.odr import Model, Data, ODR
+    from scipy.stats import linregress
+    rslr_lit = rslr_lit.reindex(nat_sub.index).dropna()
+    subsidence = rslr_lit - eustatic_slr
+
+    def func(params, x):
+        # return np.dot(params, x)
+        return params[0]*x[0,:] + params[1]*x[1,:] + params[2]*x[2,:] + params[3]*x[3,:] * params[4]*x[4,:]
+
+    linear = Model(func)
+    X = sm.add_constant(train.drop('subsidence', axis=1).values).T
+    mydata = Data(X, subsidence.values)
+    myodr = ODR(mydata, linear, beta0=np.ones(drivers.shape[1]))
+    myresults = myodr.run()
+    myresults.pprint()
+
+
