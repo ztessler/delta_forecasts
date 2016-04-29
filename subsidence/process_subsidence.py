@@ -10,26 +10,44 @@ import shapely.ops as sops
 from interval import interval
 from collections import defaultdict
 
+from cStringIO import StringIO
 
 def import_rslr_lit(env, target, source):
+    '''
+    Import rslr estimates from literture source.  Lit sources are given by a
+    range (say, 5-20).  Calc mean of each range, estimate a standard deviation
+    by weighting the range at the mean.  If "mean_weighting" is 2, the standard
+    deviation of the range (3-9) is std([3,6,6,9])
+    '''
     deltas = pandas.read_pickle(str(source[0]))
-    deltas[:] = np.nan
+    mean_weighting = env['mean_weighting']
+
+    data = pandas.DataFrame({'mean':[], 'std':[]})
     ranges = defaultdict(list)
     with open(str(source[1])) as f:
         reader = csv.DictReader(f)
         for entry in reader:
-            rslr = entry['RSLR, mm/y']
-            if '-' in rslr:
-                rslr = np.mean(map(float, rslr.split('-')))
+            est = entry['RSLR, mm/y']
+            if '-' in est:
+                est = map(float, est.split('-'))
+                meanval = np.mean(est)
+                for i in range(mean_weighting):
+                    est.insert(1, meanval)
             else:
                 try:
-                    rslr = float(rslr)
+                    est = [float(est)]
                 except ValueError:
-                    rslr = np.nan
-            ranges[entry['Delta']].append(rslr)
+                    continue
+            ranges[entry['Delta']].extend(est)
     for delta, rslrs in ranges.iteritems():
-        deltas[delta] = np.nanmean(rslrs)
-    deltas.to_pickle(str(target[0]))
+        data.loc[delta, 'mean'] = np.nanmean(rslrs)
+        if len(rslrs) > 1:
+            data.loc[delta, 'std'] = np.nanstd(rslrs, ddof=1)
+        else:
+            data.loc[delta, 'std'] = np.nan
+    # if only a single estimate, set standard deviation to the estimated rslr
+    data.loc[data['std'].isnull(), 'std'] = data.loc[data['std'].isnull(), 'mean'] #data.mean()['std']
+    data.to_pickle(str(target[0]))
 
 
 def sed_aggradation(env, target, source):

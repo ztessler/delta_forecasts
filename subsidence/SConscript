@@ -38,6 +38,7 @@ for experiment, config in experiments.iteritems():
             source=[config['delta_zeros'],
                     config['rslr_lit_source'][1]],
             target=config['rslr_lit'],
+            mean_weighting=config['rslr_lit_mean_weight'],
             action=ps.import_rslr_lit)
 
     env.Command(
