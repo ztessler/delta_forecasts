@@ -1,3 +1,4 @@
+import sys
 import csv
 import numpy as np
 import pandas
@@ -9,6 +10,10 @@ import shapely.geometry as sgeom
 import shapely.ops as sops
 from interval import interval
 from collections import defaultdict
+
+from scipy import odr
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
 
 from cStringIO import StringIO
 
@@ -213,46 +218,87 @@ def compute_rslr(env, target, source):
 def rslr_regression_model(env, target, source):
     nat_sub = pandas.read_pickle(str(source[0]))
     agg = pandas.read_pickle(str(source[1]))
-    drawdown = pandas.read_pickle(str(source[2]))
-    oilgas = pandas.read_pickle(str(source[3]))
+    drawdown_sub = pandas.read_pickle(str(source[2]))
+    oilgas_sub = pandas.read_pickle(str(source[3]))
     rslr_lit = pandas.read_pickle(str(source[4]))
     eustatic_slr = env['eustatic_slr']
 
-    # import statsmodels.formula.api as smf
-    rslr_lit = rslr_lit.reindex(nat_sub.index).dropna()
-    subsidence = rslr_lit - eustatic_slr
+    deltas = nat_sub.index
+
+    rslr_lit = rslr_lit.reindex(deltas).dropna()
+    subsidence = rslr_lit['mean'] - eustatic_slr
+
+    accel_sub = drawdown_sub + oilgas_sub
 
     drivers = pandas.DataFrame({'subsidence': subsidence,
                                 'nat_sub': nat_sub,
                                 'agg': agg,
-                                'drawdown': drawdown,
-                                'oilgas': oilgas.astype(float)})
+                                # 'drawdown': drawdown,
+                                # 'oilgas': oilgas.astype(float)})
+                                'accel_sub': accel_sub})
+    cols = ['nat_sub', 'agg', 'accel_sub']#, 'drawdown', 'oilgas']
     train = drivers.reindex(rslr_lit.index)
 
-    nat_sub = nat_sub.reindex(rslr_lit.index)
-    agg = agg.reindex(rslr_lit.index)
-    drawdown = drawdown.reindex(rslr_lit.index)
-    oilgas = oilgas.reindex(rslr_lit.index)
+    # remove any data columns with all constant values
+    var0 = train.var(0)
+    for col in list(cols):
+        if var0[col] == 0:
+            train = train.drop(col, axis=1)
+            cols.remove(col)
 
-    model = smf.ols(formula='subsidence ~ nat_sub + agg + drawdown + oilgas', data=drivers)
-    results = model.fit()
-    print results.summary()
-    # rslr_est = pandas.Series(index=deltas)
+    #http://stackoverflow.com/questions/16571150/how-to-capture-stdout-output-from-a-python-function-call
+    class Capturing(list):
+	def __enter__(self):
+	    self._stdout = sys.stdout
+	    sys.stdout = self._stringio = StringIO()
+	    return self
+	def __exit__(self, *args):
+	    self.extend(self._stringio.getvalue().splitlines())
+	    sys.stdout = self._stdout
 
-    from scipy.odr import Model, Data, ODR
-    from scipy.stats import linregress
-    rslr_lit = rslr_lit.reindex(nat_sub.index).dropna()
-    subsidence = rslr_lit - eustatic_slr
+    model = smf.ols(formula='subsidence ~ nat_sub + agg + accel_sub', data=train)
+    ols_results = model.fit()
+    with Capturing() as output:
+        print ols_results.summary()
 
-    def func(params, x):
-        # return np.dot(params, x)
-        return params[0]*x[0,:] + params[1]*x[1,:] + params[2]*x[2,:] + params[3]*x[3,:] * params[4]*x[4,:]
 
-    linear = Model(func)
-    X = sm.add_constant(train.drop('subsidence', axis=1).values).T
-    mydata = Data(X, subsidence.values)
-    myodr = ODR(mydata, linear, beta0=np.ones(drivers.shape[1]))
-    myresults = myodr.run()
-    myresults.pprint()
+    def linfunc(params, x):
+        return np.dot(params, x)
 
+    linmodel = odr.Model(linfunc)
+    X = sm.add_constant(train[cols].values).T
+    mydata = odr.RealData(x=X, y=train['subsidence'].values, sy=rslr_lit['std'].values)
+    myodr = odr.ODR(mydata, linmodel, beta0=ols_results.params[['Intercept']+cols])
+    myodr.set_job(fit_type=0) # 0 for ODR, 2 for OLS
+    odr_results = myodr.run()
+
+    with Capturing(output) as output:
+        odr_results.pprint()
+
+    rslr_modeled = pandas.Series(index=deltas)
+    for delta in deltas:
+        rslr_modeled[delta] = linfunc(odr_results.beta, np.r_[1, drivers[cols].loc[delta]])
+    rslr_modeled.to_pickle(str(target[0]))
+
+    with Capturing(output) as output:
+        for delta in train.index:
+            X = sm.add_constant(train.drop(delta)[cols].values).T
+            subdata = odr.RealData(X, train['subsidence'].drop(delta).values, sy=rslr_lit['std'].drop(delta).values)
+            subodr = odr.ODR(subdata, linmodel, beta0=ols_results.params[['Intercept']+cols])
+            subodr.set_job(fit_type=0)
+            subresults = subodr.run()
+
+            odrpred = linfunc(odr_results.beta, np.r_[1, train.loc[delta, cols]])
+            subodrpred = linfunc(subresults.beta, np.r_[1, train.loc[delta, cols]])
+            print '{}:'.format(delta)
+            print '\t{}'.format(str(train.loc[delta,cols]).replace('\n','\n\t'))
+            print '\ttarget:\t\t\t{}'.format(rslr_lit.loc[delta, 'mean'])
+            print '\tmodeled full:\t\t{}'.format(odrpred)
+            print '\tmodeled test:\t\t{}'.format(subodrpred)
+            print '\tparams test:\t\t{}'.format(subresults.beta)
+
+    with open(str(target[1]), 'w') as fout:
+        fout.write('\n'.join(output))
+
+    return 0
 

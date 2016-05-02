@@ -115,12 +115,14 @@ for experiment, config in experiments.iteritems():
             target=config['rslr'],
             action=ps.compute_rslr)
 
-    env.Command(
-            source=[config['natural_subsidence'],
-                    config['sed_aggradataion'],
-                    config['groundwater_drawdown'],
-                    config['oilgas'],
-                    config['rslr_lit_source'][1]],
-            eustatic_slr=config['eustatic_slr'],
-            target=config['rslr_regres'],
-            action=ps.rslr_regression_model)
+    if experiment != 'pristine':
+        env.Command(
+                source=[config['natural_subsidence'],
+                        config['sed_aggradation'],
+                        config['groundwater_subsidence'],
+                        config['oilgas_subsidence'],
+                        config['rslr_lit']],
+                eustatic_slr=config['eustatic_slr'],
+                target=[config['rslr_regress'].format(ext='pd'),
+                        config['rslr_regress'].format(ext='txt')],
+                action=ps.rslr_regression_model)

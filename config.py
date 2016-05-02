@@ -123,6 +123,7 @@ defaults = {
         'natural_subsidence': '#data/experiments/pristine/natural_subsidence.pd',
         'sed_aggradation': '#data/experiments/{exp}/sed_aggradation.pd',
         'rslr': '#data/experiments/{exp}/rslr.pd',
+        'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
 
         'basin_pixel_areas': '#data/experiments/{exp}/basin_pixel_areas.tif',
         'upstream_zeros': '#data/experiments/{exp}/upstream_zeros.pd',
