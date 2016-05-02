@@ -84,7 +84,7 @@ for experiment, config in experiments.iteritems():
     if config['oilgas_source'][0] is 'zeros':
         env.Command(
                 source=config['delta_zeros'],
-                target=config['oilgas_subsidence'],
+                target=config['oilgas'],
                 action='cp $SOURCE $TARGET')
     else:
         if config['oilgas_source'][0] == 'usgs':
@@ -99,10 +99,10 @@ for experiment, config in experiments.iteritems():
                             config['deltas']],
                     target=config['oilgas'],
                     action=ps.oilgas_locations)
-        env.Command(
-                source=config['oilgas'],
-                target=config['oilgas_subsidence'],
-                action=ps.oilgas_subsidence)
+    env.Command(
+            source=config['oilgas'],
+            target=config['oilgas_subsidence'],
+            action=ps.oilgas_subsidence)
 
 
     # accelerated sea-level rise
