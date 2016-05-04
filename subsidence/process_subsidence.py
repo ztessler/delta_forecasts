@@ -55,6 +55,41 @@ def import_rslr_lit(env, target, source):
     data.to_pickle(str(target[0]))
 
 
+def import_accomodation_space(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    deltas = pandas.read_pickle(str(source[0]))
+    space = pandas.Series(index=deltas.index)
+    shape_factor = 0.5 #env['shape_factor']
+    with open(str(source[1])) as f:
+        reader = csv.DictReader(f)
+        for entry in reader:
+            delta = entry['Delta']
+            if delta in deltas:
+                area = Q_(float(entry['Ad, km2']), 'km**2')
+                depth = Q_(float(entry['Dsh, m']), 'm')
+                space[delta] = (shape_factor * area * depth).to('km**3').magnitude
+    space[space.isnull()] = space.mean()
+    space.to_pickle(str(target[0]))
+    return 0
+
+
+def import_sed_retention_ratio(env, target, source):
+    deltas = pandas.read_pickle(str(source[0]))
+    retention = pandas.Series(index=deltas.index)
+    with open(str(source[1])) as f:
+        reader = csv.DictReader(f)
+        for entry in reader:
+            delta = entry['Delta']
+            if delta in deltas:
+                retention[delta] = float(entry['TVs/OAdDsh'])
+    # retention[retention.isnull()] = retention.mean()
+    retention[retention.isnull()] = 1
+    retention.to_pickle(str(target[0]))
+    return 0
+
+
 def sed_aggradation(env, target, source):
     ureg = pint.UnitRegistry()
     Q_ = ureg.Quantity
@@ -80,37 +115,27 @@ def sed_aggradation(env, target, source):
     return 0
 
 
-def accomodation_space(env, target, source):
-    deltas = pandas.read_pickle(str(source[0]))
-    space = pandas.Series(index=deltas.index)
-    shape_factor = env['shape_factor']
-    with open(str(source[1])) as f:
-        reader = csv.DictReader(f)
-        for entry in reader:
-            delta = entry['Delta']
-            if delta in deltas:
-                area = Q_(float(entry['Ad, km2']), 'km**2')
-                depth = Q_(float(entry['Dsh, m']), 'm')
-                space[delta] = (shape_factor * area * depth).to('km**3').magnitude
-    # retention[retention.isnull()] = retention.mean()
-    retention[retention.isnull()] = 1
-    retention.to_pickle(str(target[0]))
+def sed_aggradation_variable_retention(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    area = Q_(pandas.read_pickle(str(source[0])),
+            'km**2')
+    Qs = Q_(pandas.read_pickle(str(source[1]))
+            .groupby(level='Delta')
+            .sum(),
+            'kg/s')
+    retention_frac = pandas.read_pickle(str(source[2]))
+
+    # estimate from Blum and Roberts 2009, Nature GeoSci, mississippi value
+    sed_density = Q_(1.5, 'g/cm**3') # g/cm**3, also in BT/km**3
+
+    # biogenic sediment ??
+
+    aggradation = Qs * retention_frac / sed_density / area
+    aggradation.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
 
-
-def import_sed_retention_ratio(env, target, source):
-    deltas = pandas.read_pickle(str(source[0]))
-    retention = pandas.Series(index=deltas.index)
-    with open(str(source[1])) as f:
-        reader = csv.DictReader(f)
-        for entry in reader:
-            delta = entry['Delta']
-            if delta in deltas:
-                retention[delta] = float(entry['TVs/OAdDsh'])
-    # retention[retention.isnull()] = retention.mean()
-    retention[retention.isnull()] = 1
-    retention.to_pickle(str(target[0]))
-    return 0
 
 
 def steady_state_subsidence(env, target, source):

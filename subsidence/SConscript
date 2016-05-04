@@ -36,6 +36,12 @@ for experiment, config in experiments.iteritems():
 
     env.Command(
             source=[config['delta_zeros'],
+                    config['sed_morph_source'][1]],
+            target=config['accomodation_space'],
+            action=ps.import_accomodation_space)
+
+    env.Command(
+            source=[config['delta_zeros'],
                     config['rslr_lit_source'][1]],
             target=config['rslr_lit'],
             mean_weighting=config['rslr_lit_mean_weight'],
@@ -46,6 +52,12 @@ for experiment, config in experiments.iteritems():
                     config['Qs']],
             target=config['sed_aggradation'],
             action=ps.sed_aggradation)
+    # env.Command(
+            # source=[config['delta_areas'],
+                    # config['Qs'],
+                    # config['sed_retention']],
+            # target=config['sed_aggradation'],
+            # action=ps.sed_aggradation_variable_retention)
 
     # accelerated compaction:
     # groundwater
