@@ -18,7 +18,8 @@ deltas = { # for testing
          }
 deltas = OrderedDict(sorted(deltas.items(), key=lambda t: t[0]))
 
-years = [2000] #, 2005, 2010, 2015, 2020]
+popyears = [2010] #[2000, 2005, 2010, 2015, 2020]
+forecasts = [2010, 2025, 2050, 2075, 2100]
 
 # EXPERIMENT configs
 defaults = {
@@ -29,23 +30,25 @@ defaults = {
         'delta_areas': '#data/Global/delta_areas.pd',
 
         'pop_dens_source': ('gpwv4',
-            '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{year}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{year}.tif'),
-        'pop_dens_rast': '#data/experiments/{exp}/pop_dens_{year}{ver}.{ext}',
-        'delta_pop_dens': '#data/experiments/{exp}/delta_pop_dens_{year}.pd',
+            '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{popyear}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{popyear}.tif'),
+        'pop_dens_rast': '#data/experiments/{exp}/pop_dens_{popyear}{ver}.{ext}',
+        'delta_pop_dens': '#data/experiments/{exp}/delta_pop_dens_{popyear}.pd',
 
         'delta_map': '#data/{delta}/{delta}.json',
         'delta_pop_rast':
-            '#data/gpwv4/{delta}_pop_{year}.tif',
+            '#data/gpwv4/{delta}_pop_{popyear}.tif',
         'delta_srtm_rast':
             '#data/srtm{srtm}/{delta}_srtm.tif',
         'delta_srtm_full_rast':
             '#data/srtm{srtm}/{delta}_srtm_full.tif',
         'delta_pop_elevations':
-            '#data/{delta}/experiments/{exp}/{delta}_pop_{year}_elevations.pd',
+            '#data/{delta}/experiments/{exp}/{delta}_pop_{popyear}_elevations.pd',
         'deltas_pop_elevations':
-            '#data/experiments/{exp}/delta_pop_{year}_elevations.pd',
+            '#data/experiments/{exp}/delta_pop_{popyear}_elevations.pd',
+        'deltas_pop_elevations_forecast': # populations at different elevations given rslr forecasts
+            '#data/experiments/{exp}/delta_pop_{popyear}_elevations_{forecast}.pd',
         'delta_hypso_plot':
-            '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{year}.png',
+            '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{popyear}.png',
 
         'basins_source': 'rgis',
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
@@ -102,7 +105,7 @@ defaults = {
         'lithology': '#data/experiments/{exp}/lithology{ver}.pd',
         'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.pd',
         'relief': '#data/experiments/{exp}/relief{ver}.pd',
-        'pop_dens': '#data/experiments/{exp}/pop_dens_{year}{ver}.pd',
+        'pop_dens': '#data/experiments/{exp}/pop_dens_{popyear}{ver}.pd',
         'storm_surge': '#data/experiments/{exp}/storm_surge_return_levels.pd',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
@@ -177,7 +180,7 @@ for experiment in experiments.keys():
     config = experiments[experiment]
     for name, path in config.items():
         try:
-            config[name] = path.format(exp=experiment, year='{year}', ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}')
+            config[name] = path.format(exp=experiment, popyear='{popyear}', ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}')
         except AttributeError:
             pass
     experiments[experiment] = config
