@@ -9,50 +9,47 @@ Import('*')
 
 for experiment, config in experiments.iteritems():
     if config['pop_dens_source'][0] == 'gpwv4':
-        for popyear in popyears:
+        env.Command(
+                source=[config['deltas'],
+                        config['pop_dens_source'][1]],
+                target=config['delta_pop_dens'].format(ver=''),
+                action=gis.delta_zonal_stats)
+
+        env.Command(
+                source=[config['basins_rast'].format(ver='', ext='tif'),
+                        config['pop_dens_source'][1]],
+                target=config['pop_dens_rast'].format(ver='', ext='tif'),
+                action=gis.regrid_to_raster,
+                method='average')
+
+        elev_files = []
+        for delta in deltas:
             env.Command(
-                    source=[config['deltas'],
-                            config['pop_dens_source'][1].format(popyear=popyear)],
-                    target=config['delta_pop_dens'].format(popyear=popyear, ver=''),
-                    action=gis.delta_zonal_stats)
-
-            env.Command(
-                    source=[config['basins_rast'].format(ver='', ext='tif'),
-                            config['pop_dens_source'][1].format(popyear=popyear)],
-                    target=config['pop_dens_rast'].format(popyear=popyear, ver='', ext='tif'),
-                    action=gis.regrid_to_raster,
-                    method='average')
-
-            elev_files = []
-            for delta in deltas:
-                env.Command(
-                        source=[config['delta_map'].format(delta=delta),
-                                config['pop_dens_source'][1].format(popyear=popyear)],
-                        target=config['delta_pop_rast'].format(delta=delta,
-                                                               popyear=popyear),
-                        action=pp.clip_pop_to_delta)
-
-                env.Command(
-                        source=[config['delta_map'].format(delta=delta),
-                                config['delta_srtm_rast'].format(delta=delta, srtm=config['srtm']),
-                                config['delta_pop_rast'].format(delta=delta, popyear=popyear)],
-                        target=config['delta_pop_elevations'].format(delta=delta, popyear=popyear),
-                        action=pp.pop_elevation_bins,
-                        delta=delta)
-                elev_files.append(config['delta_pop_elevations'].format(delta=delta,
-                                                                        popyear=popyear))
-
-                env.Command(
-                        source=config['delta_pop_elevations'].format(delta=delta, popyear=popyear),
-                        target=config['delta_hypso_plot'].format(delta=delta, popyear=popyear),
-                        action=pp.plot_hypsometric,
-                        delta=delta)
+                    source=[config['delta_map'].format(delta=delta),
+                            config['pop_dens_source'][1]],
+                    target=config['delta_pop_rast'].format(delta=delta),
+                    action=pp.clip_pop_to_delta)
 
             env.Command(
-                    source=elev_files,
-                    target=config['deltas_pop_elevations'].format(popyear=popyear),
-                    action=pp.group_delta_pop_elevations,
-                    deltas=deltas)
+                    source=[config['delta_map'].format(delta=delta),
+                            config['delta_srtm_rast'].format(delta=delta, srtm=config['srtm']),
+                            config['delta_pop_rast'].format(delta=delta)],
+                    target=config['delta_pop_elevations'].format(delta=delta),
+                    action=pp.pop_elevation_bins,
+                    delta=delta)
+            elev_files.append(config['delta_pop_elevations'].format(delta=delta))
+
+            env.Command(
+                    source=config['delta_pop_elevations'].format(delta=delta),
+                    target=config['delta_hypso_plot'].format(delta=delta),
+                    action=pp.plot_hypsometric,
+                    delta=delta)
+
+        env.Command(
+                source=elev_files,
+                target=config['deltas_pop_elevations'],
+                action=pp.group_delta_pop_elevations,
+                deltas=deltas)
 
 env.Command(
         source=None,

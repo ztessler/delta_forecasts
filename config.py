@@ -18,7 +18,7 @@ deltas = { # for testing
          }
 deltas = OrderedDict(sorted(deltas.items(), key=lambda t: t[0]))
 
-popyears = [2010] #[2000, 2005, 2010, 2015, 2020]
+popyear = 2015
 forecasts = [2010, 2025, 2050, 2075, 2100]
 
 # EXPERIMENT configs
@@ -175,14 +175,23 @@ while not done: # iterate until all parents and grandparents and great... have b
         else:
             updated_experiments[experiment] = overrides
     experiments = updated_experiments
-# then set experiment directories for output files
+# then set experiment directories and population year for output files
 for experiment in experiments.keys():
     config = experiments[experiment]
     for name, path in config.items():
-        try:
-            config[name] = path.format(exp=experiment, popyear='{popyear}', ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}')
-        except AttributeError:
-            pass
+        if isinstance(path, tuple):
+            pathitems = []
+            for item in path:
+                try:
+                    pathitems.append(item.format(exp=experiment, popyear=popyear, ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}'))
+                except AttributeError:
+                    pathitems.append(item)
+            config[name] = tuple(pathitems)
+        else:
+            try:
+                config[name] = path.format(exp=experiment, popyear=popyear, ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}')
+            except AttributeError:
+                pass
     experiments[experiment] = config
 
 

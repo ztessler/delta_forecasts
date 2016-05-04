@@ -23,7 +23,7 @@ for experiment, config in experiments.iteritems():
 
         env.Command(
                 source=[config['per_capita_gdp'].format(ver='', ext='pd'),
-                        config['pop_dens'].format(popyear=2000, ver='', ext='pd')],
+                        config['pop_dens'].format(ver='', ext='pd')],
                 target=config['Eh'],
                 action=ps.compute_Eh)
 

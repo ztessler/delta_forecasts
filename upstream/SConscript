@@ -101,13 +101,12 @@ for experiment, config in experiments.iteritems():
             method='weightedmean',
             fill='mean')
 
-    for popyear in popyears:
-        env.Command(
-                source=[config['basins_rast'].format(ver='', ext='tif'),
-                        config['basin_ids'],
-                        config['pop_dens_rast'].format(popyear=popyear, ver='', ext='tif'),
-                        config['basin_pixel_areas']],
-                target=config['pop_dens'].format(popyear=popyear, ver=''),
-                action=pu.agg_over_basins,
-                method='weightedmean',
-                fill='mean')
+    env.Command(
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['basin_ids'],
+                    config['pop_dens_rast'].format(ver='', ext='tif'),
+                    config['basin_pixel_areas']],
+            target=config['pop_dens'].format(ver=''),
+            action=pu.agg_over_basins,
+            method='weightedmean',
+            fill='mean')

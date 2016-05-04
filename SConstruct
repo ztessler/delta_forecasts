@@ -3,7 +3,7 @@
 
 import os
 import json
-from config import deltas, popyears, experiments
+from config import deltas, experiments
 
 SetOption('max_drift', 1)
 
@@ -12,7 +12,6 @@ env.Decider('MD5-timestamp')
 Export('env')
 
 Export('deltas')
-Export('popyears')
 Export('experiments')
 
 
