@@ -19,7 +19,7 @@ deltas = { # for testing
 deltas = OrderedDict(sorted(deltas.items(), key=lambda t: t[0]))
 
 popyear = 2015
-forecasts = [2010, 2025, 2050, 2075, 2100]
+forecasts = [2025, 2050, 2075, 2100]
 
 # EXPERIMENT configs
 defaults = {
@@ -47,7 +47,7 @@ defaults = {
         'deltas_pop_elevations':
             '#data/experiments/{exp}/delta_pop_{popyear}_elevations.pd',
         'deltas_pop_elevations_forecast': # populations at different elevations given rslr forecasts
-            '#data/experiments/{exp}/delta_pop_{popyear}_elevations_{forecast}.pd',
+            '#data/experiments/{exp}/delta_pop_{popyear}_elevations_forecasts.pd',
         'delta_hypso_plot':
             '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{popyear}.png',
 
@@ -92,7 +92,8 @@ defaults = {
             '/Users/ztessler/data/GDP_per_capita_WorldBank/ca0453f8-8c4c-4825-b40b-1a1bcd139c6a_v2.csv'),
         'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
 
-        'pop_growth_rate_source': ('un','http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F02_POPULATION_GROWTH_RATE.XLS'),
+        'pop_growth_source': ('un','http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS'),
+        'pop_growth': '#data/un/pop_growth.xls',
         'storm_surge_source': ('unisdr', 'http://data.hdx.rwlabs.org/dataset/87ce9e07-4914-49e6-81cc-3e4913d1ea02/resource/9d30760e-292f-4e81-9f5f-8a526977aa68/download/SS-world.zip'),
         'storm_surge_zip': '#data/unisdr/storm_surge.zip',
         'storm_surge_vect': '#data/unisdr/storm_surge/storm_surge.shp',

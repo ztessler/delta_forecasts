@@ -1,4 +1,5 @@
 import os
+import json
 import numpy as np
 from collections import OrderedDict
 import matplotlib as mpl
@@ -106,4 +107,49 @@ def plot_hypsometric(env, target, source):
     a.set_xlabel('Elevation, m')
     a.set_ylabel('Population at or below elevation')
     f.savefig(str(target[0]))
+    return 0
+
+
+# env.Command(
+        # source=[config['deltas_pop_elevations'],
+                # config['delta_countries'],
+                # congig['pop_growth']],
+        # target=config['deltas_pop_elevations_forecasts'].format(year),
+        # action=pp.forecast_pop_elev,
+        # forecasts=forecasts)
+def forecast_pop_elev(env, target, source):
+    delta_pops = pandas.read_pickle(str(source[0]))
+    with open(str(source[1]), 'r') as fin:
+        countries = json.load(fin)
+    popdata = pandas.read_excel(str(source[2]), sheetname=None)
+    popyear = env['popyear']
+    forecasts = env['forecasts']
+
+    def clean_df(df):
+        df.columns = df.iloc[14,:]
+        df = df.iloc[15:,:]
+        df = df.drop(['Index', 'Variant'], axis=1).set_index('Country code')
+        return df
+
+    futurepop = {}
+    for version in ['ESTIMATES', 'LOW VARIANT', 'MEDIUM VARIANT', 'HIGH VARIANT']:
+        futurepop[version.replace(' VARIANT','').lower()] = clean_df(popdata[version])
+
+    variants = ['low','medium','high']
+    multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, variants],
+                                                 names=['delta','forecast','variant'])
+    pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex)
+    for delta, popelevs in delta_pops.iteritems():
+        for variant in variants:
+            for forecast in forecasts:
+                growth = 0.0
+                for country, cdata in countries[delta].iteritems():
+                    iso = int(cdata['iso_num'])
+                    if popyear in futurepop['estimates']:
+                        cur_pop = futurepop['estimates'][popyear][iso]
+                    else:
+                        cur_pop = futurepop['medium'][popyear][iso]
+                    growth += futurepop[variant][forecast][iso] / cur_pop * cdata['area_frac']
+                pop_elevs[delta, forecast, variant] = popelevs * growth
+    pop_elevs.to_pickle(str(target[0]))
     return 0

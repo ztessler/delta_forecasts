@@ -53,5 +53,14 @@ for experiment, config in experiments.iteritems():
 
 env.Command(
         source=None,
-        target='#downloads/pop_growth_rates.xls',
-        action='wget "'+config['pop_growth_rate_source'][1]+'" -O $TARGET')
+        target=config['pop_growth'],
+        action='wget "'+config['pop_growth_source'][1]+'" -O $TARGET')
+
+env.Command(
+        source=[config['deltas_pop_elevations'],
+                config['delta_countries'],
+                config['pop_growth']],
+        target=config['deltas_pop_elevations_forecast'].format(popyear),
+        action=pp.forecast_pop_elev,
+        popyear=popyear,
+        forecasts=forecasts)
