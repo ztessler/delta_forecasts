@@ -28,6 +28,7 @@ defaults = {
             '/Users/ztessler/data/deltas/global_map_shp/global_map.shp'),
         'deltas': '#data/Global/deltas.json',
         'delta_areas': '#data/Global/delta_areas.pd',
+        'delta_countries': '#data/Global/delta_countries.json',
 
         'pop_dens_source': ('gpwv4',
             '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{popyear}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{popyear}.tif'),

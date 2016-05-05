@@ -1,4 +1,6 @@
+import sys
 import csv
+import json
 import numpy as np
 from scipy.ndimage import distance_transform_edt
 import pandas
@@ -9,7 +11,7 @@ from rasterio.features import rasterize
 import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 from rasterstats import zonal_stats
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 
 def clean_delta_name(delta):
@@ -155,3 +157,44 @@ def rasterize_gnp(env, target, source):
         gdp = gdp[tuple(nearest)]
         gdp[~mask.astype(bool)] = meta['nodata']
         rast.write(gdp, 1)
+
+
+def delta_countries(env, target, source):
+    # import ipdb;ipdb.set_trace()
+    deltas = geopandas.GeoDataFrame.from_file(str(source[0]))
+    deltas = deltas.set_index('Delta')
+
+    lcea = ccrs.LambertCylindrical()
+    deltas_lcea = deltas.to_crs(lcea.proj4_params)
+
+    d_countries = defaultdict(lambda : defaultdict(float)) # dict of {deltaname: {country: area, country: area, ...}}
+    with fiona.open(str(source[1]), 'r') as borders:
+        assert borders.crs['init'] == u'epsg:4326'
+        crs = ccrs.PlateCarree()
+        for i, delta in enumerate(deltas.index):
+            print i, delta
+            sys.stdout.flush()
+            intersects = borders.items(bbox=deltas['geometry'][delta].bounds)
+            for fid, feat in intersects:
+                country = lcea.project_geometry(sgeom.shape(feat['geometry']), src_crs=crs)
+                area = deltas_lcea['geometry'][delta].intersection(country).area
+                if area > 0:
+                    name = feat['properties']['NAME'].title()
+                    iso_num = feat['properties']['iso_num']
+                    d_countries[delta][(name, iso_num)] += area
+
+    fractions = {}
+    for d, cs in d_countries.iteritems():
+        fractions[d] = {}
+        tot_area = 0
+        for c, a in cs.iteritems():
+            tot_area += a
+        for c, a in cs.iteritems():
+            name, iso = c
+            fractions[d][name] = {}
+            fractions[d][name]['iso_num'] = iso
+            fractions[d][name]['area_frac'] = a/tot_area
+
+    with open(str(target[0]), 'w') as out:
+        json.dump(fractions, out)
+    return 0

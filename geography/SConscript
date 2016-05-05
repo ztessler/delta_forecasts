@@ -64,3 +64,9 @@ for experiment, config in experiments.iteritems():
                     config['basins_rast'].format(ver='',ext='tif')],
             target=config['per_capita_gdp_rast'].format(ver='', ext='tif'),
             action=geo.rasterize_gnp)
+
+    env.Command(
+            source=[config['deltas'],
+                    config['national_borders_source'][1]],
+            target=config['delta_countries'],
+            action=geo.delta_countries)
