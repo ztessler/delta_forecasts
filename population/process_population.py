@@ -4,6 +4,7 @@ import numpy as np
 from collections import OrderedDict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import pint
 import pandas
 import geopandas
 from affine import Affine
@@ -138,7 +139,7 @@ def forecast_pop_elev(env, target, source):
     variants = ['low','medium','high']
     multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, variants],
                                                  names=['delta','forecast','variant'])
-    pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex)
+    pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex, dtype='float')
     for delta, popelevs in delta_pops.iteritems():
         for variant in variants:
             for forecast in forecasts:
@@ -152,4 +153,37 @@ def forecast_pop_elev(env, target, source):
                     growth += futurepop[variant][forecast][iso] / cur_pop * cdata['area_frac']
                 pop_elevs[delta, forecast, variant] = popelevs * growth
     pop_elevs.to_pickle(str(target[0]))
+    return 0
+
+
+def adjust_hypso_for_rslr(env, source, target):
+    Q_ = pint.UnitRegistry().Quantity
+
+    pop_elevs = pandas.read_pickle(str(source[0]))
+    rslrs = pandas.read_pickle(str(source[1]))
+    elevyear = env['elevyear']
+    forecasts = env['forecasts']
+
+    # multiindex = pandas.MultiIndex.from_product([pop_elevs.dropna(how='all',axis=0).index, forecasts],
+                                                # names=['delta','forecast'])
+    adj_pop = pandas.DataFrame(index=pop_elevs.index, columns=pop_elevs.columns, dtype=float)
+    target_elevs = np.array(adj_pop.index)
+
+    for (delta, forecast), _ in pop_elevs.groupby(level=['delta', 'forecast'], axis=1):
+        years = Q_(forecast - elevyear, 'year')
+        rslr = Q_(rslrs[delta], 'mm/year')
+        rise = rslr * years
+
+        new_elevs = (Q_(target_elevs, 'm') - rise).to('m').magnitude
+        all_elevs = np.sort(np.r_[new_elevs, np.arange(np.max(target_elevs)+1)])
+
+        pops = pop_elevs[delta, forecast]
+        pops.index = new_elevs # old values but now at adjusted elevations
+        pops = pops.reindex(all_elevs) # add original elevations back into index (0,1,2,...) now with nans
+        pops = pops.interpolate('spline', order=3)
+        pops = pops.reindex(target_elevs) # drop new_elevs, keeping only whole elevations (0,1,2,...)
+
+        adj_pop[delta, forecast] = pops
+
+    adj_pop.to_pickle(str(target[0]))
     return 0

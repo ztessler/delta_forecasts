@@ -34,20 +34,20 @@ for experiment, config in experiments.iteritems():
                     source=[config['delta_map'].format(delta=delta),
                             config['delta_srtm_rast'].format(delta=delta, srtm=config['srtm']),
                             config['delta_pop_rast'].format(delta=delta)],
-                    target=config['delta_pop_elevations'].format(delta=delta),
+                    target=config['delta_pop_hypso'].format(delta=delta),
                     action=pp.pop_elevation_bins,
                     delta=delta)
-            elev_files.append(config['delta_pop_elevations'].format(delta=delta))
+            elev_files.append(config['delta_pop_hypso'].format(delta=delta))
 
             env.Command(
-                    source=config['delta_pop_elevations'].format(delta=delta),
-                    target=config['delta_hypso_plot'].format(delta=delta),
+                    source=config['delta_pop_hypso'].format(delta=delta),
+                    target=config['hypso_plot'].format(delta=delta),
                     action=pp.plot_hypsometric,
                     delta=delta)
 
         env.Command(
                 source=elev_files,
-                target=config['deltas_pop_elevations'],
+                target=config['pop_hypso'],
                 action=pp.group_delta_pop_elevations,
                 deltas=common['deltas'])
 
@@ -57,10 +57,18 @@ env.Command(
         action='wget "'+config['pop_growth_source'][1]+'" -O $TARGET')
 
 env.Command(
-        source=[config['deltas_pop_elevations'],
+        source=[config['pop_hypso'],
                 config['delta_countries'],
                 config['pop_growth']],
-        target=config['deltas_pop_elevations_forecast'].format(common['popyear']),
+        target=config['pop_hypso_growth'].format(common['popyear']),
         action=pp.forecast_pop_elev,
         popyear=common['popyear'],
+        forecasts=common['forecasts'])
+
+env.Command(
+        source=[config['pop_hypso_growth'].format(common['popyear']),
+                config['rslr']],
+        target=config['pop_hypso_growth_rslr'],
+        action=pp.adjust_hypso_for_rslr,
+        elevyear=common['elevyear'],
         forecasts=common['forecasts'])

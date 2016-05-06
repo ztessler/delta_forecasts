@@ -46,13 +46,15 @@ defaults = {
             '#data/srtm{srtm}/{delta}_srtm.tif',
         'delta_srtm_full_rast':
             '#data/srtm{srtm}/{delta}_srtm_full.tif',
-        'delta_pop_elevations':
+        'delta_pop_hypso':
             '#data/{delta}/experiments/{exp}/{delta}_pop_{popyear}_elevations.pd',
-        'deltas_pop_elevations':
+        'pop_hypso':
             '#data/experiments/{exp}/delta_pop_{popyear}_elevations.pd',
-        'deltas_pop_elevations_forecast': # populations at different elevations given rslr forecasts
+        'pop_hypso_growth': # populations at different elevations given rslr forecasts
             '#data/experiments/{exp}/delta_pop_{popyear}_elevations_forecasts.pd',
-        'delta_hypso_plot':
+        'pop_hypso_growth_rslr':
+            '#data/experiments/{exp}/delta_pop_{popyear}_elevations_forecasts_rslr.pd',
+        'hypso_plot':
             '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{popyear}.png',
 
         'basins_source': 'rgis',
@@ -133,6 +135,8 @@ defaults = {
         'sed_aggradation': '#data/experiments/{exp}/sed_aggradation.pd',
         'rslr': '#data/experiments/{exp}/rslr.pd',
         'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
+
+        'storm_surge_adj_rslr': '#data/experiments/{exp}/storm_surge_return_levels_rslr.pd',
 
         'basin_pixel_areas': '#data/experiments/{exp}/basin_pixel_areas.tif',
         'upstream_zeros': '#data/experiments/{exp}/upstream_zeros.pd',
