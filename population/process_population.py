@@ -127,21 +127,29 @@ def forecast_pop_elev(env, target, source):
     forecasts = env['forecasts']
 
     def clean_df(df):
-        df.columns = df.iloc[14,:]
+        def clean_colname(s):
+            try:
+                c = int(s)
+            except ValueError:
+                c = str(s)
+            return c
+        df.columns = map(clean_colname, df.iloc[14,:])
         df = df.iloc[15:,:]
-        df = df.drop(['Index', 'Variant'], axis=1).set_index('Country code')
+        df = df.drop([u'Index', u'Variant'], axis=1).set_index(u'Country code')
         return df
 
     futurepop = {}
-    for version in ['ESTIMATES', 'LOW VARIANT', 'MEDIUM VARIANT', 'HIGH VARIANT']:
-        futurepop[version.replace(' VARIANT','').lower()] = clean_df(popdata[version])
+    sheet_scenarios = ['ESTIMATES', 'LOW VARIANT', 'MEDIUM VARIANT', 'HIGH VARIANT']
+    scenarios = ['estimates', '1_low', '2_medium', '3_high']  # add numerical prefix for lexical sorting
+    for sheet_scenario, scenario in zip(sheet_scenarios, scenarios):
+        futurepop[scenario] = clean_df(popdata[sheet_scenario])
 
-    variants = ['low','medium','high']
-    multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, variants],
-                                                 names=['delta','forecast','variant'])
+    scenarios = scenarios[1:]
+    multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, scenarios],
+                                                 names=['delta','forecast','pop_scenario'])
     pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex, dtype='float')
     for delta, popelevs in delta_pops.iteritems():
-        for variant in variants:
+        for scenario in scenarios:
             for forecast in forecasts:
                 growth = 0.0
                 for country, cdata in countries[delta].iteritems():
@@ -149,9 +157,9 @@ def forecast_pop_elev(env, target, source):
                     if popyear in futurepop['estimates']:
                         cur_pop = futurepop['estimates'][popyear][iso]
                     else:
-                        cur_pop = futurepop['medium'][popyear][iso]
-                    growth += futurepop[variant][forecast][iso] / cur_pop * cdata['area_frac']
-                pop_elevs[delta, forecast, variant] = popelevs * growth
+                        cur_pop = futurepop['2_medium'][popyear][iso]
+                    growth += futurepop[scenario][forecast][iso] / cur_pop * cdata['area_frac']
+                pop_elevs[delta, forecast, scenario] = popelevs * growth
     pop_elevs.to_pickle(str(target[0]))
     return 0
 
