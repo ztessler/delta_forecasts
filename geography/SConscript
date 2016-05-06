@@ -33,7 +33,7 @@ for experiment, config in experiments.iteritems():
             val=1.0)
 
     # import ipdb;ipdb.set_trace()
-    for delta in deltas:
+    for delta in common['deltas']:
         env.Command(
                 target=config['delta_map'].format(delta=delta),
                 source=config['deltas'],

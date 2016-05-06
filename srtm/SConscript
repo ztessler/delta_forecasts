@@ -7,7 +7,7 @@ import process_srtm as ps
 Import('*')
 
 for experiment, config in experiments.iteritems():
-    for delta in deltas:
+    for delta in common['deltas']:
         env.Command(
                 source=config['delta_map'].format(delta=delta),
                 target=config['delta_srtm_full_rast'].format(

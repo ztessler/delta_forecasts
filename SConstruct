@@ -3,7 +3,7 @@
 
 import os
 import json
-from config import deltas, popyear, forecasts, experiments
+from config import experiments, common
 
 SetOption('max_drift', 1)
 
@@ -11,11 +11,8 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 env.Decider('MD5-timestamp')
 Export('env')
 
-Export('deltas')
-Export('popyear')
-Export('forecasts')
 Export('experiments')
-
+Export('common')
 
 SConscript('geography/SConscript')
 SConscript('population/SConscript')

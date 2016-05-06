@@ -18,8 +18,12 @@ deltas = { # for testing
          }
 deltas = OrderedDict(sorted(deltas.items(), key=lambda t: t[0]))
 
-popyear = 2015
-forecasts = [2025, 2050, 2075, 2100]
+common = {'deltas': deltas,
+          'popyear': 2015,  # GPWv4 adjusted to UN 2015 numbers
+          'elevyear': 2000, # SRTM year
+          'rslryear': 2000,  # nominal based on various input data
+          'forecasts': [2025, 2050, 2075, 2100],
+          }
 
 # EXPERIMENT configs
 defaults = {
@@ -185,13 +189,13 @@ for experiment in experiments.keys():
             pathitems = []
             for item in path:
                 try:
-                    pathitems.append(item.format(exp=experiment, popyear=popyear, ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}'))
+                    pathitems.append(item.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}'))
                 except AttributeError:
                     pathitems.append(item)
             config[name] = tuple(pathitems)
         else:
             try:
-                config[name] = path.format(exp=experiment, popyear=popyear, ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}')
+                config[name] = path.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}')
             except AttributeError:
                 pass
     experiments[experiment] = config

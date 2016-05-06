@@ -23,7 +23,7 @@ for experiment, config in experiments.iteritems():
                 method='average')
 
         elev_files = []
-        for delta in deltas:
+        for delta in common['deltas']:
             env.Command(
                     source=[config['delta_map'].format(delta=delta),
                             config['pop_dens_source'][1]],
@@ -49,7 +49,7 @@ for experiment, config in experiments.iteritems():
                 source=elev_files,
                 target=config['deltas_pop_elevations'],
                 action=pp.group_delta_pop_elevations,
-                deltas=deltas)
+                deltas=common['deltas'])
 
 env.Command(
         source=None,
@@ -60,7 +60,7 @@ env.Command(
         source=[config['deltas_pop_elevations'],
                 config['delta_countries'],
                 config['pop_growth']],
-        target=config['deltas_pop_elevations_forecast'].format(popyear),
+        target=config['deltas_pop_elevations_forecast'].format(common['popyear']),
         action=pp.forecast_pop_elev,
-        popyear=popyear,
-        forecasts=forecasts)
+        popyear=common['popyear'],
+        forecasts=common['forecasts'])
