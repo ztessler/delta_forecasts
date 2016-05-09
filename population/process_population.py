@@ -183,7 +183,7 @@ def adjust_hypso_for_rslr(env, source, target):
         rise = rslr * years
 
         new_elevs = (Q_(target_elevs, 'm') - rise).to('m').magnitude
-        all_elevs = np.sort(np.r_[new_elevs, np.arange(np.max(target_elevs)+1)])
+        all_elevs = np.sort(list(set(np.r_[new_elevs, np.arange(np.max(target_elevs)+1)])))
 
         pops = pop_elevs[delta, forecast]
         pops.index = new_elevs # old values but now at adjusted elevations
