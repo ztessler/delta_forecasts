@@ -27,3 +27,9 @@ for experiment, config in experiments.iteritems():
                 source=[config['deltas'],
                         config['storm_surge_vect']],
                 action=ph.storm_surge_agg_points)
+
+    env.Command(
+            target=config['surge_populations'],
+            source=[config['storm_surge'],
+                    config['pop_hypso_growth_rslr']],
+            action=ph.storm_surge_populations)

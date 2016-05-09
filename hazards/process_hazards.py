@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import scipy
 import pandas
 import geopandas
 import cartopy.crs as ccrs
@@ -60,4 +61,22 @@ def storm_surge_agg_points(env, target, source):
         mean_surge.loc[dname,:] = agg_surge
 
     mean_surge.to_pickle(str(target[0]))
+    return 0
+
+
+def storm_surge_populations(env, source, target):
+    surge = pandas.read_pickle(str(source[0])).astype(float)
+    populations = pandas.read_pickle(str(source[1]))
+
+    # columns is multiindex, (delta, rslr/pop forecast year, pop_scenario)
+    # index is return period
+    # value is people exposed
+    exposure = pandas.DataFrame(index=surge.columns, columns=populations.columns, dtype=float)
+
+    # for (delta, forecast), _ in pop_elevs.groupby(level=['delta', 'forecast'], axis=1):
+    for (delta, forecast, pop_scenario), pop in populations.iteritems():
+        spline = scipy.interpolate.InterpolatedUnivariateSpline(np.array(pop.index), pop.values)
+        exposure.loc[:,(delta, forecast, pop_scenario)] = spline(np.array(surge.loc[delta,:]))
+
+    exposure.to_pickle(str(target[0]))
     return 0
