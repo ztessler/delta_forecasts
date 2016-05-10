@@ -33,3 +33,8 @@ for experiment, config in experiments.iteritems():
             source=[config['storm_surge'],
                     config['pop_hypso_growth_rslr']],
             action=ph.storm_surge_populations)
+
+    env.Command(
+            source=config['surge_populations'],
+            target=config['surge_1yr_EV_exposure'],
+            action=ph.surge_expected_expo)
