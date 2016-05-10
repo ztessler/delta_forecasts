@@ -140,11 +140,11 @@ def forecast_pop_elev(env, target, source):
 
     futurepop = {}
     sheet_scenarios = ['ESTIMATES', 'LOW VARIANT', 'MEDIUM VARIANT', 'HIGH VARIANT']
-    scenarios = ['estimates', '1_low', '2_medium', '3_high']  # add numerical prefix for lexical sorting
+    scenarios = ['estimates', 'low', 'medium', 'high']
     for sheet_scenario, scenario in zip(sheet_scenarios, scenarios):
         futurepop[scenario] = clean_df(popdata[sheet_scenario])
 
-    scenarios = scenarios[1:]
+    scenarios = pandas.CategoricalIndex(scenarios[1:], categories=scenarios[1:], ordered=True)
     multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, scenarios],
                                                  names=['delta','forecast','pop_scenario'])
     pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex, dtype='float')
@@ -157,7 +157,7 @@ def forecast_pop_elev(env, target, source):
                     if popyear in futurepop['estimates']:
                         cur_pop = futurepop['estimates'][popyear][iso]
                     else:
-                        cur_pop = futurepop['2_medium'][popyear][iso]
+                        cur_pop = futurepop['medium'][popyear][iso]
                     growth += futurepop[scenario][forecast][iso] / cur_pop * cdata['area_frac']
                 pop_elevs[delta, forecast, scenario] = popelevs * growth
     pop_elevs.to_pickle(str(target[0]))
