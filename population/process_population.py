@@ -174,7 +174,7 @@ def adjust_hypso_for_rslr(env, source, target):
 
     # multiindex = pandas.MultiIndex.from_product([pop_elevs.dropna(how='all',axis=0).index, forecasts],
                                                 # names=['delta','forecast'])
-    adj_pop = pandas.DataFrame(index=pop_elevs.index, columns=pop_elevs.columns, dtype=float)
+    adj_pop = pandas.DataFrame(index=pop_elevs.index, columns=pop_elevs.columns, dtype='float')
     target_elevs = np.array(adj_pop.index)
 
     for (delta, forecast), _ in pop_elevs.groupby(level=['delta', 'forecast'], axis=1):

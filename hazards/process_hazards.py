@@ -17,7 +17,7 @@ def storm_surge_agg_points(env, target, source):
             axis=1)
 
     centroids = deltas.centroid
-    mean_surge = pandas.DataFrame(index=deltas.index, columns=cols)
+    mean_surge = pandas.DataFrame(index=deltas.index, columns=cols, dtype='float')
     for dname in deltas.index:
         lon, lat = np.array(centroids.loc[dname])
         # reproject delta shape to Azimuthal Equidistant - distances are correct from center point, good for buffering
@@ -71,7 +71,7 @@ def storm_surge_populations(env, source, target):
     # columns is multiindex, (delta, rslr/pop forecast year, pop_scenario)
     # index is return period
     # value is people exposed
-    exposure = pandas.DataFrame(index=surge.columns, columns=populations.columns, dtype=float)
+    exposure = pandas.DataFrame(index=surge.columns, columns=populations.columns, dtype='float')
 
     # for (delta, forecast), _ in pop_elevs.groupby(level=['delta', 'forecast'], axis=1):
     for (delta, forecast, pop_scenario), pop in populations.iteritems():

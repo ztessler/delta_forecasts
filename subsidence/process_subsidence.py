@@ -27,7 +27,7 @@ def import_rslr_lit(env, target, source):
     deltas = pandas.read_pickle(str(source[0]))
     mean_weighting = env['mean_weighting']
 
-    data = pandas.DataFrame({'mean':[], 'std':[]})
+    data = pandas.DataFrame({'mean':[], 'std':[]}, dtype='float')
     ranges = defaultdict(list)
     with open(str(source[1])) as f:
         reader = csv.DictReader(f)
