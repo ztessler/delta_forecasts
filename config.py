@@ -138,7 +138,8 @@ defaults = {
         'rslr': '#data/experiments/{exp}/rslr.pd',
         'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
 
-        'storm_surge_adj_rslr': '#data/experiments/{exp}/storm_surge_return_levels_rslr.pd',
+        'vuln_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
+        'vuln': '#data/experiments/{exp}/vuln.pd',
 
         'basin_pixel_areas': '#data/experiments/{exp}/basin_pixel_areas.tif',
         'upstream_zeros': '#data/experiments/{exp}/upstream_zeros.pd',
