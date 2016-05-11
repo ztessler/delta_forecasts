@@ -79,14 +79,14 @@ def pop_elevation_bins(env, target, source):
             dst_affine, dst_crs, srtm_raw_nodata, RESAMPLING.bilinear)
 
     good = np.logical_and(pop != pop_raw_nodata, srtm != srtm_raw_nodata)
-    pops = {}
-    elevs = range(35+1)
+    pops = pandas.Series(name='Population', index=pandas.Index([], dtype='float'))
+    elevs = np.r_[np.arange(35+1, dtype='float'), np.inf]
     for elev in elevs:
         under = np.logical_and(good, srtm <= elev)
         over = np.logical_and(good, srtm > elev)
         frac_under = under.sum() / float(good.sum())
         pops[elev] = pop[under].mean() * frac_under * area_sqkm
-    pandas.Series(pops, name='Population').to_pickle(str(target[0]))
+    pops.sort_index().to_pickle(str(target[0]))
     return 0
 
 
@@ -174,8 +174,10 @@ def adjust_hypso_for_rslr(env, source, target):
 
     # multiindex = pandas.MultiIndex.from_product([pop_elevs.dropna(how='all',axis=0).index, forecasts],
                                                 # names=['delta','forecast'])
-    adj_pop = pandas.DataFrame(index=pop_elevs.index, columns=pop_elevs.columns, dtype='float')
-    target_elevs = np.array(adj_pop.index)
+    target_elevs = pop_elevs.index.tolist()
+    target_elevs.remove(np.inf)
+    target_elevs = np.array(target_elevs)
+    adj_pop = pandas.DataFrame(index=target_elevs, columns=pop_elevs.columns, dtype='float')
 
     for (delta, forecast), _ in pop_elevs.groupby(level=['Delta', 'Forecast'], axis=1):
         years = Q_(forecast - elevyear, 'year')
@@ -185,7 +187,7 @@ def adjust_hypso_for_rslr(env, source, target):
         new_elevs = (Q_(target_elevs, 'm') - rise).to('m').magnitude
         all_elevs = np.sort(list(set(np.r_[new_elevs, np.arange(np.max(target_elevs)+1)])))
 
-        pops = pop_elevs[delta, forecast]
+        pops = pop_elevs[delta, forecast].loc[target_elevs]
         pops.index = new_elevs # old values but now at adjusted elevations
         pops = pops.reindex(all_elevs) # add original elevations back into index (0,1,2,...) now with nans
         pops = pops.interpolate('spline', order=3)
