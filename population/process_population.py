@@ -146,7 +146,7 @@ def forecast_pop_elev(env, target, source):
 
     scenarios = pandas.CategoricalIndex(scenarios[1:], categories=scenarios[1:], ordered=True)
     multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, scenarios],
-                                                 names=['delta','forecast','pop_scenario'])
+                                                 names=['Delta','Forecast','Pop_Scenario'])
     pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex, dtype='float')
     for delta, popelevs in delta_pops.iteritems():
         for scenario in scenarios:
@@ -177,7 +177,7 @@ def adjust_hypso_for_rslr(env, source, target):
     adj_pop = pandas.DataFrame(index=pop_elevs.index, columns=pop_elevs.columns, dtype='float')
     target_elevs = np.array(adj_pop.index)
 
-    for (delta, forecast), _ in pop_elevs.groupby(level=['delta', 'forecast'], axis=1):
+    for (delta, forecast), _ in pop_elevs.groupby(level=['Delta', 'Forecast'], axis=1):
         years = Q_(forecast - elevyear, 'year')
         rslr = Q_(rslrs[delta], 'mm/year')
         rise = rslr * years
