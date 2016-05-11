@@ -13,6 +13,7 @@ with open('deltaIDs.csv', 'r') as deltaIDs:
     for d in reader:
         deltas[clean_delta_name(d['Delta'])] = int(d['deltaID'])
 deltas = { # for testing
+        'Chao_Phraya': 5,
         'Irrawaddy': 18,
         'Mekong': 26,
         'Mississippi': 27,
