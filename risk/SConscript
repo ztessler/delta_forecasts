@@ -14,3 +14,15 @@ for experiment, config in experiments.iteritems():
                         config['delta_zeros']],
                 target=config['vuln'],
                 action=pr.import_idi_vuln)
+
+    env.Command(
+            source=[config['surge_annual_exposure'],
+                    config['vuln']],
+            target=config['surge_risk'],
+            action=pr.adj_annual_exposure_for_vuln)
+
+    env.Command(
+            source=[config['surge_risk'],
+                    config['pop_hypso_growth']],
+            target=config['surge_percap_risk'],
+            action=pr.per_capita_exposure)
