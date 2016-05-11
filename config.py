@@ -90,7 +90,7 @@ defaults = {
         'shape_factor': .5,
 
         'groundwater_source': ('wada', '/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc'),
-        'groundwater_rast': '#data/wada/groundwater{ver}.{ext}',
+        'groundwater_rast': '#data/experiments/{exp}/groundwater{ver}.{ext}',
         'oilgas_source': ('usgs',
             '/Users/ztessler/data/WorldPetroleumAssessment/tps_sumg/tps_sumg.shp'),
         'oilgas_vect': '#data/usgs/oilgas/oilgas.shp',
@@ -102,9 +102,9 @@ defaults = {
         'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
 
         'pop_growth_source': ('un','http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS'),
-        'pop_growth': '#data/un/pop_growth.xls',
+        'pop_growth': '#downloads/un_pop_growth.xls',
         'storm_surge_source': ('unisdr', 'http://data.hdx.rwlabs.org/dataset/87ce9e07-4914-49e6-81cc-3e4913d1ea02/resource/9d30760e-292f-4e81-9f5f-8a526977aa68/download/SS-world.zip'),
-        'storm_surge_zip': '#data/unisdr/storm_surge.zip',
+        'storm_surge_zip': '#downloads/unisdr_storm_surge.zip',
         'storm_surge_vect': '#data/unisdr/storm_surge/storm_surge.shp',
 
         'basins': '#data/experiments/{exp}/basins{ver}.{ext}',
@@ -165,7 +165,6 @@ experiments = {
             'Eh': defaults['upstream_ones'],
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
-            'groundwater_rast': '#data/experiments/{exp}/groundwater.tif',
             'eustatic_slr': 1.5,
             },
         }

@@ -66,10 +66,10 @@ for experiment, config in experiments.iteritems():
                 source=config['groundwater_source'][1],
                 target=config['groundwater_rast'].format(ver='', ext='tif'),
                 action='gdal_translate -of GTiff -a_srs "epsg:4326" $SOURCE $TARGET')
-    elif config['groundwater_source'][0] is 'zeros':
+    elif config['groundwater_source'][0] == 'zeros':
         env.Command(
                 source=config['zeros_rast'],
-                target=config['groundwater_rast'],
+                target=config['groundwater_rast'].format(ver='', ext='tif'),
                 action='cp $SOURCE $TARGET')
 
     env.Command(
@@ -93,7 +93,7 @@ for experiment, config in experiments.iteritems():
             action=ps.groundwater_subsidence)
 
     # oil/gas
-    if config['oilgas_source'][0] is 'zeros':
+    if config['oilgas_source'][0] == 'zeros':
         env.Command(
                 source=config['delta_zeros'],
                 target=config['oilgas'],
