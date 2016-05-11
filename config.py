@@ -117,7 +117,7 @@ defaults = {
 
         'storm_surge': '#data/experiments/{exp}/storm_surge_return_levels.pd',
         'surge_populations': '#data/experiments/{exp}/surge_population_exposure.pd',
-        'surge_1yr_EV_exposure': '#data/experiments/{exp}/surge_1yr_EV_exposure.pd',
+        'surge_annual_exposure': '#data/experiments/{exp}/surge_annual_exposure.pd',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',

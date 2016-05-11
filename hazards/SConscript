@@ -36,5 +36,5 @@ for experiment, config in experiments.iteritems():
 
     env.Command(
             source=config['surge_populations'],
-            target=config['surge_1yr_EV_exposure'],
+            target=config['surge_annual_exposure'],
             action=ph.surge_expected_expo)
