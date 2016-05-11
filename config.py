@@ -13,8 +13,11 @@ with open('deltaIDs.csv', 'r') as deltaIDs:
     for d in reader:
         deltas[clean_delta_name(d['Delta'])] = int(d['deltaID'])
 deltas = { # for testing
+        'Irrawaddy': 18,
         'Mekong': 26,
+        'Mississippi': 27,
         'Nile': 30,
+        'Yangtze': 46,
          }
 deltas = OrderedDict(sorted(deltas.items(), key=lambda t: t[0]))
 
@@ -30,16 +33,16 @@ defaults = {
         'config_out': '#data/experiments/{exp}/config_{exp}.json',
         'deltas_source': ('tessler2015',
             '/Users/ztessler/data/deltas/global_map_shp/global_map.shp'),
-        'deltas': '#data/Global/deltas.json',
-        'delta_areas': '#data/Global/delta_areas.pd',
-        'delta_countries': '#data/Global/delta_countries.json',
+        'deltas': '#data/deltas.json',
+        'delta_areas': '#data/delta_areas.pd',
+        'delta_countries': '#data/delta_countries.json',
 
         'pop_dens_source': ('gpwv4',
             '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{popyear}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{popyear}.tif'),
         'pop_dens_rast': '#data/experiments/{exp}/pop_dens_{popyear}{ver}.{ext}',
         'delta_pop_dens': '#data/experiments/{exp}/delta_pop_dens_{popyear}.pd',
 
-        'delta_map': '#data/{delta}/{delta}.json',
+        'delta_map': '#data/{delta}.json',
         'delta_pop_rast':
             '#data/gpwv4/{delta}_pop_{popyear}.tif',
         'delta_srtm_rast':
@@ -47,15 +50,15 @@ defaults = {
         'delta_srtm_full_rast':
             '#data/srtm{srtm}/{delta}_srtm_full.tif',
         'delta_pop_hypso':
-            '#data/{delta}/experiments/{exp}/{delta}_pop_{popyear}_elevations.pd',
+            '#data/experiments/{exp}/{delta}/{delta}_pop_elevations.pd',
         'pop_hypso':
-            '#data/experiments/{exp}/delta_pop_{popyear}_elevations.pd',
+            '#data/experiments/{exp}/pop_elevations.pd',
         'pop_hypso_growth': # populations at different elevations given rslr forecasts
-            '#data/experiments/{exp}/delta_pop_{popyear}_elevations_forecasts.pd',
+            '#data/experiments/{exp}/pop_elevations_forecasts.pd',
         'pop_hypso_growth_rslr':
-            '#data/experiments/{exp}/delta_pop_{popyear}_elevations_forecasts_rslr.pd',
+            '#data/experiments/{exp}/pop_elevations_forecasts_rslr.pd',
         'hypso_plot':
-            '#data/{delta}/experiments/{exp}/figures/{delta}_hypsometric_{popyear}.png',
+            '#data/experiments/{exp}/figures/{delta}_hypsometric_{popyear}.png',
 
         'basins_source': 'rgis',
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
@@ -72,8 +75,8 @@ defaults = {
         'relief_source': 'rgis',
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
 
-        'zeros_rast': '#data/Global/zeros.tif',
-        'ones_rast': '#data/Global/ones.tif',
+        'zeros_rast': '#data/zeros.tif',
+        'ones_rast': '#data/ones.tif',
 
         'rslr_lit_source': ('higgins2014', '/Users/ztessler/data/RSLR/higgins_rslr.csv'),
         # 'rslr_lit_source': ('higgins2014_agg', '/Users/ztessler/data/RSLR/higgins_rslr_summary.csv'),
@@ -113,10 +116,10 @@ defaults = {
         'lithology': '#data/experiments/{exp}/lithology{ver}.pd',
         'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.pd',
         'relief': '#data/experiments/{exp}/relief{ver}.pd',
-        'pop_dens': '#data/experiments/{exp}/pop_dens_{popyear}{ver}.pd',
+        'pop_dens': '#data/experiments/{exp}/pop_dens{ver}.pd',
 
-        'storm_surge': '#data/experiments/{exp}/storm_surge_return_levels.pd',
-        'surge_populations': '#data/experiments/{exp}/surge_population_exposure.pd',
+        'storm_surge': '#data/experiments/{exp}/surge_return_levels.pd',
+        'surge_populations': '#data/experiments/{exp}/surge_pop_exposure.pd',
         'surge_annual_exposure': '#data/experiments/{exp}/surge_annual_exposure.pd',
         'surge_risk': '#data/experiments/{exp}/surge_risk.pd',
         'surge_percap_risk': '#data/experiments/{exp}/surge_percap_risk.pd',
