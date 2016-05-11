@@ -7,7 +7,9 @@ from config import experiments, common
 
 SetOption('max_drift', 1)
 
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
+env = Environment(ENV = {'PATH' : os.environ['PATH'],
+                         'GDAL_DATA': os.environ['GDAL_DATA'],
+                        })
 env.Decider('MD5-timestamp')
 Export('env')
 
