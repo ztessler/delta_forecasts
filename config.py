@@ -12,14 +12,14 @@ with open('deltaIDs.csv', 'r') as deltaIDs:
     reader = csv.DictReader(deltaIDs)
     for d in reader:
         deltas[clean_delta_name(d['Delta'])] = int(d['deltaID'])
-deltas = { # for testing
-        'Chao_Phraya': 5,
-        'Irrawaddy': 18,
-        'Mekong': 26,
-        'Mississippi': 27,
-        'Nile': 30,
-        'Yangtze': 46,
-         }
+# deltas = { # for testing
+        # 'Chao_Phraya': 5,
+        # 'Irrawaddy': 18,
+        # 'Mekong': 26,
+        # 'Mississippi': 27,
+        # 'Nile': 30,
+        # 'Yangtze': 46,
+         # }
 deltas = OrderedDict(sorted(deltas.items(), key=lambda t: t[0]))
 
 common = {'deltas': deltas,
