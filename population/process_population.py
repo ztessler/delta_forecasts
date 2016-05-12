@@ -102,12 +102,21 @@ def group_delta_pop_elevations(env, target, source):
 
 def plot_hypsometric(env, target, source):
     pops = pandas.read_pickle(str(source[0]))
+    tot_pop = pops.loc[np.inf]
+    pops = pops.loc[pops.index.drop(np.inf)]
     plt.style.use('ggplot')
     f, a = plt.subplots(1, 1)
     pops.plot(ax=a, title=env['delta'])
+    color = a.lines[0].get_color()
+
+    trans = mpl.transforms.blended_transform_factory(
+                a.transAxes, a.transData)
+    a.scatter([1.03], [tot_pop], c=color, s=40, clip_on=False, zorder=10, transform=trans)
+
     a.set_xlabel('Elevation, m')
     a.set_ylabel('Population at or below elevation')
     f.savefig(str(target[0]))
+    plt.close(f)
     return 0
 
 
