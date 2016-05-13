@@ -59,7 +59,7 @@ defaults = {
         'pop_hypso_growth_rslr':
             '#data/experiments/{exp}/pop_elevations_forecasts_rslr.pd',
         'hypso_plot':
-            '#data/experiments/{exp}/figures/{delta}_hypsometric_{popyear}.png',
+            '#data/experiments/{exp}/figures/hyspometric/{delta}_hypsometric_{popyear}.png',
 
         'basins_source': 'rgis',
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
@@ -124,6 +124,8 @@ defaults = {
         'surge_annual_exposure': '#data/experiments/{exp}/surge_annual_exposure.pd',
         'surge_risk': '#data/experiments/{exp}/surge_risk.pd',
         'surge_percap_risk': '#data/experiments/{exp}/surge_percap_risk.pd',
+
+        'surge_annual_exposure_plot': '#data/experiments/{exp}/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends.{ext}',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',
