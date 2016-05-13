@@ -26,7 +26,7 @@ common = {'deltas': deltas,
           'popyear': 2015,  # GPWv4 adjusted to UN 2015 numbers
           'elevyear': 2000, # SRTM year
           'rslryear': 2000,  # nominal based on various input data
-          'forecasts': [2025, 2050, 2075, 2100],
+          'forecasts': range(2020, 2100+1, 10),
           }
 
 # EXPERIMENT configs

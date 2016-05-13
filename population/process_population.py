@@ -120,13 +120,6 @@ def plot_hypsometric(env, target, source):
     return 0
 
 
-# env.Command(
-        # source=[config['deltas_pop_elevations'],
-                # config['delta_countries'],
-                # congig['pop_growth']],
-        # target=config['deltas_pop_elevations_forecasts'].format(year),
-        # action=pp.forecast_pop_elev,
-        # forecasts=forecasts)
 def forecast_pop_elev(env, target, source):
     delta_pops = pandas.read_pickle(str(source[0]))
     with open(str(source[1]), 'r') as fin:
@@ -179,10 +172,7 @@ def adjust_hypso_for_rslr(env, source, target):
     pop_elevs = pandas.read_pickle(str(source[0]))
     rslrs = pandas.read_pickle(str(source[1]))
     elevyear = env['elevyear']
-    forecasts = env['forecasts']
 
-    # multiindex = pandas.MultiIndex.from_product([pop_elevs.dropna(how='all',axis=0).index, forecasts],
-                                                # names=['delta','forecast'])
     target_elevs = pop_elevs.index.tolist()
     target_elevs.remove(np.inf)
     target_elevs = np.array(target_elevs)

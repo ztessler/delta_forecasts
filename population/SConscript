@@ -70,5 +70,4 @@ for experiment, config in experiments.iteritems():
                     config['rslr']],
             target=config['pop_hypso_growth_rslr'],
             action=pp.adjust_hypso_for_rslr,
-            elevyear=common['elevyear'],
-            forecasts=common['forecasts'])
+            elevyear=common['elevyear'])
