@@ -126,6 +126,7 @@ defaults = {
         'surge_percap_risk': '#data/experiments/{exp}/surge_percap_risk.pd',
 
         'surge_annual_exposure_plot': '#data/experiments/{exp}/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends.{ext}',
+        'surge_annual_exposure_comparison_plot': '#data/experiments/joint/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',
@@ -158,12 +159,15 @@ defaults = {
 
         'srtm': 3,
         'eustatic_slr': 3.0,
+
+        'name': 'Contemporary',
         }
 
 experiments = {
         'contemp': defaults,
         'pristine': {
             'parent': 'contemp',
+            'name': 'Pristine',
             'Te': defaults['upstream_zeros'],
             'Eh': defaults['upstream_ones'],
             'oilgas_source': ('zeros', None),
@@ -204,13 +208,13 @@ for experiment in experiments.keys():
             pathitems = []
             for item in path:
                 try:
-                    pathitems.append(item.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}'))
+                    pathitems.append(item.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}'))
                 except AttributeError:
                     pathitems.append(item)
             config[name] = tuple(pathitems)
         else:
             try:
-                config[name] = path.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}')
+                config[name] = path.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}')
             except AttributeError:
                 pass
     experiments[experiment] = config

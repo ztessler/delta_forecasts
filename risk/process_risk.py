@@ -50,15 +50,59 @@ def plot_surge_annual_exposure(env, target, source):
 
     exposure = pandas.read_pickle(str(source[0]))
     delta = env['delta']
-    pops = exposure.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1]
-    pops.columns = pops.columns.rename('Population Growth Scenarios')
+    exp = env['exp']
+
+    pops = exposure.loc[delta].unstack(level='Pop_Scenario')#.iloc[:, ::-1]
+    pops.columns = pops.columns.rename('Population Growth Scenario')
     pops = pops.rename(columns=lambda s: s.title())
 
+    color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
+
     f, a = plt.subplots(1, 1, figsize=(12,8))
-    pops.plot(ax=a, marker='o', markeredgecolor='none')
+    # pops.plot(ax=a, c=color, lw=1, legend=False)
+    pops['Medium'].plot(ax=a, c=color, lw=3, legend=False)
+    a.fill_between(pops.index, pops.iloc[:,0], pops.iloc[:,-1], color=color, alpha=.3)
+
     a.set_ylabel('Storm surge exposure, people/year')
     a.set_xlabel('Forecast year')
-    a.set_title('{}: Flood exposure trends due to population change'.format(delta))
+    a.set_title('{0}: Flood exposure trends ({1})'.format(delta, exp))
     f.savefig(str(target[0]))
     plt.close(f)
     return 0
+
+
+def plot_surge_annual_exposure_multiscenario(env, target, source):
+    mpl.style.use('ggplot')
+
+    exposures = [pandas.read_pickle(str(s)) for s in source]
+    delta = env['delta']
+    names = env['names']
+
+    color_cycle = mpl.rcParams['axes.prop_cycle']
+
+    pops = [e.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1] for e in exposures]
+    pops = pandas.concat(pops, keys=names, axis=1)
+    pops.columns = pops.columns.rename('Environmental Scenario', level=0)
+    pops.columns = pops.columns.rename('Population Growth Scenario', level=1)
+    pops = pops.rename(columns=lambda s: s.title())
+
+    f, a = plt.subplots(1, 1, figsize=(12,8))
+    dummy_fills = []
+    for name, color in zip(names, color_cycle):
+        # pops[name].plot(ax=a, color=color['color'], lw=2, legend=False)
+        pops[name, 'Medium'].plot(ax=a, color=color['color'], lw=3, legend=False)
+        a.fill_between(pops.index, pops[name].iloc[:,0], pops[name].iloc[:,-1], color=color['color'], alpha=.3)
+        dummy_fills.append(mpl.patches.Rectangle((0,0),1,1, fc=color['color'], ec='none'))
+
+    a.legend(dummy_fills, names, loc=2, title=pops.columns.names[0])
+
+    a.set_ylabel('Storm surge exposure, people/year')
+    a.set_xlabel('Forecast year')
+    a.set_title('{}: Flood exposure trends'.format(delta))
+    f.savefig(str(target[0]))
+    plt.close(f)
+    return 0
+
+
+
+

@@ -3,6 +3,7 @@
 
 import os
 import process_risk as pr
+from itertools import combinations
 
 Import('*')
 
@@ -32,4 +33,16 @@ for experiment, config in experiments.iteritems():
                 source=config['surge_annual_exposure'],
                 target=config['surge_annual_exposure_plot'].format(delta=delta, ext='png'),
                 action=pr.plot_surge_annual_exposure,
-                delta=delta)
+                delta=delta,
+                exp=config['name'])
+
+for (expA, expB) in combinations(experiments.keys(), 2):
+    for delta in common['deltas']:
+        scenarios = expA + '_' + expB
+        env.Command(
+                source=[experiments[expA]['surge_annual_exposure'],
+                        experiments[expB]['surge_annual_exposure']],
+                target=config['surge_annual_exposure_comparison_plot'].format(delta=delta, scenarios=scenarios, ext='png'),
+                action=pr.plot_surge_annual_exposure_multiscenario,
+                delta=delta,
+                names=[experiments[expA]['name'], experiments[expB]['name']])
