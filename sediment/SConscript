@@ -3,6 +3,7 @@
 
 import os
 import process_sediment as ps
+import gis
 
 Import('*')
 
@@ -13,13 +14,27 @@ Import('*')
 
 for experiment, config in experiments.iteritems():
     if experiment != 'pristine':
-        env.Command(
-                source=[config['reservoir_rast'].format(ver='', ext='tif'),
-                        config['discharge_rast'].format(ver='', ext='tif'),
-                        config['basins_rast'].format(ver='', ext='tif'),
-                        config['basin_ids']],
-                target=config['Te'],
-                action=ps.res_trapping)
+        if config['reservoir_source'] == 'rgis_x2':
+            env.Command(
+                    source=config['reservoir_rast'].format(ver='', ext='tif'),
+                    target=config['reservoir_double_rast'],
+                    action=gis.multiply_rast,
+                    factor=2.0)
+            env.Command(
+                    source=[config['reservoir_double_rast'],
+                            config['discharge_rast'].format(ver='', ext='tif'),
+                            config['basins_rast'].format(ver='', ext='tif'),
+                            config['basin_ids']],
+                    target=config['Te'],
+                    action=ps.res_trapping)
+        else:
+            env.Command(
+                    source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                            config['discharge_rast'].format(ver='', ext='tif'),
+                            config['basins_rast'].format(ver='', ext='tif'),
+                            config['basin_ids']],
+                    target=config['Te'],
+                    action=ps.res_trapping)
 
         env.Command(
                 source=[config['per_capita_gdp'].format(ver='', ext='pd'),

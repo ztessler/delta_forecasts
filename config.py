@@ -179,6 +179,12 @@ experiments = {
             'name': 'Accelerated SLR',
             'eustatic_slr': 5.0,
             },
+        'double-reservoirs': {
+            'parent': 'contemp',
+            'name': 'Doubled Reservoirs',
+            'reservoir_source': 'rgis_x2',
+            'reservoir_double_rast': '#data/experiments/{exp}/reservoir_x2.tif',
+            },
         }
 
 # first fill in configs with parent values

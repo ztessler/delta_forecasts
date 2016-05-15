@@ -181,3 +181,15 @@ def delta_zonal_stats(env, target, source):
     raster.close()
     pandas.DataFrame.from_dict(stats, orient='index').to_pickle(str(target[0]))
     return 0
+
+
+def multiply_rast(env, target, source):
+    factor = env['factor']
+    with rasterio.open(str(source[0]), 'r') as src:
+        kwargs = src.meta.copy()
+        data = src.read(1)
+    del kwargs['transform']
+
+    with rasterio.open(str(target[0]), 'w', **kwargs) as dst:
+        dst.write(factor * data, 1)
+    return 0
