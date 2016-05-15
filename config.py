@@ -174,6 +174,11 @@ experiments = {
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 1.5,
             },
+        'accel-slr': {
+            'parent': 'contemp',
+            'name': 'Accelerated SLR',
+            'eustatic_slr': 5.0,
+            },
         }
 
 # first fill in configs with parent values
