@@ -82,9 +82,9 @@ def plot_surge_annual_exposure_multiscenario(env, target, source):
 
     pops = [e.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1] for e in exposures]
     pops = pandas.concat(pops, keys=names, axis=1)
-    pops.columns = pops.columns.rename('Environmental Scenario', level=0)
-    pops.columns = pops.columns.rename('Population Growth Scenario', level=1)
-    pops = pops.rename(columns=lambda s: s.title())
+    pops.columns.rename('Environmental Scenario', level=0, inplace=True)
+    pops.columns.rename('Population Growth Scenario', level=1, inplace=True)
+    pops.columns.set_levels([s.title() for s in pops.columns.levels[1]], level=1, inplace=True)
 
     f, a = plt.subplots(1, 1, figsize=(12,8))
     dummy_fills = []
