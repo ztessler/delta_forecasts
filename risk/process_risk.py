@@ -103,8 +103,8 @@ def plot_surge_annual_exposure_multiscenario(env, target, source):
     f, a = plt.subplots(1, 1, figsize=(12,8))
     mk_plot_multiscenario_exposure(a, pops, scenarios)
 
-    a.set_ylabel('Storm surge exposure, people/year')
-    a.set_xlabel('Forecast year')
+    a.set_ylabel('EV(annual surge exposure), people')
+    a.set_xlabel('Outlook year')
     a.set_title('{}: Surge exposure trends'.format(delta))
     f.savefig(str(target[0]))
     plt.close(f)
@@ -183,8 +183,8 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     for s,c,x in zip(['Surge exposure trends:', scenarios[0], scenarios[1]], ['k', colors[0]['color'], colors[1]['color']], [.35, .53, .65]):
         f.text(x, .95, s, color=c)
 
-    f.text(.035, .5, 'Expected surge exposure, people', fontsize=18, rotation=90, va='center', transform=f.transFigure)
-    f.text(.5, .035, 'Forecast year', fontsize=18, ha='center', transform=f.transFigure)
+    f.text(.035, .5, 'EV(annual surge exposure), people', fontsize=18, rotation=90, va='center', transform=f.transFigure)
+    f.text(.5, .035, 'Outlook year', fontsize=18, ha='center', transform=f.transFigure)
 
     f.savefig(str(target[0]))
     plt.close(f)
