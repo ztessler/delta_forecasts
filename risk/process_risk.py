@@ -133,16 +133,23 @@ def compute_exposure_ranges(env, target, source):
 
 
 def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
+    def round_to_1digit(x):
+        return int(round(x, -int(np.floor(np.log10(abs(x))))))
+
     exposures = [pandas.read_pickle(str(s)) for s in source[:-1]]
     ranges = pandas.read_pickle(str(source[-1]))
     deltas = exposures[0].sum(level='Delta').dropna().index
     scenarios = env['scenarios']
 
-    ncols = int(np.ceil(np.sqrt(len(deltas))))
-    nrows = int(np.floor(np.sqrt(len(deltas))))
-    f, axs = plt.subplots(nrows, ncols, figsize=(12,8))
+    ncols = int(np.ceil(np.sqrt(len(deltas)))) + 1
+    nrows = int(np.ceil(len(deltas)/float(ncols)))
+    f, axs = plt.subplots(nrows, ncols, figsize=(14,8))
+    for a in axs.flat:
+        a.set_visible(False)
+
 
     for i, (delta, a) in enumerate(zip(deltas, axs.flat)):
+        a.set_visible(True)
         pops = [e.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1] for e in exposures]
         # minpop = np.min([p.min().min() for p in pops])
         # maxpop = np.max([p.max().max() for p in pops])
@@ -151,12 +158,19 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
         pops.columns.rename('Population Growth Scenario', level=1, inplace=True)
         pops.columns.set_levels([s.title() for s in pops.columns.levels[1]], level=1, inplace=True)
         mk_plot_multiscenario_exposure(a, pops, scenarios, legend=False)
-        # a.set_ylim(minpop, maxpop)
-        a.set_ylim(ranges.loc[delta, 'min'], ranges.loc[delta, 'max'])
-        a.yaxis.set_ticks([])
-        a.xaxis.set_ticks([])
+
+        # a.set_ylim(ranges.loc[delta, 'min'], ranges.loc[delta, 'max'])
+        year0 = pops.index.get_level_values(level='Forecast').min()
+        year1 = pops.index.get_level_values(level='Forecast').max()
+        a.set_ylim(0, round_to_1digit(ranges.loc[delta, 'max']))
+        a.yaxis.set_ticks([0, round_to_1digit(ranges.loc[delta, 'max'])])
+        if i == len(deltas)-1:
+            a.xaxis.set_ticks([year0, year1])
+        else:
+            a.xaxis.set_ticks([])
+        a.yaxis.set_ticks_position('left')
         a.set_xlabel('')
-        a.set_title(delta)
+        a.text(.5, .99, delta, ha='center', va='top', transform=a.transAxes)
 
     # axs[0,0].set_ylabel('Storm surge exposure, people/year')
     # axs[0,0].set_xlabel('Forecast year')
@@ -168,6 +182,9 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     colors = list(iter(mpl.rcParams['axes.prop_cycle']))
     for s,c,x in zip(['Surge exposure trends:', scenarios[0], scenarios[1]], ['k', colors[0]['color'], colors[1]['color']], [.35, .53, .65]):
         f.text(x, .95, s, color=c)
+
+    f.text(.035, .5, 'Expected surge exposure, people', fontsize=18, rotation=90, va='center', transform=f.transFigure)
+    f.text(.5, .035, 'Forecast year', fontsize=18, ha='center', transform=f.transFigure)
 
     f.savefig(str(target[0]))
     plt.close(f)
