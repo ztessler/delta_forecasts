@@ -110,8 +110,31 @@ def plot_surge_annual_exposure_multiscenario(env, target, source):
     plt.close(f)
     return 0
 
-def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
+# env.Command(
+        # source=[[c['surge_annual_exposure'] for c in configs],
+        # target=config['surge_annual_exposure_ranges'],
+        # action=pr.compute_exposure_ranges,
+        # scenarios=scenarios)
+def compute_exposure_ranges(env, target, source):
     exposures = [pandas.read_pickle(str(s)) for s in source]
+
+    deltas = exposures[0].index.get_level_values(level='Delta').drop_duplicates()
+    ranges = pandas.DataFrame(index=deltas, columns=['min', 'max'], dtype='float')
+    ranges['min'] = np.inf
+    ranges['max'] = -np.inf
+    for e in exposures:
+        mins = e.groupby(level='Delta').min()
+        maxs = e.groupby(level='Delta').max()
+        ranges['min'][mins < ranges['min']] = mins
+        ranges['max'][maxs > ranges['max']] = maxs
+
+    ranges.to_pickle(str(target[0]))
+    return 0
+
+
+def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
+    exposures = [pandas.read_pickle(str(s)) for s in source[:-1]]
+    ranges = pandas.read_pickle(str(source[-1]))
     deltas = exposures[0].sum(level='Delta').dropna().index
     scenarios = env['scenarios']
 
@@ -120,13 +143,16 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     f, axs = plt.subplots(nrows, ncols, figsize=(12,8))
 
     for i, (delta, a) in enumerate(zip(deltas, axs.flat)):
-        for scenario in scenarios:
-            pops = [e.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1] for e in exposures]
-            pops = pandas.concat(pops, keys=scenarios, axis=1)
-            pops.columns.rename('Environmental Scenario', level=0, inplace=True)
-            pops.columns.rename('Population Growth Scenario', level=1, inplace=True)
-            pops.columns.set_levels([s.title() for s in pops.columns.levels[1]], level=1, inplace=True)
-            mk_plot_multiscenario_exposure(a, pops, scenarios, legend=False)
+        pops = [e.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1] for e in exposures]
+        # minpop = np.min([p.min().min() for p in pops])
+        # maxpop = np.max([p.max().max() for p in pops])
+        pops = pandas.concat(pops, keys=scenarios, axis=1)
+        pops.columns.rename('Environmental Scenario', level=0, inplace=True)
+        pops.columns.rename('Population Growth Scenario', level=1, inplace=True)
+        pops.columns.set_levels([s.title() for s in pops.columns.levels[1]], level=1, inplace=True)
+        mk_plot_multiscenario_exposure(a, pops, scenarios, legend=False)
+        # a.set_ylim(minpop, maxpop)
+        a.set_ylim(ranges.loc[delta, 'min'], ranges.loc[delta, 'max'])
         a.yaxis.set_ticks([])
         a.xaxis.set_ticks([])
         a.set_xlabel('')

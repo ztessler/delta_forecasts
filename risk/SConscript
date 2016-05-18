@@ -36,11 +36,18 @@ for experiment, config in experiments.iteritems():
                 delta=delta,
                 exp=config['name'])
 
+scenarios, configs = zip(*list(experiments.iteritems()))
+env.Command(
+        source=[c['surge_annual_exposure'] for c in configs],
+        target=config['surge_annual_exposure_ranges'],
+        action=pr.compute_exposure_ranges)
+
 for (expA, expB) in combinations(experiments.keys(), 2):
     scenarios = expA + '_' + expB
     env.Command(
             source=[experiments[expA]['surge_annual_exposure'],
-                    experiments[expB]['surge_annual_exposure']],
+                    experiments[expB]['surge_annual_exposure'],
+                    config['surge_annual_exposure_ranges']],
             target=config['surge_annual_exposure_comparison_multidelta_plot'].format(scenarios=scenarios, ext='png'),
             action=pr.plot_surge_annual_exposure_multiscenario_multidelta,
             scenarios=[experiments[expA]['name'], experiments[expB]['name']])
