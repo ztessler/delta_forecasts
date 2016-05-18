@@ -126,8 +126,8 @@ defaults = {
         'surge_percap_risk': '#data/experiments/{exp}/surge_percap_risk.pd',
 
         'surge_annual_exposure_plot': '#data/experiments/{exp}/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends.{ext}',
-        'surge_annual_exposure_comparison_plot': '#data/experiments/joint/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
-        'surge_annual_exposure_comparison_multidelta_plot': '#data/experiments/joint/figures/surge_exposure_trend/alldelta_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
+        'surge_annual_exposure_comparison_plot': '#data/experiments/joint/{scenarios}/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
+        'surge_annual_exposure_comparison_multidelta_plot': '#data/experiments/joint/{scenarios}/figures/surge_exposure_trend/alldelta_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
         'surge_annual_exposure_ranges': '#data/experiments/joint/surge_annual_exposure_experiment_ranges.pd',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',

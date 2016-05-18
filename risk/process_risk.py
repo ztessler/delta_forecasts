@@ -63,9 +63,9 @@ def plot_surge_annual_exposure(env, target, source):
     pops['Medium'].plot(ax=a, c=color, lw=3, legend=False)
     a.fill_between(pops.index, pops.iloc[:,0], pops.iloc[:,-1], color=color, alpha=.3)
 
-    a.set_ylabel('Storm surge exposure, people/year')
-    a.set_xlabel('Forecast year')
-    a.set_title('{0}: Flood exposure trends ({1})'.format(delta, exp))
+    a.set_ylabel('EV(annual surge exposure), people')
+    a.set_xlabel('Outlook year')
+    a.set_title('{0}: Surge exposure trends ({1})'.format(delta, exp))
     f.savefig(str(target[0]))
     plt.close(f)
     return 0
