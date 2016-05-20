@@ -42,20 +42,22 @@ env.Command(
         target=config['surge_annual_exposure_ranges'],
         action=pr.compute_exposure_ranges)
 
-for (expA, expB) in combinations(experiments.keys(), 2):
-    scenarios = expA + '_' + expB
-    env.Command(
-            source=[experiments[expA]['surge_annual_exposure'],
-                    experiments[expB]['surge_annual_exposure'],
-                    config['surge_annual_exposure_ranges']],
-            target=config['surge_annual_exposure_comparison_multidelta_plot'].format(scenarios=scenarios, ext='png'),
-            action=pr.plot_surge_annual_exposure_multiscenario_multidelta,
-            scenarios=[experiments[expA]['name'], experiments[expB]['name']])
-    for delta in common['deltas']:
+# for (expA, expB) in combinations(experiments.keys(), 2):
+for expA in experiments.keys():
+    for expB in experiments[expA]['compare_with']:
+        scenarios = expA + '_' + expB
         env.Command(
                 source=[experiments[expA]['surge_annual_exposure'],
-                        experiments[expB]['surge_annual_exposure']],
-                target=config['surge_annual_exposure_comparison_plot'].format(delta=delta, scenarios=scenarios, ext='png'),
-                action=pr.plot_surge_annual_exposure_multiscenario,
-                delta=delta,
+                        experiments[expB]['surge_annual_exposure'],
+                        config['surge_annual_exposure_ranges']],
+                target=config['surge_annual_exposure_comparison_multidelta_plot'].format(scenarios=scenarios, ext='png'),
+                action=pr.plot_surge_annual_exposure_multiscenario_multidelta,
                 scenarios=[experiments[expA]['name'], experiments[expB]['name']])
+        for delta in common['deltas']:
+            env.Command(
+                    source=[experiments[expA]['surge_annual_exposure'],
+                            experiments[expB]['surge_annual_exposure']],
+                    target=config['surge_annual_exposure_comparison_plot'].format(delta=delta, scenarios=scenarios, ext='png'),
+                    action=pr.plot_surge_annual_exposure_multiscenario,
+                    delta=delta,
+                    scenarios=[experiments[expA]['name'], experiments[expB]['name']])

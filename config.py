@@ -163,6 +163,7 @@ defaults = {
         'eustatic_slr': 3.0,
 
         'name': 'Contemporary',
+        'compare_with': ['accel-slr'],
         }
 
 experiments = {
@@ -175,6 +176,7 @@ experiments = {
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 1.5,
+            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs'],
             },
         'accel-slr': {
             'parent': 'contemp',
@@ -204,6 +206,10 @@ while not done: # iterate until all parents and grandparents and great... have b
             except KeyError:
                 grandparent = None
             expanded = experiments[parent].copy()
+            try:
+                del expanded['compare_with']
+            except KeyError:
+                pass
             expanded.update(overrides)
             if grandparent:
                 expanded['parent'] = grandparent
@@ -212,6 +218,7 @@ while not done: # iterate until all parents and grandparents and great... have b
             updated_experiments[experiment] = expanded
         else:
             updated_experiments[experiment] = overrides
+        updated_experiments[experiment].setdefault('compare_with', [])
     experiments = updated_experiments
 # then set experiment directories and population year for output files
 for experiment in experiments.keys():
