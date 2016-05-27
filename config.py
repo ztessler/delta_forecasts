@@ -65,6 +65,7 @@ defaults = {
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
         'reservoir_source': 'rgis',
         'reservoir_rast': '#data/rgis/reservoir{ver}.{ext}',
+        'reservoir_adj': '#data/experiments/{exp}/reservoir_adj{ver}.{ext}',
         'discharge_source': 'rgis',
         'discharge_rast': '#data/rgis/discharge{ver}.{ext}',
         'airtemp_source': 'rgis',
@@ -186,9 +187,14 @@ experiments = {
         'double-reservoirs': {
             'parent': 'contemp',
             'name': 'Doubled Reservoirs',
-            'reservoir_source': 'rgis_x2',
-            'reservoir_double_rast': '#data/experiments/{exp}/reservoir_x2.tif',
+            'reservoir_adj_source': ('factor', 2.0),
             },
+        'zarfl_reservoirs': {
+            'parent': 'contemp',
+            'name': 'Reservoir Growth (Zarfl, 2015)',
+            'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
+
+            }
         }
 
 # first fill in configs with parent values

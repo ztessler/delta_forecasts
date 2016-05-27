@@ -14,27 +14,40 @@ Import('*')
 
 for experiment, config in experiments.iteritems():
     if experiment != 'pristine':
-        if config['reservoir_source'] == 'rgis_x2':
-            env.Command(
-                    source=config['reservoir_rast'].format(ver='', ext='tif'),
-                    target=config['reservoir_double_rast'],
-                    action=gis.multiply_rast,
-                    factor=2.0)
-            env.Command(
-                    source=[config['reservoir_double_rast'],
-                            config['discharge_rast'].format(ver='', ext='tif'),
-                            config['basins_rast'].format(ver='', ext='tif'),
-                            config['basin_ids']],
-                    target=config['Te'],
-                    action=ps.res_trapping)
+        if config.get('reservoir_adj_source'):
+            res_rast = config['reservoir_adj'].format(ver='', ext='tif')
+            if config['reservoir_adj_source'][0] == 'factor':
+                factor = config['reservoir_adj_source'][1]
+                env.Command(
+                        source=config['reservoir_rast'].format(ver='', ext='tif'),
+                        target=res_rast,
+                        action=gis.multiply_rast,
+                        factor=factor)
+            elif config['reservoir_adj_source'][0] == 'zarfl2015':
+                env.Command(
+                        source=[config['reservoir_adj_source'][1],
+                                config['delta_zeros']],
+                        target=config['reservoir_adj'].format(ver='', ext='pd'),
+                        action=ps.parse_zarfl_xls)
+
+                env.Command(
+                        source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                config['reservoir_adj'].format(ver='', ext='pd'),
+                                config['discharge_rast'].format(ver='', ext='tif'),
+                                config['basins_rast'].format(ver='', ext='tif'),
+                                config['basin_ids']],
+                        target=res_rast,
+                        action=ps.add_new_reservoirs)
         else:
-            env.Command(
-                    source=[config['reservoir_rast'].format(ver='', ext='tif'),
-                            config['discharge_rast'].format(ver='', ext='tif'),
-                            config['basins_rast'].format(ver='', ext='tif'),
-                            config['basin_ids']],
-                    target=config['Te'],
-                    action=ps.res_trapping)
+            res_rast = config['reservoir_rast'].format(ver='', ext='tif')
+
+        env.Command(
+                source=[res_rast,
+                        config['discharge_rast'].format(ver='', ext='tif'),
+                        config['basins_rast'].format(ver='', ext='tif'),
+                        config['basin_ids']],
+                target=config['Te'],
+                action=ps.res_trapping)
 
         env.Command(
                 source=[config['per_capita_gdp'].format(ver='', ext='pd'),
