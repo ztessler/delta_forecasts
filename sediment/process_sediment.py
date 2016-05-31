@@ -79,7 +79,64 @@ def parse_zarfl_xls(env, target, source):
 
 
 def add_new_reservoirs(env, target, source):
-    pass
+    '''
+    Place new dams in along river network.  Finds location on river network
+    with discharge closest to mean of the zarfl discharge class.  Dam location
+    not considered, just underlying discharge - OK given calculation of res_trapping,
+    which computes discharge-weighted average of reservoir trapping efficiency
+    '''
+    with rasterio.open(str(source[0])) as ressrc:
+        res_meta = ressrc.meta
+        res = ressrc.read(1)
+
+    res_adj = pandas.read_pickle(str(source[1]))
+
+    with rasterio.open(str(source[2])) as dissrc:
+        dis = dissrc.read(1)
+
+    with rasterio.open(str(source[3])) as basinsrc:
+        basins = basinsrc.read(1)
+
+    basinids = pandas.read_pickle(str(source[4]))
+
+    def dis_class_endmembers(s):
+        return map(float, s.replace('>','').split('-'))
+
+    def dis_class_mean(s):
+        return np.mean(dis_class_endmembers(s))
+
+    # estimate typical dam sizes based on river discharge
+    # assume new dams will be similar sizes with respect to riv dis as exisiting dams
+    new_vols = pandas.Series(0.0, index=res_adj.columns.levels[res_adj.columns.names.index('Discharge class')])
+    for dis_class in new_vols.index:
+        endmembers = dis_class_endmembers(dis_class)
+        if len(endmembers) == 2:
+            dam_locs = np.logical_and(res>0, np.logical_and(dis>=endmembers[0], dis<endmembers[1]))
+        elif len(endmembers) == 1:
+            dam_locs = np.logical_and(res>0, dis>endmembers)
+        else:
+            raise ValueError
+        new_vols[dis_class] = res[dam_locs].mean()
+
+    for delta, deltabasins in basinids.groupby(level='Delta'):
+        if delta not in res_adj.index:
+            continue
+        mask = np.ones_like(res)
+        for _, basinid in deltabasins.index:
+            mask = np.logical_and(mask, basins!=basinid)
+        mask[res>0] = True   # mark existing reservoirs
+        # loop over discharge classes in reverse order so biggest dams get placed first. not necessary unless very few valid locs
+        for (dis_class, res_in_class) in reversed(list(res_adj.groupby(axis=1, level='Discharge class', sort=True))):
+            num_new_res = res_in_class.loc[delta, (dis_class, 'new')]
+            for i in range(num_new_res):
+                valid_dis = np.ma.masked_where(mask, dis)
+                new_loc = np.unravel_index(np.argmin(np.abs(valid_dis - dis_class_mean(dis_class))), dis.shape)
+                res[new_loc] = new_vols[dis_class]
+                mask[new_loc] = True
+
+    with rasterio.open(str(target[0]), 'w', **res_meta) as resout:
+        resout.write(res, 1)
+    return 0
 
 
 def compute_Eh(env, target, source):
