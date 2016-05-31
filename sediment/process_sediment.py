@@ -49,13 +49,11 @@ def parse_zarfl_xls(env, target, source):
     zarfl = zarfl.set_index('Major river basin')
     zarfl = zarfl.iloc[2:, :]
 
-    # assign columns as mean of given ranges
-    zarfl.columns = map(lambda l: np.mean(map(float, l)),
-                        map(lambda s: s.replace(' ', '')
-                                       .replace(',', '')
-                                       .replace('>', '')
-                                       .split(u'\u2013'),
-                            zarfl.columns))
+    cols =  map(lambda s: s.replace(' ', '')
+                          .replace(',', '')
+                          .replace(u'\u2013', '-'),
+                zarfl.columns)
+    zarfl.columns = pandas.CategoricalIndex(cols, categories=cols, ordered=True)
     changename = {
             u'Hong (Red River)': 'Hong',
             u'Ganges-Brahmaputra': 'Ganges',
@@ -72,7 +70,7 @@ def parse_zarfl_xls(env, target, source):
     zarfl_new = zarfl.applymap(split_dam_counts).applymap(lambda t: t[0])
     zarfl_old = zarfl.applymap(split_dam_counts).applymap(lambda t: t[1])
 
-    multicols = pandas.MultiIndex.from_product([zarfl.columns, ['new', 'old']])
+    multicols = pandas.MultiIndex.from_product([zarfl.columns, ['new', 'old']], names=['Discharge class', 'Scenario'])
     zarfl = pandas.DataFrame(0, index=zarfl.index, columns=multicols)
     zarfl.loc[:, (slice(None), 'new')] = zarfl_new.values
     zarfl.loc[:, (slice(None), 'old')] = zarfl_old.values
