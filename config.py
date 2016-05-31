@@ -164,7 +164,7 @@ defaults = {
         'eustatic_slr': 3.0,
 
         'name': 'Contemporary',
-        'compare_with': ['accel-slr'],
+        'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
         }
 
 experiments = {
@@ -189,7 +189,7 @@ experiments = {
             'name': 'Doubled Reservoirs',
             'reservoir_adj_source': ('factor', 2.0),
             },
-        'zarfl_reservoirs': {
+        'zarfl-reservoirs': {
             'parent': 'contemp',
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
