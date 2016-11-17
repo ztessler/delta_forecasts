@@ -33,7 +33,7 @@ common = {'deltas': deltas,
 defaults = {
         'config_out': '#data/experiments/{exp}/config_{exp}.json',
         'deltas_source': ('tessler2015',
-            '/Users/ztessler/data/deltas/global_map_shp/global_map.shp'),
+            '/Users/ztessler/data/deltas/maps/global_map_shp/global_map.shp'),
         'deltas': '#data/deltas.json',
         'delta_areas': '#data/delta_areas.pd',
         'delta_countries': '#data/delta_countries.json',
