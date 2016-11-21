@@ -59,7 +59,7 @@ defaults = {
         'pop_hypso_growth_rslr':
             '#data/experiments/{exp}/pop_elevations_forecasts_rslr.pd',
         'hypso_plot':
-            '#data/experiments/{exp}/figures/hyspometric/{delta}_hypsometric_{popyear}.png',
+            '#figures/{exp}/hyspometric/{delta}_hypsometric_{popyear}.png',
 
         'basins_source': 'rgis',
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
@@ -126,9 +126,9 @@ defaults = {
         'surge_risk': '#data/experiments/{exp}/surge_risk.pd',
         'surge_percap_risk': '#data/experiments/{exp}/surge_percap_risk.pd',
 
-        'surge_annual_exposure_plot': '#data/experiments/{exp}/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends.{ext}',
-        'surge_annual_exposure_comparison_plot': '#data/experiments/joint/{scenarios}/figures/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
-        'surge_annual_exposure_comparison_multidelta_plot': '#data/experiments/joint/{scenarios}/figures/surge_exposure_trend/alldelta_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
+        'surge_annual_exposure_plot': '#figures/{exp}/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends.{ext}',
+        'surge_annual_exposure_comparison_plot': '#figures/joint/{scenarios}/surge_exposure_trend/{delta}_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
+        'surge_annual_exposure_comparison_multidelta_plot': '#figures/joint/{scenarios}/surge_exposure_trend/alldelta_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
         'surge_annual_exposure_ranges': '#data/experiments/joint/surge_annual_exposure_experiment_ranges.pd',
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
