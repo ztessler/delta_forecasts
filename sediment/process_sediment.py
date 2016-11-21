@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import pandas
 import rasterio
 import pint
@@ -174,3 +176,29 @@ def compute_Qs(env, target, source):
     Qs = w * B * Q**0.31 * A**0.5 * R * T
     Qs.to_pickle(str(target[0]))
     return 0
+
+
+def plot_delta_scalars(env, target, source):
+    mpl.style.use('ggplot')
+    scenarios = env['scenarios']
+    ylabel = env['ylabel']
+    xlabel = env['xlabel']
+    title = env['title']
+
+    qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
+    qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
+    df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
+            columns=[scenarios[0], scenarios[1]])
+    df = df.sort_values(by=scenarios[0], ascending=False)
+
+    f, a = plt.subplots(1, 1, figsize=(16,8))
+    df.plot(kind='bar', logy=True, ax=a)
+
+    a.set_ylabel(ylabel)
+    a.set_xlabel(xlabel)
+    a.set_title(title)
+    plt.tight_layout()
+    f.savefig(str(target[0]))
+    plt.close(f)
+    return 0
+

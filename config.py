@@ -151,6 +151,8 @@ defaults = {
         'rslr': '#data/experiments/{exp}/rslr.pd',
         'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
 
+        'sed_flux_comparison_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_{scenarios}.{ext}',
+
         'vuln_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
         'vuln': '#data/experiments/{exp}/vuln.pd',
 
