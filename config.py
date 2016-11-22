@@ -180,7 +180,7 @@ experiments = {
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 1.5,
-            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs'],
+            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
             },
         'accel-slr': {
             'parent': 'contemp',
