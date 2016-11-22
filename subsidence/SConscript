@@ -3,6 +3,7 @@
 
 import os
 import process_subsidence as ps
+import process_sediment as psed
 import gis
 
 Import('*')
@@ -138,3 +139,20 @@ for experiment, config in experiments.iteritems():
                 target=[config['rslr_regress'].format(ext='pd'),
                         config['rslr_regress'].format(ext='txt')],
                 action=ps.rslr_regression_model)
+
+for expA in experiments.keys():
+    for expB in experiments[expA]['compare_with']:
+        if expA == 'pristine' or expB == 'pristine':
+            continue
+        scenarios = expA + '_' + expB
+        env.Command(
+                source=[experiments[expA]['rslr'],
+                        experiments[expB]['rslr']],
+                target=experiments[expA]['rslr_comparison_plot'].format(scenarios=scenarios, ext='png'),
+                action=psed.plot_delta_scalars,
+                scenarios=[experiments[expA]['name'], experiments[expB]['name']],
+                ylabel='RSLR, mm/yr',
+                xlabel='Delta',
+                title='RSLR scenario differences',
+                logy=False,
+                )

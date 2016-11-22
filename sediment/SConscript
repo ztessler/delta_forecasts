@@ -89,4 +89,5 @@ for expA in experiments.keys():
                 ylabel='Sediment flux, kg/s',
                 xlabel='Delta',
                 title='Sediment flux scenario differences',
+                logy=True,
                 )

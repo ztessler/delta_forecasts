@@ -184,6 +184,7 @@ def plot_delta_scalars(env, target, source):
     ylabel = env['ylabel']
     xlabel = env['xlabel']
     title = env['title']
+    logy = env['logy']
 
     qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
     qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
