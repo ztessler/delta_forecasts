@@ -24,13 +24,12 @@ def res_trapping(env, target, source):
         basins = basinrast.read(1, masked=True)
     resvol.mask[resvol==0] = True
     basin_ids = pandas.read_pickle(str(source[3]))
-    residence_time = resvol / dis / (60 * 60 * 24 * 365) # years
-    trapping_eff = 1 - 0.05/np.sqrt(residence_time)
 
     Te = []
     for delta, basin_id in basin_ids.index:
-        pix = np.logical_and(basins == basin_id, ~trapping_eff.mask)
-        Te.append((trapping_eff[pix] * dis[pix]).sum() / dis[pix].sum())
+        pix = np.logical_and(basins == basin_id, resvol>0)
+        res_time = resvol[pix].sum() / dis[basins==basin_id].max() / (60*60*24*365)
+        Te.append(1 - (0.05/np.sqrt(res_time)))
     Te = [te if (te is not np.ma.masked and te >= 0) else 0 for te in Te]
 
     Te = pandas.Series(Te, index=basin_ids.index)
