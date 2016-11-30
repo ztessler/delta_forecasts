@@ -63,8 +63,8 @@ defaults = {
 
         'basins_source': ('rgis',),
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
-        'reservoir_source': ('rgis',),
-        'reservoir_rast': '#data/rgis/reservoir{ver}.{ext}',
+        'reservoir_source': ('grand', '/Users/ztessler/data/Dams_GRanD/dams-rev01-global-shp/GRanD_dams_v1_1.shp'),
+        'reservoir_rast': '#data/experiments/{exp}/reservoirs{ver}.{ext}',
         'reservoir_adj': '#data/experiments/{exp}/reservoir_adj{ver}.{ext}',
         'discharge_source': ('rgis',),
         'discharge_rast': '#data/rgis/discharge{ver}.{ext}',
@@ -180,7 +180,7 @@ experiments = {
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 1.5,
-            'compare_with': ['contemp', 'accel-slr', 'grand-reservoirs', 'double-reservoirs', 'zarfl-reservoirs'],
+            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
             },
         'accel-slr': {
             'parent': 'contemp',
@@ -197,11 +197,11 @@ experiments = {
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
             },
-        'grand-reservoirs': {
+        'rgis-reservoirs': {
             'parent': 'contemp',
-            'name': 'GRanD reservoirs',
-            'reservoir_source': ('grand', '/Users/ztessler/data/Dams_GRanD/dams-rev01-global-shp/GRanD_dams_v1_1.shp'),
-            'reservoir_rast': '#data/experiments/{exp}/reservoirs{ver}.{ext}',
+            'name': 'RGIS reservoirs',
+            'reservoir_source': ('rgis',),
+            'reservoir_rast': '#data/rgis/reservoir{ver}.{ext}',
             'compare_with': ['contemp', 'zarfl-reservoirs', 'double-reservoirs'],
             },
         }
