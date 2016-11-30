@@ -142,7 +142,7 @@ for experiment, config in experiments.iteritems():
 
 for expA in experiments.keys():
     for expB in experiments[expA]['compare_with']:
-        if expA == 'pristine' or expB == 'pristine':
+        if 'pristine' in [expA, expB]:
             continue
         scenarios = expA + '_' + expB
         env.Command(
