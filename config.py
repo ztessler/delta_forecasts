@@ -180,7 +180,7 @@ experiments = {
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 1.5,
-            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
+            'compare_with': ['contemp', 'accel-slr', 'grand-reservoirs', 'double-reservoirs', 'zarfl-reservoirs'],
             },
         'accel-slr': {
             'parent': 'contemp',
@@ -196,8 +196,14 @@ experiments = {
             'parent': 'contemp',
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
-
-            }
+            },
+        'grand-reservoirs': {
+            'parent': 'contemp',
+            'name': 'GRanD reservoirs',
+            'reservoir_source': ('grand', '/Users/ztessler/data/Dams_GRanD/dams-rev01-global-shp/GRanD_dams_v1_1.shp'),
+            'reservoir_rast': '#data/experiments/{exp}/reservoirs{ver}.{ext}',
+            'compare_with': ['contemp', 'zarfl-reservoirs', 'double-reservoirs'],
+            },
         }
 
 # first fill in configs with parent values

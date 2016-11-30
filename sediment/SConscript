@@ -14,6 +14,13 @@ Import('*')
 
 for experiment, config in experiments.iteritems():
     if experiment != 'pristine':
+        if config['reservoir_source'][0] == 'grand':
+            env.Command(
+                    source=[config['reservoir_source'][1],
+                            config['basins_rast'].format(ver='', ext='tif')],
+                    target=config['reservoir_rast'].format(ver='', ext='tif'),
+                    action=ps.rasterize_grand_dams)
+
         if config.get('reservoir_adj_source'):
             res_rast = config['reservoir_adj'].format(ver='', ext='tif')
             if config['reservoir_adj_source'][0] == 'factor':
@@ -23,6 +30,7 @@ for experiment, config in experiments.iteritems():
                         target=res_rast,
                         action=gis.multiply_rast,
                         factor=factor)
+
             elif config['reservoir_adj_source'][0] == 'zarfl2015':
                 env.Command(
                         source=[config['reservoir_adj_source'][1],

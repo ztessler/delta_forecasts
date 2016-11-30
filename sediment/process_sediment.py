@@ -3,7 +3,33 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas
 import rasterio
+import fiona
 import pint
+
+
+def rasterize_grand_dams(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    with rasterio.open(str(source[1]), 'r') as basins_rast:
+        basins = basins_rast.read(1)
+        meta = basins_rast.meta.copy()
+    affine = meta['affine']
+    resvol = np.zeros_like(basins)
+    with fiona.open(str(source[0]), 'r') as dams:
+        for dam in dams:
+            props = dam['properties']
+            if ((int(props['QUALITY'].split(':')[0]) <= 3) and #verified, good, or fair
+                    (props['CAP_MCM'] > 0)):
+                lon = props['LONG_DD']
+                lat = props['LAT_DD']
+                vol = Q_(1e6 * props['CAP_MCM'], 'm**3').to('km**3').magnitude
+                x, y = map(np.floor, ~affine * (lon, lat))
+                resvol[y, x] += vol
+
+    with rasterio.open(str(target[0]), 'w', **meta) as resvol_rast:
+        resvol_rast.write(resvol, 1)
+    return 0
 
 
 def compute_I(env, target, source):
