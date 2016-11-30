@@ -192,7 +192,7 @@ def plot_delta_scalars(env, target, source):
     df = df.sort_values(by=scenarios[0], ascending=False)
 
     f, a = plt.subplots(1, 1, figsize=(16,8))
-    df.plot(kind='bar', logy=True, ax=a)
+    df.plot(kind='bar', logy=logy, ax=a)
 
     a.set_ylabel(ylabel)
     a.set_xlabel(xlabel)
