@@ -71,3 +71,23 @@ for experiment, config in experiments.iteritems():
             target=config['pop_hypso_growth_rslr'],
             action=pp.adjust_hypso_for_rslr,
             elevyear=common['elevyear'])
+
+    # SSPs
+    for ssp in common['ssps']:
+        env.Command(
+                source=[config['basins_rast'].format(ver='', ext='tif'),
+                        config['basin_ids'],
+                        config['ssp_pop_source'][1].format(ssp=ssp)],
+                target=config['ssp_pop'].format(ssp=ssp, ext='tif'),
+                action=pp.rasterize_ssp_data,
+                scaling=1e6,
+                ssp_years=common['ssp_years'])
+
+        env.Command(
+                source=[config['basins_rast'].format(ver='', ext='tif'),
+                        config['basin_ids'],
+                        config['ssp_gdp_source'][1].format(ssp=ssp)],
+                target=config['ssp_gdp'].format(ssp=ssp, ext='tif'),
+                action=pp.rasterize_ssp_data,
+                scaling=1e9,
+                ssp_years=common['ssp_years'])

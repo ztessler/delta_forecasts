@@ -1,6 +1,8 @@
 import os
 import json
+import csv
 import numpy as np
+from scipy.ndimage.morphology import distance_transform_edt
 from collections import OrderedDict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -11,6 +13,7 @@ from affine import Affine
 import rasterio
 from rasterio.features import rasterize
 from rasterio.warp import calculate_default_transform, reproject, RESAMPLING
+import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 
 
@@ -195,4 +198,45 @@ def adjust_hypso_for_rslr(env, source, target):
         adj_pop[delta, forecast] = pops
 
     adj_pop.to_pickle(str(target[0]))
+    return 0
+
+
+def rasterize_ssp_data(env, source, target):
+    with rasterio.open(str(source[0]), 'r') as basins_rast:
+        basins = basins_rast.read(1)
+        profile = basins_rast.profile.copy()
+    affine = profile['affine']
+    basinids = pandas.read_pickle(str(source[1]))
+    ssp_years = env['ssp_years']
+    scaling = env['scaling']
+    orig_data_shape = (180*2, 360*2) #.5 x .5 degree raster
+    orig_data_lats = np.linspace(90, -90, orig_data_shape[0], endpoint=False)
+    orig_affine = Affine(0.5, 0, -180, 0, -0.5, 90)
+    dy = -.5
+    pc = ccrs.PlateCarree()
+    orig_data_areas = []
+    for lat in orig_data_lats:
+        laea = ccrs.LambertAzimuthalEqualArea(0.25, lat+dy/2.)
+        p = sgeom.Polygon([(0, lat), (0, lat+dy), (.5, lat+dy), (.5, lat), (0, lat)])
+        ps = laea.project_geometry(p, src_crs=pc)
+        orig_data_areas.append(ps.area / (1000**2)) # m2 to km2
+
+    data = np.ones(basins.shape + (len(ssp_years),)) * -1
+    to_floor_int = lambda s: int(np.floor(s))
+    with open(str(source[2]), 'r') as csvfile:
+        ssp_data = csv.reader(csvfile)
+        next(ssp_data)
+        for pixel in ssp_data:
+            lon_lat = (float(pixel[1]), float(pixel[2]))
+            x, y = map(to_floor_int, ~affine * lon_lat) # lon, lat
+            _, orig_y = map(to_floor_int, ~orig_affine * lon_lat)
+            data[y, x, :] = np.array(map(float, pixel[4:])) * scaling / orig_data_areas[orig_y] # convert from millions of people to people/sqkm (or $)
+    mask = (data == -1)
+    indices = distance_transform_edt(mask[...,0], return_distances=False, return_indices=True)
+    data = data[tuple(indices)]
+    data[basins==profile['nodata']] = profile['nodata']
+
+    profile.update(count=len(ssp_years))
+    with rasterio.open(str(target[0]), 'w', **profile) as out:
+        out.write(np.rollaxis(data, 2))
     return 0

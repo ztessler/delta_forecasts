@@ -27,6 +27,8 @@ common = {'deltas': deltas,
           'elevyear': 2000, # SRTM year
           'rslryear': 2000,  # nominal based on various input data
           'forecasts': range(2020, 2100+1, 10),
+          'ssps': [1,2,3],
+          'ssp_years': range(1980, 2100+1, 10),
           }
 
 # EXPERIMENT configs
@@ -119,6 +121,11 @@ defaults = {
         'per_capita_gdp': '#data/experiments/{exp}/per_capita_gdp{ver}.pd',
         'relief': '#data/experiments/{exp}/relief{ver}.pd',
         'pop_dens': '#data/experiments/{exp}/pop_dens{ver}.pd',
+
+        'ssp_pop_source': ('murakami', '/Users/ztessler/data/SSP_pop_gdp_Murakami/population_ssp{ssp}.csv'),
+        'ssp_gdp_source': ('murakami', '/Users/ztessler/data/SSP_pop_gdp_Murakami/gdp_ssp{ssp}.csv'),
+        'ssp_pop': '#data/ssp/pop_ssp{ssp}.{ext}',
+        'ssp_gdp': '#data/ssp/gdp_ssp{ssp}.{ext}',
 
         'storm_surge': '#data/experiments/{exp}/surge_return_levels.pd',
         'surge_populations': '#data/experiments/{exp}/surge_pop_exposure.pd',
@@ -243,13 +250,13 @@ for experiment in experiments.keys():
             pathitems = []
             for item in path:
                 try:
-                    pathitems.append(item.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}'))
+                    pathitems.append(item.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}', ssp='{ssp}'))
                 except AttributeError:
                     pathitems.append(item)
             config[name] = tuple(pathitems)
         else:
             try:
-                config[name] = path.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}')
+                config[name] = path.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}', ssp='{ssp}')
             except AttributeError:
                 pass
     experiments[experiment] = config
