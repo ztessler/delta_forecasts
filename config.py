@@ -142,7 +142,7 @@ defaults = {
 
         'oilgas': '#data/experiments/{exp}/oilgas.pd',
         'oilgas_subsidence': '#data/experiments/{exp}/oilgas_subsidence.pd',
-        'basin_ids': '#data/experiments/{exp}/basin_ids.pd',
+        'basin_ids': '#data/basin_ids.pd',
         'basin_mouths': '#data/experiments/{exp}/basin_mouths.pd',
         'basin_areas': '#data/experiments/{exp}/basin_areas.pd',
 
