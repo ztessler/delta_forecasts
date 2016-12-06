@@ -54,14 +54,12 @@ def plot_surge_annual_exposure(env, target, source):
 
     pops = exposure.loc[delta].unstack(level='Pop_Scenario')#.iloc[:, ::-1]
     pops.columns = pops.columns.rename('Population Growth Scenario')
-    pops = pops.rename(columns=lambda s: s.title())
 
     color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
 
     f, a = plt.subplots(1, 1, figsize=(12,8))
-    # pops.plot(ax=a, c=color, lw=1, legend=False)
-    pops['Medium'].plot(ax=a, c=color, lw=3, legend=False)
-    a.fill_between(pops.index, pops.iloc[:,0], pops.iloc[:,-1], color=color, alpha=.3)
+    pops.iloc[:,1].plot(ax=a, c=color, lw=3, legend=False) # want mid-range scenario, choosing second column only works if they're ordered.  not necessarily the case for SSPs
+    a.fill_between(pops.index, pops.min(axis=1), pops.max(axis=1), color=color, alpha=.3)
 
     a.set_ylabel('EV(annual surge exposure), people')
     a.set_xlabel('Outlook year')
@@ -79,8 +77,8 @@ def mk_plot_multiscenario_exposure(a, pops, scenarios, legend=True):
     dummy_fills = []
     for scenario, color in zip(scenarios, color_cycle):
         # pops[name].plot(ax=a, color=color['color'], lw=2, legend=False)
-        pops[scenario, 'Medium'].plot(ax=a, color=color['color'], lw=3, legend=False)
-        a.fill_between(pops.index, pops[scenario].iloc[:,0], pops[scenario].iloc[:,-1], color=color['color'], alpha=.3)
+        pops[scenario, pops.columns.levels[1][1]].plot(ax=a, color=color['color'], lw=3, legend=False)
+        a.fill_between(pops.index, pops[scenario].min(axis=1), pops[scenario].max(axis=1), color=color['color'], alpha=.3)
         if legend:
             dummy_fills.append(mpl.patches.Rectangle((0,0),1,1, fc=color['color'], ec='none'))
     if legend:
