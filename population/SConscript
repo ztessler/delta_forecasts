@@ -61,14 +61,14 @@ for experiment, config in experiments.iteritems():
                 source=[config['pop_hypso'],
                         config['delta_countries'],
                         config['pop_growth']],
-                target=config['pop_hypso_growth'].format(common['popyear']),
+                target=config['pop_hypso_growth'],
                 action=pp.forecast_un_pop_elev,
                 popyear=common['popyear'],
                 forecasts=common['un_pop_forecasts'],
                 pop_scenario_names=common['un_pop_names'])
 
     env.Command(
-            source=[config['pop_hypso_growth'].format(common['popyear']),
+            source=[config['pop_hypso_growth'],
                     config['rslr']],
             target=config['pop_hypso_growth_rslr'],
             action=pp.adjust_hypso_for_rslr,
