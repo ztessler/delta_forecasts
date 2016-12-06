@@ -51,19 +51,21 @@ for experiment, config in experiments.iteritems():
                 action=pp.group_delta_pop_elevations,
                 deltas=common['deltas'])
 
-    env.Command(
-            source=None,
-            target=config['pop_growth'],
-            action='wget "'+config['pop_growth_source'][1]+'" -O $TARGET')
+    if config['pop_growth_source'][0] == 'un':
+        env.Command(
+                source=None,
+                target=config['pop_growth'],
+                action='wget "'+config['pop_growth_source'][1]+'" -O $TARGET')
 
-    env.Command(
-            source=[config['pop_hypso'],
-                    config['delta_countries'],
-                    config['pop_growth']],
-            target=config['pop_hypso_growth'].format(common['popyear']),
-            action=pp.forecast_pop_elev,
-            popyear=common['popyear'],
-            forecasts=common['forecasts'])
+        env.Command(
+                source=[config['pop_hypso'],
+                        config['delta_countries'],
+                        config['pop_growth']],
+                target=config['pop_hypso_growth'].format(common['popyear']),
+                action=pp.forecast_un_pop_elev,
+                popyear=common['popyear'],
+                forecasts=common['un_pop_forecasts'],
+                pop_scenario_names=common['un_pop_names'])
 
     env.Command(
             source=[config['pop_hypso_growth'].format(common['popyear']),
@@ -81,7 +83,7 @@ for experiment, config in experiments.iteritems():
                 target=config['ssp_pop'].format(ssp=ssp, ext='tif'),
                 action=pp.rasterize_ssp_data,
                 scaling=1e6,
-                ssp_years=common['ssp_years'])
+                ssp_years=common['ssp_forecasts'])
 
         env.Command(
                 source=[config['basins_rast'].format(ver='', ext='tif'),
@@ -90,4 +92,4 @@ for experiment, config in experiments.iteritems():
                 target=config['ssp_gdp'].format(ssp=ssp, ext='tif'),
                 action=pp.rasterize_ssp_data,
                 scaling=1e9,
-                ssp_years=common['ssp_years'])
+                ssp_years=common['ssp_forecasts'])

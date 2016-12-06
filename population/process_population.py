@@ -123,13 +123,14 @@ def plot_hypsometric(env, target, source):
     return 0
 
 
-def forecast_pop_elev(env, target, source):
+def forecast_un_pop_elev(env, target, source):
     delta_pops = pandas.read_pickle(str(source[0]))
     with open(str(source[1]), 'r') as fin:
         countries = json.load(fin)
     popdata = pandas.read_excel(str(source[2]), sheetname=None)
     popyear = env['popyear']
     forecasts = env['forecasts']
+    scenarios = ['estimates'] + env['pop_scenario_names']
 
     def clean_df(df):
         def clean_colname(s):
@@ -145,7 +146,6 @@ def forecast_pop_elev(env, target, source):
 
     futurepop = {}
     sheet_scenarios = ['ESTIMATES', 'LOW VARIANT', 'MEDIUM VARIANT', 'HIGH VARIANT']
-    scenarios = ['estimates', 'low', 'medium', 'high']
     for sheet_scenario, scenario in zip(sheet_scenarios, scenarios):
         futurepop[scenario] = clean_df(popdata[sheet_scenario])
 
@@ -162,7 +162,7 @@ def forecast_pop_elev(env, target, source):
                     if popyear in futurepop['estimates']:
                         cur_pop = futurepop['estimates'][popyear][iso]
                     else:
-                        cur_pop = futurepop['medium'][popyear][iso]
+                        cur_pop = futurepop[scenarios[2]][popyear][iso] # scenarios[2] is "medium"
                     growth += futurepop[scenario][forecast][iso] / cur_pop * cdata['area_frac']
                 pop_elevs[delta, forecast, scenario] = popelevs * growth
     pop_elevs.to_pickle(str(target[0]))

@@ -26,9 +26,11 @@ common = {'deltas': deltas,
           'popyear': 2015,  # GPWv4 adjusted to UN 2015 numbers
           'elevyear': 2000, # SRTM year
           'rslryear': 2000,  # nominal based on various input data
-          'forecasts': range(2020, 2100+1, 10),
+          'un_pop_forecasts': range(2020, 2100+1, 10),
+          'un_pop_names': ['Low', 'Medium', 'High'],
           'ssps': [1,2,3],
-          'ssp_years': range(1980, 2100+1, 10),
+          'ssp_forecasts': range(1980, 2100+1, 10),
+          'ssp_names': ['SSP1', 'SSP2', 'SSP3'],
           }
 
 # EXPERIMENT configs
