@@ -124,12 +124,12 @@ defaults = {
         'relief': '#data/experiments/{exp}/relief{ver}.pd',
         'pop_dens': '#data/experiments/{exp}/pop_dens{ver}.pd',
 
-        'ssp_pop_source': ('murakami', '/Users/ztessler/data/SSP_pop_gdp_Murakami/population_ssp{ssp}.csv'),
+        'ssp_pop_source': ('ssp', '/Users/ztessler/data/SSP_pop_gdp_Murakami/population_ssp{ssp}.csv'),
         'ssp_pop': '#data/ssp/pop_ssp{ssp}.{ext}',
         'delta_ssp_pops': '#data/ssp/delta_ssp_pops.pd',
-        'ssp_gdp_source': ('murakami', '/Users/ztessler/data/SSP_pop_gdp_Murakami/gdp_ssp{ssp}.csv'),
+        'ssp_gdp_source': ('ssp', '/Users/ztessler/data/SSP_pop_gdp_Murakami/gdp_ssp{ssp}.csv'),
         'ssp_gdp': '#data/ssp/gdp_ssp{ssp}.{ext}',
-        'delta_ssp_gpds': '#data/ssp/delta_ssp_gdps.pd',
+        'delta_ssp_gdps': '#data/ssp/delta_ssp_gdps.pd',
 
         'storm_surge': '#data/experiments/{exp}/surge_return_levels.pd',
         'surge_populations': '#data/experiments/{exp}/surge_pop_exposure.pd',
@@ -215,6 +215,13 @@ experiments = {
             'reservoir_rast': '#data/rgis/reservoir{ver}.{ext}',
             'compare_with': ['contemp', 'zarfl-reservoirs', 'double-reservoirs'],
             },
+        'SSPpops': {
+            'parent': 'contemp',
+            'name': 'SSP-based population growth scenarios',
+            'compare_with': ['contemp'],
+            # 'ssp_scenario': 3,
+            'pop_growth_source': defaults['ssp_pop_source'],
+            }
         }
 
 # first fill in configs with parent values

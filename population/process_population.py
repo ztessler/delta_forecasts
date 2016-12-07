@@ -171,38 +171,27 @@ def forecast_un_pop_elev(env, target, source):
 
 
 def forecast_ssp_pop_elev(env, source, target):
-    delta_pops = pandas.read_pickle(str(source[0]))
-    with rasterio.open(str(source[1]), 'r') as basins_rast:
-        basins = basins_rast.read(1)
-    basin_ids = pandas.read_pickle(str(source[2]))
-    with rasterio.open(str(source[3]), 'r') as pop_rasts:
-        popdata = pop_rasts.read()
-    ssps = env['ssps']
-    ssp_pops = {}
-    for i, ssp in enumerate(ssps):
-        with rasterio.open(str(source[4+i]), 'r') as ssp_pop:
-            ssp_pops[ssp] = ssp_pop.read()
-    popyear = env['popyear']
-    forecasts = env['forecasts']
-    scenarios = env['pop_scenario_names']
+    hypso = pandas.read_pickle(str(source[0]))
+    # ssp = env['ssp']
+    ssp_pops = pandas.read_pickle(str(source[1]))
+    scenarios = ssp_pops.columns.levels[ssp_pops.columns.names.index('SSP')]
+    forecasts = ssp_pops.columns.levels[ssp_pops.columns.names.index('Forecast')]
+    refyear = env['refyear']
+    refssp = env['refssp']
+    ref_ssp_pops = ssp_pops.xs(refssp, axis=1, level='SSP')
 
-    futurepop = {}
-    scenarios = pandas.CategoricalIndex(scenarios[1:], categories=scenarios[1:], ordered=True)
-    multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, scenarios],
-                                                 names=['Delta','Forecast','Pop_Scenario'])
-    pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex, dtype='float')
-    for delta, popelevs in delta_pops.iteritems():
+    newyears = ref_ssp_pops.columns.insert(0, refyear).sort_values()
+    refpops = ref_ssp_pops.reindex(columns=newyears).interpolate(axis=1)[refyear]
+    growth_factors = ssp_pops.div(refpops, axis=0)
+
+    # scenarios = pandas.CategoricalIndex(scenarios, categories=scenarios, ordered=True)
+    multiindex = pandas.MultiIndex.from_product([hypso.columns, forecasts, scenarios],
+                                                 names=['Delta','Forecast','SSP_Scenario'])
+    pop_elevs = pandas.DataFrame(index=hypso.index, columns=multiindex, dtype='float')
+    for delta, popelevs in hypso.iteritems():
         for scenario in scenarios:
             for forecast in forecasts:
-                growth = 0.0
-                for country, cdata in countries[delta].iteritems():
-                    iso = int(cdata['iso_num'])
-                    if popyear in futurepop['estimates']:
-                        cur_pop = futurepop['estimates'][popyear][iso]
-                    else:
-                        cur_pop = futurepop[scenarios[2]][popyear][iso] # scenarios[2] is "medium"
-                    growth += futurepop[scenario][forecast][iso] / cur_pop * cdata['area_frac']
-                pop_elevs[delta, forecast, scenario] = popelevs * growth
+                pop_elevs[delta, forecast, scenario] = popelevs * growth_factors.loc['Mekong', (scenario, forecast)]
     pop_elevs.to_pickle(str(target[0]))
     return 0
 

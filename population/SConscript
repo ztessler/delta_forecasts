@@ -67,19 +67,15 @@ for experiment, config in experiments.iteritems():
                 forecasts=common['un_pop_forecasts'],
                 pop_scenario_names=common['un_pop_names'])
 
-    # elif config['pop_growth_source'][0] == 'ssp':
-        # ssp_pop_rasts = [config['ssp_pop'].format(ssp=ssp, ext='tif') for ssp in common['ssps']]
-        # env.Command(
-                # source=([config['pop_hypso'],
-                        # config['basins_rast'].format(ver='', ext='tif'),
-                        # config['basin_ids']]+
-                        # ssp_pop_rasts),
-                # target=config['pop_hypso_growth'],
-                # action=pp.forecast_ssp_pop_elev,
-                # popyear=common['popyear'],
-                # ssps=common['ssps'],
-                # forecasts=common['ssp_pop_forecasts'],
-                # pop_scenario_names=common['ssp_pop_names'])
+    elif config['pop_growth_source'][0] == 'ssp':
+        env.Command(
+                source=[config['pop_hypso'],
+                        config['delta_ssp_pops']],
+                target=config['pop_hypso_growth'],
+                action=pp.forecast_ssp_pop_elev,
+                # ssp=config['ssp_scenario'],
+                refyear=common['popyear'],
+                refssp=2)
 
     env.Command(
             source=[config['pop_hypso_growth'],
