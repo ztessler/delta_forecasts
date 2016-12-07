@@ -108,7 +108,7 @@ defaults = {
         'per_capita_gdp_rast': '#data/experiments/{exp}/per_capita_gdp{ver}.{ext}',
 
         'pop_growth_source': ('un','http://esa.un.org/unpd/wpp/DVD/Files/1_Indicators%20(Standard)/EXCEL_FILES/1_Population/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS'),
-        'pop_growth': '#downloads/un_pop_growth.xls',
+        'pop_growth_data': '#downloads/un_pop_growth.xls',
         'storm_surge_source': ('unisdr', 'http://data.hdx.rwlabs.org/dataset/87ce9e07-4914-49e6-81cc-3e4913d1ea02/resource/9d30760e-292f-4e81-9f5f-8a526977aa68/download/SS-world.zip'),
         'storm_surge_zip': '#downloads/unisdr_storm_surge.zip',
         'storm_surge_vect': '#data/unisdr/storm_surge/storm_surge.shp',
@@ -125,9 +125,11 @@ defaults = {
         'pop_dens': '#data/experiments/{exp}/pop_dens{ver}.pd',
 
         'ssp_pop_source': ('murakami', '/Users/ztessler/data/SSP_pop_gdp_Murakami/population_ssp{ssp}.csv'),
-        'ssp_gdp_source': ('murakami', '/Users/ztessler/data/SSP_pop_gdp_Murakami/gdp_ssp{ssp}.csv'),
         'ssp_pop': '#data/ssp/pop_ssp{ssp}.{ext}',
+        'delta_ssp_pops': '#data/ssp/delta_ssp_pops.pd',
+        'ssp_gdp_source': ('murakami', '/Users/ztessler/data/SSP_pop_gdp_Murakami/gdp_ssp{ssp}.csv'),
         'ssp_gdp': '#data/ssp/gdp_ssp{ssp}.{ext}',
+        'delta_ssp_gpds': '#data/ssp/delta_ssp_gdps.pd',
 
         'storm_surge': '#data/experiments/{exp}/surge_return_levels.pd',
         'surge_populations': '#data/experiments/{exp}/surge_pop_exposure.pd',

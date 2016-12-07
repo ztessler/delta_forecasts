@@ -12,7 +12,8 @@ import geopandas
 from affine import Affine
 import rasterio
 from rasterio.features import rasterize
-from rasterio.warp import calculate_default_transform, reproject, RESAMPLING
+from rasterio.warp import transform_bounds, calculate_default_transform, reproject, RESAMPLING
+from rasterstats import zonal_stats
 import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 
@@ -169,6 +170,43 @@ def forecast_un_pop_elev(env, target, source):
     return 0
 
 
+def forecast_ssp_pop_elev(env, source, target):
+    delta_pops = pandas.read_pickle(str(source[0]))
+    with rasterio.open(str(source[1]), 'r') as basins_rast:
+        basins = basins_rast.read(1)
+    basin_ids = pandas.read_pickle(str(source[2]))
+    with rasterio.open(str(source[3]), 'r') as pop_rasts:
+        popdata = pop_rasts.read()
+    ssps = env['ssps']
+    ssp_pops = {}
+    for i, ssp in enumerate(ssps):
+        with rasterio.open(str(source[4+i]), 'r') as ssp_pop:
+            ssp_pops[ssp] = ssp_pop.read()
+    popyear = env['popyear']
+    forecasts = env['forecasts']
+    scenarios = env['pop_scenario_names']
+
+    futurepop = {}
+    scenarios = pandas.CategoricalIndex(scenarios[1:], categories=scenarios[1:], ordered=True)
+    multiindex = pandas.MultiIndex.from_product([delta_pops.columns, forecasts, scenarios],
+                                                 names=['Delta','Forecast','Pop_Scenario'])
+    pop_elevs = pandas.DataFrame(index=delta_pops.index, columns=multiindex, dtype='float')
+    for delta, popelevs in delta_pops.iteritems():
+        for scenario in scenarios:
+            for forecast in forecasts:
+                growth = 0.0
+                for country, cdata in countries[delta].iteritems():
+                    iso = int(cdata['iso_num'])
+                    if popyear in futurepop['estimates']:
+                        cur_pop = futurepop['estimates'][popyear][iso]
+                    else:
+                        cur_pop = futurepop[scenarios[2]][popyear][iso] # scenarios[2] is "medium"
+                    growth += futurepop[scenario][forecast][iso] / cur_pop * cdata['area_frac']
+                pop_elevs[delta, forecast, scenario] = popelevs * growth
+    pop_elevs.to_pickle(str(target[0]))
+    return 0
+
+
 def adjust_hypso_for_rslr(env, source, target):
     Q_ = pint.UnitRegistry().Quantity
 
@@ -239,4 +277,56 @@ def rasterize_ssp_data(env, source, target):
     profile.update(count=len(ssp_years))
     with rasterio.open(str(target[0]), 'w', **profile) as out:
         out.write(np.rollaxis(data, 2))
+    return 0
+
+
+def extract_delta_ssp_vals(env, source, target):
+    deltas = geopandas.read_file(str(source[0])).set_index('Delta')
+    ssps = {}
+    for i, ssp in enumerate(env['ssps']):
+        with rasterio.open(str(source[1+i]), 'r') as ssp_rast:
+            ssps[ssp] = ssp_rast.read()
+            profile = ssp_rast.profile.copy()
+            ssp_raw_crs = ssp_rast.crs
+            ssp_raw_affine = ssp_rast.affine
+            ssp_raw_bounds = ssp_rast.bounds
+            ssp_raw_width = ssp_rast.width
+            ssp_raw_height = ssp_rast.height
+            ssp_raw_nodata = ssp_rast.nodata
+    multiindex = pandas.MultiIndex.from_product([env['ssps'], env['ssp_years']],
+                                                names=['SSP', 'Forecast'])
+    data = pandas.DataFrame(index=deltas.index, columns=multiindex, dtype='float')
+    # import ipdb;ipdb.set_trace()
+    for delta in deltas.index:
+        lon, lat = np.array(deltas.centroid[delta])
+        proj = ccrs.LambertAzimuthalEqualArea(central_longitude=lon, central_latitude=lat)
+        delta_proj = deltas.loc[[delta]].to_crs(proj.proj4_params)
+        bounds_proj = delta_proj.buffer(50000).bounds.squeeze()
+        bounds = transform_bounds(proj.proj4_params, ssp_raw_crs, *bounds_proj)
+        lon1, lat1, lon2, lat2 = bounds
+        x1, y1 = map(lambda x: int(np.floor(x)), ~ssp_raw_affine * (lon1, lat1))
+        x2, y2 = map(lambda x: int(np.ceil(x)), ~ssp_raw_affine * (lon2, lat2))
+
+        dst_affine, dst_width, dst_height = calculate_default_transform(
+                ssp_raw_crs, proj.proj4_params, x2-x1, y1-y2,
+                *bounds)
+        for i, ssp in enumerate(env['ssps']):
+            for j, forecast in enumerate(env['ssp_years']):
+                delta_ssp = ssps[ssp][j,y2:y1,x1:x2] # lats inverted
+                ssp_proj = np.ones((dst_height, dst_width), dtype=rasterio.float64)
+                reproject(ssps[ssp][j,...], ssp_proj, ssp_raw_affine, ssp_raw_crs, ssp_raw_nodata,
+                    dst_affine, proj.proj4_params, ssp_raw_nodata, RESAMPLING.bilinear)
+                stats = zonal_stats(delta_proj.loc[delta,'geometry'], ssp_proj, affine=dst_affine, nodata=ssp_raw_nodata)
+                counts = 0
+                means = 0
+                for feat in stats:
+                    if feat['count'] > 0:
+                        counts += feat['count']
+                        means += feat['mean'] * feat['count']
+                if counts > 0:
+                    deltamean = float(means)/float(counts)
+                else:
+                    deltamean = np.nan
+                data.loc[delta, (ssp, forecast)] = deltamean * delta_proj.area.squeeze()/(1000**2)
+    data.to_pickle(str(target[0]))
     return 0

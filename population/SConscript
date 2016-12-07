@@ -54,18 +54,32 @@ for experiment, config in experiments.iteritems():
     if config['pop_growth_source'][0] == 'un':
         env.Command(
                 source=None,
-                target=config['pop_growth'],
+                target=config['pop_growth_data'],
                 action='wget "'+config['pop_growth_source'][1]+'" -O $TARGET')
 
         env.Command(
                 source=[config['pop_hypso'],
                         config['delta_countries'],
-                        config['pop_growth']],
+                        config['pop_growth_data']],
                 target=config['pop_hypso_growth'],
                 action=pp.forecast_un_pop_elev,
                 popyear=common['popyear'],
                 forecasts=common['un_pop_forecasts'],
                 pop_scenario_names=common['un_pop_names'])
+
+    # elif config['pop_growth_source'][0] == 'ssp':
+        # ssp_pop_rasts = [config['ssp_pop'].format(ssp=ssp, ext='tif') for ssp in common['ssps']]
+        # env.Command(
+                # source=([config['pop_hypso'],
+                        # config['basins_rast'].format(ver='', ext='tif'),
+                        # config['basin_ids']]+
+                        # ssp_pop_rasts),
+                # target=config['pop_hypso_growth'],
+                # action=pp.forecast_ssp_pop_elev,
+                # popyear=common['popyear'],
+                # ssps=common['ssps'],
+                # forecasts=common['ssp_pop_forecasts'],
+                # pop_scenario_names=common['ssp_pop_names'])
 
     env.Command(
             source=[config['pop_hypso_growth'],
@@ -93,3 +107,19 @@ for experiment, config in experiments.iteritems():
                 action=pp.rasterize_ssp_data,
                 scaling=1e9,
                 ssp_years=common['ssp_forecasts'])
+    ssp_pop_rasts = [config['ssp_pop'].format(ssp=ssp, ext='tif') for ssp in common['ssps']]
+    env.Command(
+            source=([config['deltas']]+
+                     ssp_pop_rasts),
+            target=config['delta_ssp_pops'],
+            action=pp.extract_delta_ssp_vals,
+            ssps=common['ssps'],
+            ssp_years=common['ssp_forecasts'])
+    ssp_gdp_rasts = [config['ssp_gdp'].format(ssp=ssp, ext='tif') for ssp in common['ssps']]
+    env.Command(
+            source=([config['deltas']]+
+                     ssp_pop_rasts),
+            target=config['delta_ssp_gdps'],
+            action=pp.extract_delta_ssp_vals,
+            ssps=common['ssps'],
+            ssp_years=common['ssp_forecasts'])
