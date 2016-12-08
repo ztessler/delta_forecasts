@@ -67,6 +67,8 @@ defaults = {
 
         'basins_source': ('rgis',),
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
+        'basins30_source': ('rgis',),
+        'basins30_rast': '#data/rgis/basins30{ver}.{ext}',
         'reservoir_source': ('grand', '/Users/ztessler/data/Dams_GRanD/dams-rev01-global-shp/GRanD_dams_v1_1.shp'),
         'reservoir_rast': '#data/experiments/{exp}/reservoirs{ver}.{ext}',
         'reservoir_adj': '#data/experiments/{exp}/reservoir_adj{ver}.{ext}',
@@ -82,7 +84,9 @@ defaults = {
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
 
         'zeros_rast': '#data/zeros.tif',
+        'zeros30_rast': '#data/zeros30.tif',
         'ones_rast': '#data/ones.tif',
+        'ones30_rast': '#data/ones30.tif',
 
         'rslr_lit_source': ('higgins2014', '/Users/ztessler/data/RSLR/higgins_rslr.csv'),
         # 'rslr_lit_source': ('higgins2014_agg', '/Users/ztessler/data/RSLR/higgins_rslr_summary.csv'),
@@ -113,7 +117,9 @@ defaults = {
         'storm_surge_zip': '#downloads/unisdr_storm_surge.zip',
         'storm_surge_vect': '#data/unisdr/storm_surge/storm_surge.shp',
 
-        'basins': '#data/experiments/{exp}/basins{ver}.{ext}',
+        'basins': '#data/basins{ver}.{ext}',
+        'basins30': '#data/basins30{ver}.{ext}',
+        'basins30cells': '#data/basins30cells{ver}.{ext}',
         'reservoirs': '#data/experiments/{exp}/reservoir{ver}.pd',
         'discharge': '#data/experiments/{exp}/discharge{ver}.pd',
         'airtemp': '#data/experiments/{exp}/airtemp{ver}.pd',
@@ -154,8 +160,10 @@ defaults = {
         'oilgas': '#data/experiments/{exp}/oilgas.pd',
         'oilgas_subsidence': '#data/experiments/{exp}/oilgas_subsidence.pd',
         'basin_ids': '#data/basin_ids.pd',
-        'basin_mouths': '#data/experiments/{exp}/basin_mouths.pd',
-        'basin_areas': '#data/experiments/{exp}/basin_areas.pd',
+        'basin_mouths': '#data/basin_mouths.pd',
+        'basin_areas': '#data/basin_areas.pd',
+        'basin30_ids': '#data/basin30_ids.pd',
+        'basin30_mouths': '#data/basin30_mouths.pd',
 
         'natural_subsidence': '#data/experiments/pristine/natural_subsidence.pd',
         'sed_aggradation': '#data/experiments/{exp}/sed_aggradation.pd',
@@ -168,11 +176,11 @@ defaults = {
         'vuln_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
         'vuln': '#data/experiments/{exp}/vuln.pd',
 
-        'basin_pixel_areas': '#data/experiments/{exp}/basin_pixel_areas.tif',
-        'upstream_zeros': '#data/experiments/{exp}/upstream_zeros.pd',
-        'upstream_ones': '#data/experiments/{exp}/upstream_ones.pd',
-        'delta_zeros': '#data/experiments/{exp}/delta_zeros.pd',
-        'delta_ones': '#data/experiments/{exp}/delta_ones.pd',
+        'basin_pixel_areas': '#data/basin_pixel_areas.tif',
+        'upstream_zeros': '#data/upstream_zeros.pd',
+        'upstream_ones': '#data/upstream_ones.pd',
+        'delta_zeros': '#data/delta_zeros.pd',
+        'delta_ones': '#data/delta_ones.pd',
 
         'srtm': 3,
         'eustatic_slr': 3.0,

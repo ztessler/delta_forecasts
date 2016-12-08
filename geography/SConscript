@@ -45,6 +45,11 @@ for experiment, config in experiments.iteritems():
                     config['basins_rast'].format(ver='',ext='tif')],
             target=config['basin_ids'],
             action=geo.contributing_basins)
+    env.Command(
+            source=[config['deltas'],
+                    config['basins30_rast'].format(ver='.1',ext='tif')],
+            target=config['basin30_ids'],
+            action=geo.contributing_basins)
 
     env.Command(
             source=[config['basins'].format(ver='', ext='pd'),
@@ -52,6 +57,12 @@ for experiment, config in experiments.iteritems():
                     config['basin_ids']],
             target=config['basin_mouths'].format(ver='', ext='pd'),
             action=geo.locate_basin_mouths)
+    env.Command( # need 30min network mouths, dont have mouthcoords in 30min network, so find manually from DBCells data
+            source=[config['basins30cells'].format(ver='', ext='pd'),
+                    config['basins30_rast'].format(ver='.1', ext='tif'), #.1 is 30min
+                    config['basin30_ids']],
+            target=config['basin30_mouths'].format(ver='', ext='pd'),
+            action=geo.locate_basin_mouths_from_cells)
 
     env.Command(
             source=config['basins_rast'].format(ver='',ext='tif'),

@@ -105,6 +105,29 @@ def locate_basin_mouths(env, target, source):
     return 0
 
 
+def locate_basin_mouths_from_cells(env, target, source):
+    cells = pandas.read_pickle(str(source[0]))
+    with rasterio.open(str(source[1]), 'r') as rast:
+        affine = rast.affine
+    basin_ids = pandas.read_pickle(str(source[2]))
+
+    mouths = pandas.DataFrame(index=basin_ids.index, columns=['x', 'y',
+                                                              'lon_center',
+                                                              'lat_center'])
+    for delta, basin in basin_ids.index:
+        mouthcell = cells.loc[cells['BasinID']==basin].iloc[0,:] # cells along river are sorted by discharge vol, first cell is mouth
+        assert mouthcell['CellLength'] == mouthcell['DistToOcean'] # just to confirm
+        lon = mouthcell['CellXCoord']
+        lat = mouthcell['CellYCoord']
+        x, y = ~affine * (lon, lat)
+
+        mouths.loc[delta, basin]['lon_center'] = lon
+        mouths.loc[delta, basin]['lat_center'] = lat
+        mouths.loc[delta, basin]['x'] = int(x)
+        mouths.loc[delta, basin]['y'] = int(y)
+
+    mouths.to_pickle(str(target[0]))
+    return 0
 # def _get_clean_iso_alpha3(prop):
     # isoa3 = prop['iso_alpha3']
     # if isoa3 is None:

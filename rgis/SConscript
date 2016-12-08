@@ -16,6 +16,9 @@ rgis_files = {
         'basins_rast': os.path.join(
             rgis_remote_dir, 'Network', 'STN+HydroSHEDS', '06min', 'Static',
             'Global_Network_STN+HydroSHEDS_06min_Static.gdbn'),
+        'basins30_rast': os.path.join(
+            rgis_remote_dir, 'Network', 'PotSTNv602', '30min', 'Static',
+            'Global_Network_PotSTNv602_30min_Static.gdbn'),
         'reservoir_rast': os.path.join(
             rgis_remote_dir, 'Reservoir-Capacity', 'UNH661', '06min', 'Static',
             'Global_Reservoir-Capacity_UNH661_06min_aLT2008.gdbc'),
@@ -81,6 +84,39 @@ for experiment, config in experiments.iteritems():
             env.Command(
                     target=config['basins'].format(ver='', ext='pd'),
                     source=config['basins'].format(ver='', ext='tsv'),
+                    action=pr.tsv_to_pandas)
+            env.Command(
+                    target=config[name].format(ver='.1', ext='gdbd'),
+                    source=localfile,
+                    action='netCells2Grid -f BasinID -t BasinID -u BasinID -d Global $SOURCE $TARGET')
+            env.Command(
+                    target=config[name].format(ver='.2', ext='gdbd'),
+                    source=config[name].format(ver='.1', ext='gdbd'),
+                    action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
+            env.Command(
+                    target=config[name].format(ver='.3', ext='gdbd'),
+                    source=config[name].format(ver='.2', ext='gdbd'),
+                    action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
+            env.Command(
+                    target=ncfile,
+                    source=config[name].format(ver='.3', ext='gdbd'),
+                    action='rgis2netcdf $SOURCE $TARGET')
+        elif name == 'basins30_rast':
+            env.Command(
+                    target=config['basins30'].format(ver='', ext='tsv'),
+                    source=localfile,
+                    action='rgis2table $SOURCE > $TARGET')
+            env.Command(
+                    target=config['basins30cells'].format(ver='', ext='tsv'),
+                    source=localfile,
+                    action='rgis2table -a DBCells $SOURCE > $TARGET')
+            env.Command(
+                    target=config['basins30'].format(ver='', ext='pd'),
+                    source=config['basins30'].format(ver='', ext='tsv'),
+                    action=pr.tsv_to_pandas)
+            env.Command(
+                    target=config['basins30cells'].format(ver='', ext='pd'),
+                    source=config['basins30cells'].format(ver='', ext='tsv'),
                     action=pr.tsv_to_pandas)
             env.Command(
                     target=config[name].format(ver='.1', ext='gdbd'),
