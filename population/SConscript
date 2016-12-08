@@ -73,9 +73,9 @@ for experiment, config in experiments.iteritems():
                         config['delta_ssp_pops']],
                 target=config['pop_hypso_growth'],
                 action=pp.forecast_ssp_pop_elev,
-                # ssp=config['ssp_scenario'],
+                scenarios=common['ssp_names'],
                 refyear=common['popyear'],
-                refssp=2)
+                refssp='SSP2')
 
     env.Command(
             source=[config['pop_hypso_growth'],
@@ -110,7 +110,8 @@ for experiment, config in experiments.iteritems():
             target=config['delta_ssp_pops'],
             action=pp.extract_delta_ssp_vals,
             ssps=common['ssps'],
-            ssp_years=common['ssp_forecasts'])
+            ssp_years=common['ssp_forecasts'],
+            ssp_names=common['ssp_names'])
     ssp_gdp_rasts = [config['ssp_gdp'].format(ssp=ssp, ext='tif') for ssp in common['ssps']]
     env.Command(
             source=([config['deltas']]+
@@ -118,4 +119,5 @@ for experiment, config in experiments.iteritems():
             target=config['delta_ssp_gdps'],
             action=pp.extract_delta_ssp_vals,
             ssps=common['ssps'],
-            ssp_years=common['ssp_forecasts'])
+            ssp_years=common['ssp_forecasts'],
+            ssp_names=common['ssp_names'])

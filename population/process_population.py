@@ -174,7 +174,7 @@ def forecast_ssp_pop_elev(env, source, target):
     hypso = pandas.read_pickle(str(source[0]))
     # ssp = env['ssp']
     ssp_pops = pandas.read_pickle(str(source[1]))
-    scenarios = ssp_pops.columns.levels[ssp_pops.columns.names.index('SSP')]
+    scenarios = env['scenarios']
     forecasts = ssp_pops.columns.levels[ssp_pops.columns.names.index('Forecast')]
     refyear = env['refyear']
     refssp = env['refssp']
@@ -186,7 +186,7 @@ def forecast_ssp_pop_elev(env, source, target):
 
     # scenarios = pandas.CategoricalIndex(scenarios, categories=scenarios, ordered=True)
     multiindex = pandas.MultiIndex.from_product([hypso.columns, forecasts, scenarios],
-                                                 names=['Delta','Forecast','SSP_Scenario'])
+                                                 names=['Delta','Forecast','Pop_Scenario'])
     pop_elevs = pandas.DataFrame(index=hypso.index, columns=multiindex, dtype='float')
     for delta, popelevs in hypso.iteritems():
         for scenario in scenarios:
@@ -272,7 +272,7 @@ def rasterize_ssp_data(env, source, target):
 def extract_delta_ssp_vals(env, source, target):
     deltas = geopandas.read_file(str(source[0])).set_index('Delta')
     ssps = {}
-    for i, ssp in enumerate(env['ssps']):
+    for i, ssp in enumerate(env['ssp_names']):
         with rasterio.open(str(source[1+i]), 'r') as ssp_rast:
             ssps[ssp] = ssp_rast.read()
             profile = ssp_rast.profile.copy()
@@ -282,7 +282,7 @@ def extract_delta_ssp_vals(env, source, target):
             ssp_raw_width = ssp_rast.width
             ssp_raw_height = ssp_rast.height
             ssp_raw_nodata = ssp_rast.nodata
-    multiindex = pandas.MultiIndex.from_product([env['ssps'], env['ssp_years']],
+    multiindex = pandas.MultiIndex.from_product([env['ssp_names'], env['ssp_years']],
                                                 names=['SSP', 'Forecast'])
     data = pandas.DataFrame(index=deltas.index, columns=multiindex, dtype='float')
     # import ipdb;ipdb.set_trace()
@@ -299,7 +299,7 @@ def extract_delta_ssp_vals(env, source, target):
         dst_affine, dst_width, dst_height = calculate_default_transform(
                 ssp_raw_crs, proj.proj4_params, x2-x1, y1-y2,
                 *bounds)
-        for i, ssp in enumerate(env['ssps']):
+        for i, ssp in enumerate(env['ssp_names']):
             for j, forecast in enumerate(env['ssp_years']):
                 delta_ssp = ssps[ssp][j,y2:y1,x1:x2] # lats inverted
                 ssp_proj = np.ones((dst_height, dst_width), dtype=rasterio.float64)
