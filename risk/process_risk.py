@@ -92,6 +92,13 @@ def plot_surge_annual_exposure_multiscenario(env, target, source):
     delta = env['delta']
     scenarios = env['scenarios']
 
+    # need level names to match for concat to work
+    # pops may be "Low, Medium, High", or "SSP1, SSP2, SSP3". make the same
+    # assumes three pop scenarios with low,medium,high ordering
+    for e in exposures:
+        if 'SSP1' in e.index.get_level_values('Pop_Scenario'):
+            e.index = e.index.set_levels(['Low', 'Medium', 'High'], 'Pop_Scenario')
+
     pops = [e.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1] for e in exposures]
     pops = pandas.concat(pops, keys=scenarios, axis=1)
     pops.columns.rename('Environmental Scenario', level=0, inplace=True)
@@ -138,6 +145,13 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     ranges = pandas.read_pickle(str(source[-1]))
     deltas = exposures[0].sum(level='Delta').dropna().index
     scenarios = env['scenarios']
+
+    # need level names to match for concat to work
+    # pops may be "Low, Medium, High", or "SSP1, SSP2, SSP3". make the same
+    # assumes three pop scenarios with low,medium,high ordering
+    for e in exposures:
+        if 'SSP1' in e.index.get_level_values('Pop_Scenario'):
+            e.index = e.index.set_levels(['Low', 'Medium', 'High'], 'Pop_Scenario')
 
     ncols = int(np.ceil(np.sqrt(len(deltas)))) + 1
     nrows = int(np.ceil(len(deltas)/float(ncols)))
