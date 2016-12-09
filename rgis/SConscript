@@ -18,8 +18,6 @@ rgis_files = {
             'Global_Network_STN+HydroSHEDS_06min_Static.gdbn'),
         'basins30_rast': os.path.join(
             server + '/Users/ecr/ztessler', 'Global_Network_DDM30_30min_Static.xy.gdbn'),
-        'cells30_rast': os.path.join(
-            server + '/Users/ecr/ztessler', 'Global_Network_DDM30_30min_Static.xy.gdbn'),
         'reservoir_rast': os.path.join(
             rgis_remote_dir, 'Reservoir-Capacity', 'UNH661', '06min', 'Static',
             'Global_Reservoir-Capacity_UNH661_06min_aLT2008.gdbc'),
@@ -102,31 +100,6 @@ for experiment, config in experiments.iteritems():
                     target=ncfile,
                     source=config[name].format(ver='.3', ext='gdbd'),
                     action='rgis2netcdf $SOURCE $TARGET')
-        elif name == 'cells30_rast':
-            env.Command(
-                    target=config['cells30'].format(ver='', ext='tsv'),
-                    source=localfile,
-                    action='rgis2table $SOURCE > $TARGET')
-            env.Command(
-                    target=config['cells30'].format(ver='', ext='pd'),
-                    source=config['cells30'].format(ver='', ext='tsv'),
-                    action=pr.tsv_to_pandas)
-            env.Command(
-                    target=config[name].format(ver='.1', ext='gdbd'),
-                    source=localfile,
-                    action='netCells2Grid -f ID -t ID -u ID -d Global $SOURCE $TARGET')
-            env.Command(
-                    target=config[name].format(ver='.2', ext='gdbd'),
-                    source=config[name].format(ver='.1', ext='gdbd'),
-                    action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
-            env.Command(
-                    target=config[name].format(ver='.3', ext='gdbd'),
-                    source=config[name].format(ver='.2', ext='gdbd'),
-                    action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
-            env.Command(
-                    target=ncfile,
-                    source=config[name].format(ver='.3', ext='gdbd'),
-                    action='rgis2netcdf $SOURCE $TARGET')
         elif name == 'basins30_rast':
             env.Command(
                     target=config['basins30'].format(ver='', ext='tsv'),
@@ -170,7 +143,7 @@ for experiment, config in experiments.iteritems():
                     action=pr.clip_nc_neg,
                     varname='discharge')
             ncfile = clippednc
-        if name == 'basins30_rast' or name == 'cells30_rast':
+        if name == 'basins30_rast':
             tiffile = config[name].format(ver='', ext='tif')
             env.Command(
                     target=tiffile,
