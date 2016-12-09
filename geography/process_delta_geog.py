@@ -92,48 +92,25 @@ def locate_basin_mouths(env, target, source):
                                                               'lon_center',
                                                               'lat_center'])
     for delta, basin in basin_ids.index:
-        lon = basin_info.loc[basin]['MouthXCoord']
-        lat = basin_info.loc[basin]['MouthYCoord']
-        x, y = ~affine * (lon, lat)
+        try:
+            lon = basin_info.loc[basin]['MouthXCoord']
+            lat = basin_info.loc[basin]['MouthYCoord']
+        except KeyError:
+            # DDM30 network doesn't have MouthX/YCoord info, so working with DBCell info
+            mouthcell = basin_info.loc[basin_info['BasinID']==basin].iloc[0,:] # cells along river are sorted by discharge vol, first cell is mouth
+            lon = mouthcell['CellXCoord']
+            lat = mouthcell['CellYCoord']
+        x, y = map(int, ~affine * (lon, lat))
 
         mouths.loc[delta, basin]['lon_center'] = lon
         mouths.loc[delta, basin]['lat_center'] = lat
-        mouths.loc[delta, basin]['x'] = int(x)
-        mouths.loc[delta, basin]['y'] = int(y)
+        mouths.loc[delta, basin]['x'] = x
+        mouths.loc[delta, basin]['y'] = y
 
     mouths.to_pickle(str(target[0]))
     return 0
 
 
-def locate_basin_mouths_from_cells(env, target, source):
-    cells = pandas.read_pickle(str(source[0]))
-    with rasterio.open(str(source[1]), 'r') as rast:
-        affine = rast.affine
-    basin_ids = pandas.read_pickle(str(source[2]))
-
-    mouths = pandas.DataFrame(index=basin_ids.index, columns=['x', 'y',
-                                                              'lon_center',
-                                                              'lat_center'])
-    for delta, basin in basin_ids.index:
-        mouthcell = cells.loc[cells['BasinID']==basin].iloc[0,:] # cells along river are sorted by discharge vol, first cell is mouth
-        assert mouthcell['CellLength'] == mouthcell['DistToOcean'] # just to confirm
-        lon = mouthcell['CellXCoord']
-        lat = mouthcell['CellYCoord']
-        x, y = ~affine * (lon, lat)
-
-        mouths.loc[delta, basin]['lon_center'] = lon
-        mouths.loc[delta, basin]['lat_center'] = lat
-        mouths.loc[delta, basin]['x'] = int(x)
-        mouths.loc[delta, basin]['y'] = int(y)
-
-    mouths.to_pickle(str(target[0]))
-    return 0
-# def _get_clean_iso_alpha3(prop):
-    # isoa3 = prop['iso_alpha3']
-    # if isoa3 is None:
-        # if prop['NAME'] == 'In dispute SOUTH SUDAN/SUDAN':
-            # return 'SSD' # SOUTH SUDAN
-    # return prop['iso_alpha3']
 def rasterize_gnp(env, target, source):
     def most_recent_data(c):
         year = 0
