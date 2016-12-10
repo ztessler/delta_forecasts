@@ -215,6 +215,7 @@ def plot_delta_scalars(env, target, source):
     qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
     df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
             columns=[scenarios[0], scenarios[1]])
+    df = df.drop('Congo')
     df = df.sort_values(by=scenarios[0], ascending=False)
 
     f, a = plt.subplots(1, 1, figsize=(16,8))
