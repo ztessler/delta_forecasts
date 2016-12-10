@@ -148,6 +148,18 @@ defaults = {
         'surge_annual_exposure_comparison_multidelta_plot': '#figures/joint/{scenarios}/surge_exposure_trend/alldelta_surge_annual_exposure_pop_trends_{scenarios}.{ext}',
         'surge_annual_exposure_ranges': '#data/experiments/joint/surge_annual_exposure_experiment_ranges.pd',
 
+        'dis_future_source': ('isimip', 'daisy:/data/ISIMIP/RGISresults[{gcm}]/Global/Discharge/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.{ext}'),
+        'dis_future_years': (2006, 2099),
+        'dis_future_rcps': ['2p6', '8p5'],
+        'dis_future_gcm': 'GFDL-ESM2M',
+        'dis_future_tmp': '#data/isimip/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.tmp.{ext}',
+        'dis_future_ncs': '#data/isimip/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.nc',
+        # 'dis_future_ncs': '/Volumes/environmental_science/TesslerZ/data/isimip/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.nc',
+        'dis_future_rcp': '#data/isimip/dis_future_RCP{rcp}.pd',
+        'dis_future': '#data/isimip/dis_future.pd',
+        'dis_future_extremes': '#data/experiments/{ext}/dis_future_extreme_zscore.pd',
+
+
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',
         'Eh': '#data/experiments/{exp}/bqart_Eh.pd',
@@ -263,19 +275,33 @@ while not done: # iterate until all parents and grandparents and great... have b
     experiments = updated_experiments
 # then set experiment directories and population year for output files
 for experiment in experiments.keys():
+    replacements = {
+            'exp': experiment,
+            'popyear': common['popyear'],
+            'ver': '{ver}',
+            'ext': '{ext}',
+            'delta': '{delta}',
+            'srtm': '{srtm}',
+            'forecast': '{forecast}',
+            'scenarios': '{scenarios}',
+            'ssp': '{ssp}',
+            'gcm': '{gcm}',
+            'rcp': '{rcp}',
+            'year': '{year}',
+            }
     config = experiments[experiment]
     for name, path in config.items():
         if isinstance(path, tuple):
             pathitems = []
             for item in path:
                 try:
-                    pathitems.append(item.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}', ssp='{ssp}'))
+                    pathitems.append(item.format(**replacements))
                 except AttributeError:
                     pathitems.append(item)
             config[name] = tuple(pathitems)
         else:
             try:
-                config[name] = path.format(exp=experiment, popyear=common['popyear'], ver='{ver}', ext='{ext}', delta='{delta}', srtm='{srtm}', forecast='{forecast}', scenarios='{scenarios}', ssp='{ssp}')
+                config[name] = path.format(**replacements)
             except AttributeError:
                 pass
     experiments[experiment] = config
