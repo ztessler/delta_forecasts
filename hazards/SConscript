@@ -38,3 +38,53 @@ for experiment, config in experiments.iteritems():
             source=config['surge_populations'],
             target=config['surge_annual_exposure'],
             action=ph.surge_expected_expo)
+
+    if config['dis_future_source'][0] == 'isimip':
+        rcpdata = []
+        years = range(config['dis_future_years'][0], config['dis_future_years'][1]+1)
+        for rcp in config['dis_future_rcps']:
+            ncs = []
+            for year in years:
+                remotefile = config['dis_future_source'][1].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='gdbc.gz')
+                localtmp = env.File(config['dis_future_tmp'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='{ext}')).abspath
+                localnc = config['dis_future_ncs'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year)
+
+                gdbcgz = config['dis_future_tmp'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='gdbc.gz')
+                gdbc = env.File(config['dis_future_tmp'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='gdbc')).abspath
+                tmpnc = env.File(config['dis_future_tmp'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='nc')).abspath
+                env.Command(
+                        source=None,
+                        target=gdbcgz,
+                        action='scp ' + remotefile + ' $TARGET')
+                env.Command(
+                        source=gdbcgz,
+                        target=localnc,
+                        action=['gunzip -k $SOURCE',
+                                'rgis2netcdf {} {}'.format(gdbc, tmpnc),
+                                'nccopy -d1 -s {} $TARGET'.format(tmpnc),
+                                'rm {} {}'.format(gdbc, tmpnc)])
+                ncs.append(localnc)
+
+            env.Command(
+                    source=[config['basin30_mouths']] + ncs,
+                    target=config['dis_future_rcp'].format(rcp=rcp),
+                    action=ph.extract_future_delta_discharge,
+                    years=years)
+            rcpdata.append(config['dis_future_rcp'].format(rcp=rcp))
+
+
+        env.Command(
+                source=rcpdata,
+                target=config['dis_future'],
+                action=ph.combine_future_dis_rcps,
+                rcpnames=config['dis_future_rcps'],
+                )
+
+    env.Command(
+            source=config['dis_future'],
+            target=config['dis_future_extremes'],
+            action=ph.model_extremes,
+            thresh=0.99,
+            return_period=30,
+            window=30)
+

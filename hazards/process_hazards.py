@@ -1,9 +1,11 @@
 import os
+import datetime
 import numpy as np
 import scipy
 import pandas
 import geopandas
 import cartopy.crs as ccrs
+from netCDF4 import Dataset
 
 
 def storm_surge_agg_points(env, target, source):
@@ -105,3 +107,72 @@ def surge_expected_expo(env, target, source):
 
     exposure.apply(one_yr_expected, axis=0).to_pickle(str(target[0]))
     return 0
+
+
+def extract_future_delta_discharge(env, source, target):
+    mouths = pandas.read_pickle(str(source[0]))
+    years = env['years']
+    fulldis = pandas.DataFrame(index=[], columns=mouths.index)
+    for year, ncfile in zip(years, source[1:]):
+        nc = Dataset(str(ncfile), 'r')
+        dates = [datetime.datetime(year, 1, 1) + datetime.timedelta(days=float(d)) for d in nc.variables['time'][:]]
+        dis = pandas.DataFrame(index=dates, columns=fulldis.columns)
+        for (delta, basinid), (x, y, _, _) in mouths.iterrows():
+            dis.loc[:, (delta, basinid)] = nc.variables['discharge'][:, -y-1, x] # inverted y-axis
+        fulldis = pandas.concat([fulldis, dis], axis=0)
+        nc.close()
+    fulldis.to_pickle(str(target[0]))
+    return 0
+
+
+def combine_future_dis_rcps(env, source, target):
+    rcps = [pandas.read_pickle(str(s)) for s in source]
+    names = map(lambda s: 'RCP'+s, env['rcpnames'])
+
+    dis = pandas.concat(rcps, axis=1, keys=names, names=['RCP'])
+    dis.to_pickle(str(target[0]))
+    return 0
+
+
+    # env.Command(
+            # source=config['dis_future'],
+            # target=config['dis_future_extremes'],
+            # action=ph.model_extremes,
+            # thresh=0.99,
+            # return_period=30,
+            # window=30)
+def model_extremes(env, source, target):
+    from scipy.stats import genpareto
+    thresh = float(env['thresh'])
+    return_period = float(env['return_period']) #years
+    window_len = int(env['window']) #years
+
+    dis = pandas.read_pickle(str(source[0]))
+    year0 = dis.index[0].strftime('%Y')
+    year1 = dis.index[-1].strftime('%Y')
+    window0_year_end = str(int(year0)+(window_len-1))
+    window1_year_start = str(int(year1)-(window_len-1))
+    windows = [dis[:window0_year_end].index[[0, -1]],
+               dis[window1_year_start:].index[[0, -1]]]
+    window_names = [' to '.join(map(lambda s: s.strftime('%Y'), window)) for window in windows]
+    rcps = dis.columns.get_level_values('RCP').unique(),
+
+    extremes = pandas.DataFrame(
+            index=dis.columns.droplevel('RCP'),
+            columns=pandas.MultiIndex.from_product([rcps, window_names]))
+
+    plu = percentile/100.
+    pgu = 1 - plu
+    for (delta, basinid), rcp_time_data in list(extremes.iterrows())[:5]:
+        for rcp in rcps:
+            for window, winname in zip(windows, window_names):
+                d = dis.loc[window[0]:window[1], (rcp, delta, basinid)]
+                u = np.percentile(w, 100*plu)
+                d0 = d[d>u] - u
+                fit = genpareto.fit(d0)
+                return_val = u + genpareto.ppf((1-(1./(return_period*365))-plu)/pgu, *fit)
+                zscore = (return_val - d.mean()) / d.std(ddof=1)
+                extremes.loc[(delta, basinid), (rcp, winname)] = zscore
+    extremes.to_pickle(str(target[0]))
+    return 0
+
