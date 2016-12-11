@@ -155,7 +155,8 @@ defaults = {
         'dis_future_tmp': '#data/isimip/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.tmp.{ext}',
         'dis_future_ncs': '#data/isimip/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.nc',
         # 'dis_future_ncs': '/Volumes/environmental_science/TesslerZ/data/isimip/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.nc',
-        'dis_future_rcp': '#data/isimip/dis_future_RCP{rcp}.pd',
+        'dis_future_annual': '#data/isimip/dis_future_{rcp}_{year}.pd',
+        'dis_future_rcp': '#data/isimip/dis_future_{rcp}.pd',
         'dis_future': '#data/isimip/dis_future.pd',
         'dis_future_extremes': '#data/experiments/{ext}/dis_future_extreme_zscore.pd',
 

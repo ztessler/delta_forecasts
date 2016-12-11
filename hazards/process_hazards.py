@@ -111,16 +111,23 @@ def surge_expected_expo(env, target, source):
 
 def extract_future_delta_discharge(env, source, target):
     mouths = pandas.read_pickle(str(source[0]))
+    year = env['year']
+    nc = Dataset(str(source[1]), 'r')
+    dates = [datetime.datetime(year, 1, 1) + datetime.timedelta(days=float(d)) for d in nc.variables['time'][:]]
+    dis = pandas.DataFrame(index=dates, columns=mouths.index)
+    for (delta, basinid), (x, y, _, _) in mouths.iterrows():
+        dis.loc[:, (delta, basinid)] = nc.variables['discharge'][:, -y-1, x] # inverted y-axis
+    nc.close()
+    dis.to_pickle(str(target[0]))
+    return 0
+
+
+def combine_future_dis_years(env, source, target):
     years = env['years']
-    fulldis = pandas.DataFrame(index=[], columns=mouths.index)
-    for year, ncfile in zip(years, source[1:]):
-        nc = Dataset(str(ncfile), 'r')
-        dates = [datetime.datetime(year, 1, 1) + datetime.timedelta(days=float(d)) for d in nc.variables['time'][:]]
-        dis = pandas.DataFrame(index=dates, columns=fulldis.columns)
-        for (delta, basinid), (x, y, _, _) in mouths.iterrows():
-            dis.loc[:, (delta, basinid)] = nc.variables['discharge'][:, -y-1, x] # inverted y-axis
-        fulldis = pandas.concat([fulldis, dis], axis=0)
-        nc.close()
+    dis = []
+    for year, disfile in zip(years, source):
+        dis.append(pandas.read_pickle(str(disfile)))
+    fulldis = pandas.concat(dis, axis=0)
     fulldis.to_pickle(str(target[0]))
     return 0
 

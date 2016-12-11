@@ -43,7 +43,7 @@ for experiment, config in experiments.iteritems():
         rcpdata = []
         years = range(config['dis_future_years'][0], config['dis_future_years'][1]+1)
         for rcp in config['dis_future_rcps']:
-            ncs = []
+            annual_dis = []
             for year in years:
                 remotefile = config['dis_future_source'][1].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='gdbc.gz')
                 localtmp = env.File(config['dis_future_tmp'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='{ext}')).abspath
@@ -63,15 +63,22 @@ for experiment, config in experiments.iteritems():
                                 'rgis2netcdf {} {}'.format(gdbc, tmpnc),
                                 'nccopy -d1 -s {} $TARGET'.format(tmpnc),
                                 'rm {} {}'.format(gdbc, tmpnc)])
-                ncs.append(localnc)
+
+                env.Command(
+                        source=[config['basin30_mouths'],
+                                localnc],
+                        target=config['dis_future_annual'].format(year=year, rcp=rcp),
+                        action=ph.extract_future_delta_discharge,
+                        year=year)
+
+                annual_dis.append(config['dis_future_annual'].format(year=year, rcp=rcp))
 
             env.Command(
-                    source=[config['basin30_mouths']] + ncs,
+                    source=annual_dis,
                     target=config['dis_future_rcp'].format(rcp=rcp),
-                    action=ph.extract_future_delta_discharge,
+                    action=ph.combine_future_dis_years,
                     years=years)
             rcpdata.append(config['dis_future_rcp'].format(rcp=rcp))
-
 
         env.Command(
                 source=rcpdata,
