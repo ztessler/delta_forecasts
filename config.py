@@ -158,7 +158,9 @@ defaults = {
         'dis_future_annual': '#data/isimip/dis_future_{rcp}_{year}.pd',
         'dis_future_rcp': '#data/isimip/dis_future_{rcp}.pd',
         'dis_future': '#data/isimip/dis_future.pd',
-        'dis_future_extremes': '#data/experiments/{ext}/dis_future_extreme_zscore.pd',
+        'dis_future_extremes_basins': '#data/experiments/{exp}/dis_future_extreme_zscore_basins.pd',
+        'dis_future_window_mean_dis': '#data/experiments/{exp}/dis_future_window_means.pd',
+        'dis_future_extremes': '#data/experiments/{exp}/dis_future_extreme_zscore.pd',
 
 
         'I': '#data/experiments/{exp}/bqart_I.pd',

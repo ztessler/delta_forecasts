@@ -150,7 +150,7 @@ def combine_future_dis_rcps(env, source, target):
             # window=30)
 def model_extremes(env, source, target):
     from scipy.stats import genpareto
-    thresh = float(env['thresh'])
+    percentile = float(env['percentile'])
     return_period = float(env['return_period']) #years
     window_len = int(env['window']) #years
 
@@ -162,24 +162,49 @@ def model_extremes(env, source, target):
     windows = [dis[:window0_year_end].index[[0, -1]],
                dis[window1_year_start:].index[[0, -1]]]
     window_names = [' to '.join(map(lambda s: s.strftime('%Y'), window)) for window in windows]
-    rcps = dis.columns.get_level_values('RCP').unique(),
+    window_dict = dict(zip(window_names, windows))
+    rcps = dis.columns.get_level_values('RCP').unique().tolist()
 
+    deltas_basins = dis.columns.droplevel('RCP').unique()
+    d_b_r_w = [tuple(db)+(r, w) for db in deltas_basins for r in rcps for w in window_names]
+    index = pandas.MultiIndex.from_tuples(d_b_r_w,
+                        names=['Delta', 'BasinID', 'RCP', 'Window'])
     extremes = pandas.DataFrame(
-            index=dis.columns.droplevel('RCP'),
-            columns=pandas.MultiIndex.from_product([rcps, window_names]))
+            index=index,
+            columns=['zscore', 'mean', 'std'],
+            dtype=np.float64)
 
     plu = percentile/100.
     pgu = 1 - plu
-    for (delta, basinid), rcp_time_data in list(extremes.iterrows())[:5]:
-        for rcp in rcps:
-            for window, winname in zip(windows, window_names):
-                d = dis.loc[window[0]:window[1], (rcp, delta, basinid)]
-                u = np.percentile(w, 100*plu)
-                d0 = d[d>u] - u
-                fit = genpareto.fit(d0)
-                return_val = u + genpareto.ppf((1-(1./(return_period*365))-plu)/pgu, *fit)
-                zscore = (return_val - d.mean()) / d.std(ddof=1)
-                extremes.loc[(delta, basinid), (rcp, winname)] = zscore
+    for (delta, basinid, rcp, winname), rcp_time_data in list(extremes.iterrows()):
+        window = window_dict[winname]
+        d = dis.loc[window[0]:window[1], (rcp, delta, basinid)]
+        d0 = dis.loc[windows[0][0]:windows[0][1], (rcp, delta, basinid)]
+        u = np.percentile(d, 100*plu)
+        dtail = d[d>u] - u
+        fit = genpareto.fit(dtail)
+        return_val = u + genpareto.ppf((1-(1./(return_period*365))-plu)/pgu, *fit)
+        zscore = (return_val - d0.mean()) / d0.std(ddof=1)
+        mean = d.mean()
+        std = d.std(ddof=1)
+        extremes.loc[(delta, basinid, rcp, winname)] = (zscore, mean, std)
     extremes.to_pickle(str(target[0]))
+    return 0
+
+
+def agg_delta_extremes(env, source, target):
+    extremes = pandas.read_pickle(str(source[0]))
+    newindex = extremes.index.droplevel('BasinID')
+    agg_extremes = pandas.Series(
+            index=pandas.MultiIndex.from_tuples(newindex.unique(), names=newindex.names))
+
+    bydelta = extremes.groupby(level='Delta')
+    for delta, deltadata in bydelta:
+        runs = deltadata.groupby(level=['RCP', 'Window'])
+        for (rcp, winname), rundata in runs:
+            zscore_weighted = (rundata['zscore'] * rundata['mean'] / rundata['mean'].sum()).sum()
+            agg_extremes.loc[(delta, rcp, winname)] = zscore_weighted
+
+    agg_extremes.to_pickle(str(target[0]))
     return 0
 
