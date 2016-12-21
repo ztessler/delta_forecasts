@@ -15,6 +15,8 @@ import requests
 from affine import Affine
 from bs4 import BeautifulSoup
 
+import time
+
 
 
 def storm_surge_agg_points(env, target, source):
@@ -150,13 +152,6 @@ def combine_future_dis_rcps(env, source, target):
     return 0
 
 
-    # env.Command(
-            # source=config['dis_future'],
-            # target=config['dis_future_extremes'],
-            # action=ph.model_extremes,
-            # thresh=0.99,
-            # return_period=30,
-            # window=30)
 def model_extremes(env, source, target):
     from scipy.stats import genpareto
     percentile = float(env['percentile'])
@@ -278,6 +273,14 @@ def waves_find_delta_indices(env, source, target):
 
 
 def process_wave_month(env, source, target):
+    # indexing opendap files only download necessary data
+    # But, netcdf doesn't do numpy "fancy" indexing to pull out specific indices
+    # so can either get data one pixel at a time(v1), entire grid and then use
+    # numpy fancy indexing(v2), or get surrounding block for each delta and pull
+    # out pixels of interest from the diagonal(v3).
+    # v1 is fastest - 1.6 minutes, vs 4.6 vs 7.2
+    # since most time is spent downloading and processing in C code, can use threads
+    # to do different months in parallel to speed this up substaintially
     url = env['url']
     with open(str(source[0]), 'r') as fin:
         indices = json.load(fin)
@@ -296,12 +299,66 @@ def process_wave_month(env, source, target):
     for delta in deltas:
         ys = np.array(indices[delta]['y'])
         xs = np.array(indices[delta]['x'])
-        for i, (y, x) in enumerate(zip(ys, xs)):
-            sig_height = nc.variables['Hs'][:, y, x]
-            period = nc.variables['Tm'][:, y, x]
-            power = power_fac * sig_height**2 * period # W/m of crest
-            waves.loc[:, (delta, i)] = power
+        for i, (y, x) in enumerate(zip(ys, xs)): #v1 1.6 minutes
+            sig_height = nc.variables['Hs'][:, y, x] #v1
+            period = nc.variables['Tm'][:, y, x] #v1
+            power = power_fac * sig_height**2 * period # W/m of crest #v1
+            waves.loc[:, (delta, i)] = power #v1
     nc.close()
     waves.to_pickle(str(target[0]))
+    return 0
+
+
+def concat_waves_times(env, source, target):
+    dfs = []
+    fnames = sorted([str(s) for s in source]) # file names vary only in yyyymm, put them in order
+    for f in fnames:
+        dfs.append(pandas.read_pickle(f))
+    waves = pandas.concat(dfs, axis=0)
+    waves.to_pickle(str(target[0]))
+    return 0
+
+
+def agg_wave_ts_data(env, source, target):
+    dfs = []
+    for s in source:
+        dfs.append(pandas.read_pickle(str(s)))
+    level_names = [env['level']] + dfs[-1].columns.names
+    from ipdb import launch_ipdb_on_exception
+    with launch_ipdb_on_exception():
+        waves = pandas.concat(dfs, axis=1, keys=env['names'], names=level_names)
+    waves.to_pickle(str(target[0]))
+    return 0
+
+
+def compute_waves_extremes(env, source, target):
+    from scipy.stats import genpareto
+    percentile = float(env['percentile'])
+    return_period = float(env['return_period']) #years
+
+    historical = pandas.read_pickle(str(source[0]))
+    waves = pandas.read_pickle(str(source[1]))
+
+    extremes = pandas.DataFrame(
+            index=waves.columns,
+            columns=['zscore', 'mean', 'std'],
+            dtype=np.float64)
+
+    plu = percentile/100.
+    pgu = 1 - plu
+    for (delta, pixel), w in waves.iteritems():
+        w0 = historical.loc[:, (delta, pixel)]
+        u = np.percentile(w, 100*plu)
+        wtail = w[w>u] - u
+        fit = genpareto.fit(wtail)
+        return_val = u + genpareto.ppf((1-(1./(return_period*365))-plu)/pgu, *fit)
+        zscore = (return_val - w0.mean()) / w0.std(ddof=1)
+        mean = w.mean()
+        std = w.std(ddof=1)
+        extremes.loc[(delta, pixel)] = (zscore, mean, std)
+    extremes.to_pickle(str(target[0]))
+    return 0
+
+    # zscores.to_pickle(str(target[0]))
     return 0
 
