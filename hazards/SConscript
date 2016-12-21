@@ -99,3 +99,40 @@ for experiment, config in experiments.iteritems():
             target=config['dis_future_extremes'],
             action=ph.agg_delta_extremes)
 
+    if config['waves_future_source'][0] == 'csiro':
+        gcm = config['waves_future_gcm']  # or loop over all gcms in config['waves_future_gcms']
+        for forecast in config['waves_future_forecasts']:
+            for rcp in config['waves_future_rcps']:
+                if forecast == 'HISTORICAL':
+                    rcp = ''
+
+                # run this step directly, otherwise wont have list of files to create targets from
+                # supposedly ways to make this work through scons (dynamic builds) but isn't working
+                yyyymm_list = config['waves_future_nclist'].format(gcm=gcm, forecast=forecast, rcp=rcp)
+                if not os.path.exists(env.File(yyyymm_list).abspath):
+                    env = {'urlformat':config['waves_future_source'][1].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm='')}
+                    ph.get_waves_nclist(
+                            env=env,
+                            source=None,
+                            target=[yyyymm_list])
+                with open(env.File(yyyymm_list).abspath, 'r') as datelist:
+                    for yyyymm in datelist.readlines():
+                        yyyymm = yyyymm.strip()
+                        env.Command(
+                                source=config['waves_future_delta_indices'],
+                                target=config['waves_future_monthly'].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm=yyyymm),
+                                action=ph.process_wave_month,
+                                url=config['waves_future_source'][1].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm=yyyymm))
+
+
+        # assumes same delta grid indices for each gmc/forecast/rcp nc file
+        # just use last forecast/rcp
+        # requires list of ncfiles, downloaded above
+        env.Command(
+                source=config['deltas'],
+                target=config['waves_future_delta_indices'],
+                action=ph.waves_find_delta_indices,
+                url=config['waves_future_source'][1].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm=yyyymm),
+                nullval=-999.0)
+
+

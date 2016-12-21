@@ -162,6 +162,17 @@ defaults = {
         'dis_future_window_mean_dis': '#data/experiments/{exp}/dis_future_window_means.pd',
         'dis_future_extremes': '#data/experiments/{exp}/dis_future_extreme_zscore.pd',
 
+        'waves_future_source': ('csiro', 'http://tds.csiro.au/thredds/dodsC/Global_wave_projections/{forecast}/CMIP5/{rcp}/{gcm}/ww3_outf_{yyyymm}.nc'),
+        'waves_future_gcms': ['MRI-CGCM3', 'MIROC5', 'INMCM4', 'HadGEM2-ES', 'GFDL-CM3', 'CNRM-CM5', 'BCC-CSM1.1', 'ACCESS1.0'],
+        'waves_future_gcm': 'GFDL-CM3',
+        'waves_future_forecasts': ['MID21C', 'HISTORICAL', 'END21C'],
+        'waves_future_rcps': ['RCP4.5', 'RCP8.5'],
+        'waves_future_nclist': '#data/waves/waves_future_nclist_{gcm}_{forecast}_{rcp}.txt',
+        'waves_future_monthly': '#data/waves/{gcm}/{forecast}/{rcp}/waves_future_{gcm}_{forecast}_{rcp}_{yyyymm}.pd',
+        'waves_future_ts': '#data/waves/{gcm}/{forecast}/{delta}/waves_future_{gcm}_{forecast}_{rcp}_{delta}.pd',
+        'waves_future_delta_indices': '#data/waves/delta_indices.json',
+
+
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',
@@ -291,6 +302,7 @@ for experiment in experiments.keys():
             'gcm': '{gcm}',
             'rcp': '{rcp}',
             'year': '{year}',
+            'yyyymm': '{yyyymm}',
             }
     config = experiments[experiment]
     for name, path in config.items():

@@ -1,11 +1,20 @@
 import os
 import datetime
+import re
+import json
 import numpy as np
 import scipy
 import pandas
 import geopandas
+import itertools
+from collections import defaultdict
+from rasterio.features import rasterize
 import cartopy.crs as ccrs
 from netCDF4 import Dataset
+import requests
+from affine import Affine
+from bs4 import BeautifulSoup
+
 
 
 def storm_surge_agg_points(env, target, source):
@@ -206,5 +215,93 @@ def agg_delta_extremes(env, source, target):
             agg_extremes.loc[(delta, rcp, winname)] = zscore_weighted
 
     agg_extremes.to_pickle(str(target[0]))
+    return 0
+
+
+def get_waves_nclist(env, source, target):
+    urlformat = env['urlformat']
+    url = os.path.join(os.path.dirname(urlformat), 'catalog.html')
+    isnc = re.compile(r'catalog.html\?dataset=.*_(\d{6})\.nc')
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text, 'html.parser')
+    with open(str(target[0]), 'w') as fout:
+        for link in soup.find_all('a'):
+            match = re.match(isnc, link.get('href'))
+            if match:
+                fout.write(match.group(1) + '\n')
+    return 0
+
+
+def waves_find_delta_indices(env, source, target):
+    deltas = geopandas.read_file(str(source[0])).set_index('Delta')
+    url = env['url']
+    nullval = env['nullval']
+    nc = Dataset(url)
+    assert nc.variables['y'].long_name == 'Latitude'
+    assert nc.variables['x'].long_name == 'Longitude'
+    pc = ccrs.PlateCarree()
+    hs = nc.variables['Hs'][0,:,:]
+    nt, ny, nx = nc.variables['Hs'].shape
+    miny, maxy = nc.variables['y'][[0, -1]]
+    minx, maxx = nc.variables['x'][[0, -1]]
+    dx = (maxx - minx + 1.) / nx
+    dy = (maxy - miny + 1.) / ny
+    affine = Affine.from_gdal(minx, dx, 0, miny, 0, dy)
+
+    centroids = deltas.centroid
+    indices = defaultdict(dict)
+
+    for dname in deltas.index:
+        lon, lat = np.array(centroids.loc[dname])
+        # reproject delta shape to Azimuthal Equidistant - distances are correct from center point, good for buffering
+        aed = ccrs.AzimuthalEquidistant(central_longitude=lon,
+                                        central_latitude=lat)
+        delta = deltas.loc[[dname]].to_crs(aed.proj4_params)['geometry']
+        npixels = 0
+        for buff_km in itertools.chain([10, 25], itertools.count(50, 50)):
+            # buffer around convex hull (very slow over all points)
+            delta_buff = delta.convex_hull.buffer(buff_km * 1000)
+            poly = delta_buff.to_crs(pc.proj4_params).item()
+            mask = rasterize([(poly, 1)], out_shape=(ny, nx), fill=0, transform=affine, all_touched=True)
+            mask[hs==nullval] = 0
+            delta_indices = np.where(mask==1)
+            npixels = len(delta_indices[0])
+            if npixels >= 3:
+                break
+        indices[dname]['y'] = delta_indices[0].tolist()
+        indices[dname]['x'] = delta_indices[1].tolist()
+        indices[dname]['buffer'] = buff_km
+
+    with open(str(target[0]), 'w') as fout:
+        json.dump(indices, fout)
+    return 0
+
+
+def process_wave_month(env, source, target):
+    url = env['url']
+    with open(str(source[0]), 'r') as fin:
+        indices = json.load(fin)
+    deltas = sorted(indices.keys())
+    pixels = [(delta, pixel) for delta in deltas for pixel in range(len(indices[delta]['x']))]
+
+    nc = Dataset(url)
+
+    times = ['{}:{:06}'.format(*tt) for tt in zip(nc.variables['time1'][:], nc.variables['time2'][:])]
+    datetimes = [datetime.datetime.strptime(t, '%Y%m%d:%H%M%S') for t in times]
+    timeindex = pandas.DatetimeIndex(datetimes)
+    delta_pixels = pandas.MultiIndex.from_tuples(pixels, names=['Delta', 'Pixel'])
+    waves = pandas.DataFrame(index=timeindex, columns=delta_pixels)
+
+    power_fac = (1026 * 9.8**2) / (64 * np.pi)
+    for delta in deltas:
+        ys = np.array(indices[delta]['y'])
+        xs = np.array(indices[delta]['x'])
+        for i, (y, x) in enumerate(zip(ys, xs)):
+            sig_height = nc.variables['Hs'][:, y, x]
+            period = nc.variables['Tm'][:, y, x]
+            power = power_fac * sig_height**2 * period # W/m of crest
+            waves.loc[:, (delta, i)] = power
+    nc.close()
+    waves.to_pickle(str(target[0]))
     return 0
 
