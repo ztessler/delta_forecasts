@@ -102,92 +102,79 @@ for experiment, config in experiments.iteritems():
     if config['waves_future_source'][0] == 'csiro':
         gcm_files = []
         for gcm in config['waves_future_gcms']:
-            forecast_files = []
-            for forecast in config['waves_future_forecasts']:
-                rcp_files = []
-                for i, rcp in enumerate(config['waves_future_rcps']):
-                    monthlyfiles = []
-                    if forecast == 'HISTORICAL':
-                        # import ipdb;ipdb.set_trace()
-                        print 'hhh', gcm, forecast, rcp, i, rcp_files
-                        if i>0: # HISTORICAL has no RCPs, so only run once
-                            continue
-                        rcp = ''
+            # forecast_files = []
+            # for forecast in config['waves_future_forecasts']:
+                # rcp_files = []
+            scenario_files = []
+            for forecast, rcp in config['waves_future_scenarios']:
+                if forecast == 'HISTORICAL':
+                    rcp_url = ''
+                else:
+                    rcp_url = rcp
+                monthlyfiles = []
 
-                    # run this step directly, otherwise wont have list of files to create targets from
-                    # supposedly ways to make this work through scons (dynamic builds) but isn't working
-                    yyyymm_list = config['waves_future_nclist'].format(gcm=gcm, forecast=forecast, rcp=rcp)
-                    if not os.path.exists(env.File(yyyymm_list).abspath):
-                        env = {'urlformat':config['waves_future_source'][1].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm='')}
-                        ph.get_waves_nclist(
-                                env=env,
-                                source=None,
-                                target=[yyyymm_list])
-                    with open(env.File(yyyymm_list).abspath, 'r') as datelist:
-                        for yyyymm in datelist.readlines():
-                            yyyymm = yyyymm.strip()
-                            monthlydata=config['waves_future_monthly'].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm=yyyymm),
-                            env.Command(
-                                    source=config['waves_future_delta_indices'],
-                                    target=monthlydata,
-                                    action=ph.process_wave_month,
-                                    url=config['waves_future_source'][1].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm=yyyymm))
-                            monthlyfiles.append(monthlydata)
+                # run this step directly, otherwise wont have list of files to create targets from
+                # supposedly ways to make this work through scons (dynamic builds) but isn't working
+                yyyymm_list = config['waves_future_nclist'].format(gcm=gcm, forecast=forecast, rcp=rcp)
+                if not os.path.exists(env.File(yyyymm_list).abspath):
+                    env_ = {
+                            'urlformat':config['waves_future_source'][1].format(gcm=gcm, forecast=forecast, rcp=rcp_url, yyyymm=''),
+                            }
+                    ph.get_waves_nclist(
+                            env=env_,
+                            source=None,
+                            target=[env.File(yyyymm_list).abspath])
+                with open(env.File(yyyymm_list).abspath, 'r') as datelist:
+                    for yyyymm in datelist.readlines():
+                        yyyymm = yyyymm.strip()
+                        monthlydata=config['waves_future_monthly'].format(gcm=gcm, forecast=forecast, rcp=rcp, yyyymm=yyyymm),
+                        env.Command(
+                                source=config['waves_future_delta_indices'],
+                                target=monthlydata,
+                                action=ph.process_wave_month,
+                                url=config['waves_future_source'][1].format(gcm=gcm, forecast=forecast, rcp=rcp_url, yyyymm=yyyymm))
+                        monthlyfiles.append(monthlydata)
 
-                    rcp_data = config['waves_future_rcp_data'].format(gcm=gcm, forecast=forecast, rcp=rcp)
-                    env.Command(
-                            source=monthlyfiles,
-                            target=rcp_data,
-                            action=ph.concat_waves_times,
-                            )
+                scenario_data = config['waves_future_rcp_data'].format(gcm=gcm, forecast=forecast, rcp=rcp)
+                env.Command(
+                        source=monthlyfiles,
+                        target=scenario_data,
+                        action=ph.concat_waves_times,
+                        )
 
-                    historical = config['waves_future_rcp_data'].format(gcm=gcm, forecast='HISTORICAL', rcp='')
-                    rcp_zscore = config['waves_future_rcp_zscores'].format(gcm=gcm, forecast=forecast, rcp=rcp)
-                    if forecast == 'HISTORICAL':
-                        print rcp_files
-                    env.Command(
-                            source=[historical,
-                                    rcp_data],
-                            target=rcp_zscore,
-                            action=ph.compute_waves_extremes,
-                            percentile=99,
-                            return_period=30)
-                    rcp_files.append(rcp_zscore)
+                ref_forecast, ref_rcp = config['waves_future_refscenario']
+                ref_waves = config['waves_future_rcp_data'].format(gcm=gcm, forecast=ref_forecast, rcp=ref_rcp)
+                scenario_zscore = config['waves_future_rcp_zscores'].format(gcm=gcm, forecast=forecast, rcp=rcp)
+                # import ipdb;ipdb.set_trace()
+                if forecast == 'HISTORICAL':
+                    # workaround scons bug, repeated source files work, but not when the command is defined twice, scons collapses the repeated source files to a list with just a single one and complains about multiple ways to build
+                    # check in action for lenght of sources list
+                    sources = [scenario_data]
+                else:
+                    sources = [ref_waves, scenario_data]
+                env.Command(
+                        source=sources,
+                        target=scenario_zscore,
+                        action=ph.compute_waves_extremes,
+                        percentile=99,
+                        return_period=30)
+                scenario_files.append(scenario_zscore)
 
-                # forecast_file = config['waves_future_forecast_data'].format(gcm=gcm, forecast=forecast)
-                # if forecast == 'HISTORICAL':
-                    # rcp_names = ['N/A']
-                # else:
-                    # rcp_names = config['waves_future_rcps']
-                # env.Command(
-                        # source=rcp_files,
-                        # target=forecast_file,
-                        # action=ph.agg_wave_ts_data,
-                        # level='RCP',
-                        # names=rcp_names)
-                # forecast_files.append(forecast_file)
+            gcm_file = config['waves_future_gcm_zscores'].format(gcm=gcm)
+            env.Command(
+                    source=scenario_files,
+                    target=gcm_file,
+                    action=ph.agg_wave_zscores,
+                    level_names=['Window', 'RCP'],
+                    levels=config['waves_future_scenarios'])
+            gcm_files.append(gcm_file)
 
-            # gcm_file = config['waves_future_gcm_data'].format(gcm=gcm)
-            # env.Command(
-                    # source=forecast_files,
-                    # target=gcm_file,
-                    # action=ph.agg_wave_ts_data,
-                    # level='Window',
-                    # names=config['waves_future_forecasts'])
-            # gcm_files.append(gcm_file)
-
-        # env.Command(
-                # source=gcm_files,
-                # target=config['waves_future_full_data'],
-                # action=ph.agg_wave_ts_data,
-                # level='GCM',
-                # names=config['waves_future_gcms'])
-
-        # env.Command(
-                # source=config['waves_future_full_data'],
-                # target=config['waves_future_extremes'],
-                # action=ph.compute_waves_extremes)
-
+        env.Command(
+                source=gcm_files,
+                target=config['waves_future_extremes'],
+                action=ph.agg_wave_zscores,
+                level_names=['GCM'],
+                levels=config['waves_future_gcms'])
 
         # assumes same delta grid indices for each gmc/forecast/rcp nc file
         # just use last gcm/forecast/rcp

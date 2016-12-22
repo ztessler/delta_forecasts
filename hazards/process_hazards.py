@@ -315,18 +315,7 @@ def concat_waves_times(env, source, target):
     for f in fnames:
         dfs.append(pandas.read_pickle(f))
     waves = pandas.concat(dfs, axis=0)
-    waves.to_pickle(str(target[0]))
-    return 0
-
-
-def agg_wave_ts_data(env, source, target):
-    dfs = []
-    for s in source:
-        dfs.append(pandas.read_pickle(str(s)))
-    level_names = [env['level']] + dfs[-1].columns.names
-    from ipdb import launch_ipdb_on_exception
-    with launch_ipdb_on_exception():
-        waves = pandas.concat(dfs, axis=1, keys=env['names'], names=level_names)
+    waves[waves<0] = 0
     waves.to_pickle(str(target[0]))
     return 0
 
@@ -336,8 +325,11 @@ def compute_waves_extremes(env, source, target):
     percentile = float(env['percentile'])
     return_period = float(env['return_period']) #years
 
-    historical = pandas.read_pickle(str(source[0]))
-    waves = pandas.read_pickle(str(source[1]))
+    historical = pandas.read_pickle(str(source[0])).astype('float64')
+    if len(source) == 1:
+        waves = pandas.read_pickle(str(source[0])).astype('float64')
+    else:
+        waves = pandas.read_pickle(str(source[1])).astype('float64')
 
     extremes = pandas.DataFrame(
             index=waves.columns,
@@ -347,18 +339,32 @@ def compute_waves_extremes(env, source, target):
     plu = percentile/100.
     pgu = 1 - plu
     for (delta, pixel), w in waves.iteritems():
-        w0 = historical.loc[:, (delta, pixel)]
         u = np.percentile(w, 100*plu)
         wtail = w[w>u] - u
         fit = genpareto.fit(wtail)
-        return_val = u + genpareto.ppf((1-(1./(return_period*365))-plu)/pgu, *fit)
+        return_val = u + genpareto.ppf((1-(1./(return_period*365*4))-plu)/pgu, *fit)
+        w0 = historical.loc[:, (delta, pixel)]
         zscore = (return_val - w0.mean()) / w0.std(ddof=1)
         mean = w.mean()
         std = w.std(ddof=1)
         extremes.loc[(delta, pixel)] = (zscore, mean, std)
-    extremes.to_pickle(str(target[0]))
+    delta_extremes = extremes.groupby(level='Delta').mean()
+    delta_extremes.to_pickle(str(target[0]))
     return 0
 
-    # zscores.to_pickle(str(target[0]))
+
+def agg_wave_zscores(env, source, target):
+    dfs = []
+    for s in source:
+        dfs.append(pandas.read_pickle(str(s)))
+    new_level_names = env['level_names']
+    if not isinstance(new_level_names, list):
+        new_level_names = [new_level_names]
+    level_names = new_level_names + dfs[0].columns.names
+    levels = env['levels']
+    # from ipdb import launch_ipdb_on_exception
+    # with launch_ipdb_on_exception():
+    waves = pandas.concat(dfs, axis=1, keys=levels, names=level_names)
+    waves.to_pickle(str(target[0]))
     return 0
 
