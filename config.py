@@ -173,6 +173,7 @@ defaults = {
         'waves_future_monthly': '#data/waves/{gcm}/{forecast}/{rcp}/waves_future_{gcm}_{forecast}_{rcp}_{yyyymm}.pd',
         'waves_future_rcp_data': '#data/waves/{gcm}/{forecast}/waves_future_{gcm}_{forecast}_{rcp}.pd',
         'waves_future_rcp_zscores': '#data/waves/{gcm}/{forecast}/waves_future_{gcm}_{forecast}_{rcp}_zscore.pd',
+        'waves_future_rcp_zscores_pixels': '#data/waves/{gcm}/{forecast}/waves_future_{gcm}_{forecast}_{rcp}_zscore_pixels.pd',
         'waves_future_forecast_zscores': '#data/waves/{gcm}/{forecast}/waves_future_{gcm}_{forecast}_zscore.pd',
         'waves_future_gcm_zscores': '#data/waves/{gcm}/waves_future_{gcm}_zscore.pd',
         'waves_future_extremes': '#data/waves/waves_future_extreme_zscore.pd',

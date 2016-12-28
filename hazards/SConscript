@@ -145,6 +145,7 @@ for experiment, config in experiments.iteritems():
                 ref_forecast, ref_rcp = config['waves_future_refscenario']
                 ref_waves = config['waves_future_rcp_data'].format(gcm=gcm, forecast=ref_forecast, rcp=ref_rcp)
                 scenario_zscore = config['waves_future_rcp_zscores'].format(gcm=gcm, forecast=forecast, rcp=rcp)
+                scenario_zscore_pixels = config['waves_future_rcp_zscores_pixels'].format(gcm=gcm, forecast=forecast, rcp=rcp)
                 # import ipdb;ipdb.set_trace()
                 if forecast == 'HISTORICAL':
                     # workaround scons bug, repeated source files work, but not when the command is defined twice, scons collapses the repeated source files to a list with just a single one and complains about multiple ways to build
@@ -154,7 +155,8 @@ for experiment, config in experiments.iteritems():
                     sources = [ref_waves, scenario_data]
                 env.Command(
                         source=sources,
-                        target=scenario_zscore,
+                        target=[scenario_zscore_pixels,
+                                scenario_zscore],
                         action=ph.compute_waves_extremes,
                         percentile=99,
                         return_period=30)

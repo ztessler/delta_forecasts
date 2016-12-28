@@ -348,8 +348,9 @@ def compute_waves_extremes(env, source, target):
         mean = w.mean()
         std = w.std(ddof=1)
         extremes.loc[(delta, pixel)] = (zscore, mean, std)
+    extremes.to_pickle(str(target[0]))
     delta_extremes = extremes.groupby(level='Delta').mean()
-    delta_extremes.to_pickle(str(target[0]))
+    delta_extremes.to_pickle(str(target[1]))
     return 0
 
 
