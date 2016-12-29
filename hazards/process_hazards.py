@@ -320,6 +320,23 @@ def concat_waves_times(env, source, target):
     return 0
 
 
+def waves_avg_pixels(env, source, target):
+    waves = pandas.read_pickle(str(source[0]))
+    waves = waves.resample('1D', how='mean').dropna(axis=0) # Feb 29 gets np.nan on non-leap-years
+    npixels = 3
+    largestpixels = waves.mean(axis=0).groupby(level='Delta').apply(
+            lambda s: np.argpartition(-s, npixels-1)[:npixels])
+    dwaves = waves.groupby(level='Delta', axis=1)
+    meanwaves = pandas.DataFrame(
+            index=waves.index,
+            columns=sorted(waves.columns.droplevel(level='Pixel').unique())
+            )
+    for dname, deltapixels in dwaves:
+        meanwaves.loc[:, dname] = waves.loc[:, zip(itertools.repeat(dname), largestpixels[dname])].mean(axis=1)
+    meanwaves.to_pickle(str(target[0]))
+    return 0
+
+
 def compute_waves_extremes(env, source, target):
     from scipy.stats import genpareto
     percentile = float(env['percentile'])
@@ -338,19 +355,17 @@ def compute_waves_extremes(env, source, target):
 
     plu = percentile/100.
     pgu = 1 - plu
-    for (delta, pixel), w in waves.iteritems():
+    for delta, w in waves.iteritems():
         u = np.percentile(w, 100*plu)
         wtail = w[w>u] - u
         fit = genpareto.fit(wtail)
-        return_val = u + genpareto.ppf((1-(1./(return_period*365*4))-plu)/pgu, *fit)
-        w0 = historical.loc[:, (delta, pixel)]
+        return_val = u + genpareto.ppf((1-(1./(return_period*365))-plu)/pgu, *fit)
+        w0 = historical.loc[:, delta]
         zscore = (return_val - w0.mean()) / w0.std(ddof=1)
         mean = w.mean()
         std = w.std(ddof=1)
-        extremes.loc[(delta, pixel)] = (zscore, mean, std)
+        extremes.loc[delta] = (zscore, mean, std)
     extremes.to_pickle(str(target[0]))
-    delta_extremes = extremes.groupby(level='Delta').mean()
-    delta_extremes.to_pickle(str(target[1]))
     return 0
 
 
@@ -363,8 +378,6 @@ def agg_wave_zscores(env, source, target):
         new_level_names = [new_level_names]
     level_names = new_level_names + dfs[0].columns.names
     levels = env['levels']
-    # from ipdb import launch_ipdb_on_exception
-    # with launch_ipdb_on_exception():
     waves = pandas.concat(dfs, axis=1, keys=levels, names=level_names)
     waves.to_pickle(str(target[0]))
     return 0
