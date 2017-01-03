@@ -176,9 +176,12 @@ defaults = {
         'waves_future_rcp_zscores': '#data/waves/{gcm}/{forecast}/waves_future_{gcm}_{forecast}_{rcp}_zscore.pd',
         'waves_future_forecast_zscores': '#data/waves/{gcm}/{forecast}/waves_future_{gcm}_{forecast}_zscore.pd',
         'waves_future_gcm_zscores': '#data/waves/{gcm}/waves_future_{gcm}_zscore.pd',
+        'waves_future_extremes_stats': '#data/waves/waves_future_extreme_zscore_stats.pd',
         'waves_future_extremes': '#data/waves/waves_future_extreme_zscore.pd',
         # 'waves_future_extremes': '#data/experiments/{exp}/waves_future_extreme_zscore.pd',
         'waves_future_delta_indices': '#data/waves/delta_indices.json',
+
+        'hazards_future': '#data/experiments/{exp}/hazard_scores.pd',
 
 
 

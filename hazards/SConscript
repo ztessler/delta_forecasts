@@ -177,10 +177,15 @@ for experiment, config in experiments.iteritems():
 
         env.Command(
                 source=gcm_files,
-                target=config['waves_future_extremes'],
+                target=config['waves_future_extremes_stats'],
                 action=ph.agg_wave_zscores,
                 level_names=['GCM'],
                 levels=config['waves_future_gcms'])
+
+        env.Command(
+                source=config['waves_future_extremes_stats'],
+                target=config['waves_future_extremes'],
+                action=ph.clean_wave_zscores)
 
         # assumes same delta grid indices for each gmc/forecast/rcp nc file
         # just use last gcm/forecast/rcp
@@ -193,3 +198,9 @@ for experiment, config in experiments.iteritems():
                 nullval=-999.0)
 
 
+        env.Command(
+                source=[config['dis_future_extremes'],
+                        config['waves_future_extremes']],
+                target=config['hazards_future'],
+                action=ph.combine_hazard_scores
+                )

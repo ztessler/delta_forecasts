@@ -382,3 +382,40 @@ def agg_wave_zscores(env, source, target):
     waves.to_pickle(str(target[0]))
     return 0
 
+
+def clean_wave_zscores(env, source, target):
+    waves = pandas.read_pickle(str(source[0]))
+    stacked = waves.stack(level=['GCM', 'RCP', 'Window'])['mean']
+    nogcms = stacked.unstack('GCM').mean(axis=1)
+    nogcms.to_pickle(str(target[0]))
+    return 0
+
+
+def combine_hazard_scores(env, source, target):
+    dis = pandas.read_pickle(str(source[0]))
+    waves = pandas.read_pickle(str(source[1]))
+
+    common_names = {
+            # RCPs
+            'RCP2p6': 'low',
+            'RCP4.5': 'low',
+
+            'RCP8p5': 'high',
+            'RCP8.5': 'high',
+
+            # Windows
+            '2006 to 2035': 'early',
+            'MID21C': 'early',
+
+            '2070 to 2099': 'late',
+            'END21C': 'late',
+            }
+
+    dis.rename(common_names, inplace=True)
+    waves.rename(common_names, inplace=True)
+
+    hazards = pandas.concat({'Discharge': dis, 'Waves': waves}, axis=1)
+    hazards.index.names = dis.index.names
+    hazards.to_pickle(str(target[0]))
+    return 0
+
