@@ -24,6 +24,7 @@ SConscript('upstream/SConscript')
 SConscript('sediment/SConscript')
 SConscript('subsidence/SConscript')
 SConscript('hazards/SConscript')
+SConscript('vulnerability/SConscript')
 SConscript('risk/SConscript')
 
 def save_config(env, target, source):

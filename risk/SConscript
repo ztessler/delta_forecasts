@@ -9,13 +9,6 @@ Import('*')
 
 for experiment, config in experiments.iteritems():
 
-    if config['vuln_source'][0] == 'tessler2015':
-        env.Command(
-                source=[config['vuln_source'][1],
-                        config['delta_zeros']],
-                target=config['vuln'],
-                action=pr.import_idi_vuln)
-
     env.Command(
             source=[config['surge_annual_exposure'],
                     config['vuln']],
