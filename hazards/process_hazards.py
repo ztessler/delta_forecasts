@@ -168,7 +168,11 @@ def model_extremes(env, source, target):
         else:
             raise
 
-    dis = pandas.read_pickle(str(source[0]))
+    historical = pandas.read_pickle(str(source[0])).astype('float64')
+    if len(source) == 1:
+        dis = pandas.read_pickle(str(source[0])).astype('float64')
+    else:
+        dis = pandas.read_pickle(str(source[1])).astype('float64')
     year0 = dis.index[0].strftime('%Y')
     year1 = dis.index[-1].strftime('%Y')
     if window_len is None:
@@ -196,7 +200,7 @@ def model_extremes(env, source, target):
     for (delta, basinid, rcp, winname), rcp_time_data in list(extremes.iterrows()):
         window = window_dict[winname]
         d = dis.loc[window[0]:window[1], (rcp, delta, basinid)]
-        d0 = dis.loc[windows[0][0]:windows[0][1], (rcp, delta, basinid)]
+        d0 = historical.loc[:, ('RCPnone', delta, basinid)]
         u = np.percentile(d, 100*plu)
         dtail = d[d>u] - u
         fit = genpareto.fit(dtail)

@@ -105,19 +105,20 @@ for experiment, config in experiments.iteritems():
                 )
 
     env.Command(
-            source=config['dis_future'],
-            target=config['dis_future_extremes_basins'],
-            action=ph.model_extremes,
-            percentile=99,
-            return_period=30,
-            window=30)
-    env.Command(
             source=config['dis_future_hist'],
             target=config['dis_future_hist_extremes_basins'],
             action=ph.model_extremes,
             percentile=99,
             return_period=30,
             window='none')
+    env.Command(
+            source=[config['dis_future_hist'],
+                    config['dis_future']],
+            target=config['dis_future_extremes_basins'],
+            action=ph.model_extremes,
+            percentile=99,
+            return_period=30,
+            window=30)
 
     env.Command(
             source=config['dis_future_hist_extremes_basins'],
