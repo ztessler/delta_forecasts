@@ -40,13 +40,21 @@ for experiment, config in experiments.iteritems():
             action=ph.surge_expected_expo)
 
     if config['dis_future_source'][0] == 'isimip':
-        rcpdata = []
-        years = range(config['dis_future_years'][0], config['dis_future_years'][1]+1)
-        for rcp in config['dis_future_rcps']:
+        fut_rcpdata = []
+        hist_rcpdata = []
+        hist_years = range(config['dis_future_hist_years'][0], config['dis_future_hist_years'][1]+1)
+        fut_years = range(config['dis_future_years'][0], config['dis_future_years'][1]+1)
+        years = hist_years + fut_years
+        rcps = ['none'] + config['dis_future_rcps']
+        for rcp in rcps:
             annual_dis = []
             for year in years:
-                remotefile = config['dis_future_source'][1].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='gdbc.gz')
-                localtmp = env.File(config['dis_future_tmp'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='{ext}')).abspath
+                if ((rcp == 'none') and (year in fut_years)) or ((rcp != 'none') and (year in hist_years)):
+                    continue
+                if rcp in config['dis_future_rcps']:
+                    remotefile = config['dis_future_source'][1].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='gdbc.gz')
+                else:
+                    remotefile = config['dis_future_hist_source'][1].format(gcm=config['dis_future_gcm'], year=year, ext='gdbc.gz')
                 localnc = config['dis_future_ncs'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year)
 
                 gdbcgz = config['dis_future_tmp'].format(gcm=config['dis_future_gcm'], rcp=rcp, year=year, ext='gdbc.gz')
@@ -78,10 +86,19 @@ for experiment, config in experiments.iteritems():
                     target=config['dis_future_rcp'].format(rcp=rcp),
                     action=ph.combine_future_dis_years,
                     years=years)
-            rcpdata.append(config['dis_future_rcp'].format(rcp=rcp))
+            if rcp in config['dis_future_rcps']:
+                fut_rcpdata.append(config['dis_future_rcp'].format(rcp=rcp))
+            else:
+                hist_rcpdata.append(config['dis_future_rcp'].format(rcp=rcp))
 
         env.Command(
-                source=rcpdata,
+                source=hist_rcpdata,
+                target=config['dis_future_hist'],
+                action=ph.combine_future_dis_rcps,
+                rcpnames=['none'],
+                )
+        env.Command(
+                source=fut_rcpdata,
                 target=config['dis_future'],
                 action=ph.combine_future_dis_rcps,
                 rcpnames=config['dis_future_rcps'],
@@ -95,9 +112,27 @@ for experiment, config in experiments.iteritems():
             return_period=30,
             window=30)
     env.Command(
-            source=config['dis_future_extremes_basins'],
-            target=config['dis_future_extremes'],
+            source=config['dis_future_hist'],
+            target=config['dis_future_hist_extremes_basins'],
+            action=ph.model_extremes,
+            percentile=99,
+            return_period=30,
+            window='none')
+
+    env.Command(
+            source=config['dis_future_hist_extremes_basins'],
+            target=config['dis_future_hist_extremes'],
             action=ph.agg_delta_extremes)
+    env.Command(
+            source=config['dis_future_extremes_basins'],
+            target=config['dis_future_fut_extremes'],
+            action=ph.agg_delta_extremes)
+
+    env.Command(
+            source=[config['dis_future_hist_extremes'],
+                    config['dis_future_fut_extremes']],
+            target=config['dis_future_extremes'],
+            action=ph.concat_hist_fut_extremes)
 
     if config['waves_future_source'][0] == 'csiro':
         gcm_files = []

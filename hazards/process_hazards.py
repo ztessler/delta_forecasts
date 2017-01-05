@@ -14,8 +14,9 @@ from netCDF4 import Dataset
 import requests
 from affine import Affine
 from bs4 import BeautifulSoup
-
 import time
+
+from util import in_new_process
 
 
 
@@ -120,14 +121,17 @@ def surge_expected_expo(env, target, source):
     return 0
 
 
+@in_new_process
 def extract_future_delta_discharge(env, source, target):
     mouths = pandas.read_pickle(str(source[0]))
     year = env['year']
     nc = Dataset(str(source[1]), 'r')
     dates = [datetime.datetime(year, 1, 1) + datetime.timedelta(days=float(d)) for d in nc.variables['time'][:]]
-    dis = pandas.DataFrame(index=dates, columns=mouths.index)
-    for (delta, basinid), (x, y, _, _) in mouths.iterrows():
-        dis.loc[:, (delta, basinid)] = nc.variables['discharge'][:, -y-1, x] # inverted y-axis
+    disgrid = nc.variables['discharge'][:]
+    dis = pandas.DataFrame(
+            disgrid[:, -mouths['y']-1, mouths['x']],
+            index=dates,
+            columns=mouths.index)
     nc.close()
     dis.to_pickle(str(target[0]))
     return 0
@@ -156,15 +160,24 @@ def model_extremes(env, source, target):
     from scipy.stats import genpareto
     percentile = float(env['percentile'])
     return_period = float(env['return_period']) #years
-    window_len = int(env['window']) #years
+    try:
+        window_len = int(env['window']) #years
+    except ValueError:
+        if env['window'] == 'none':
+            window_len = None
+        else:
+            raise
 
     dis = pandas.read_pickle(str(source[0]))
     year0 = dis.index[0].strftime('%Y')
     year1 = dis.index[-1].strftime('%Y')
-    window0_year_end = str(int(year0)+(window_len-1))
-    window1_year_start = str(int(year1)-(window_len-1))
-    windows = [dis[:window0_year_end].index[[0, -1]],
-               dis[window1_year_start:].index[[0, -1]]]
+    if window_len is None:
+        windows = [dis.index[[0, -1]]]
+    else:
+        window0_year_end = str(int(year0)+(window_len-1))
+        window1_year_start = str(int(year1)-(window_len-1))
+        windows = [dis[:window0_year_end].index[[0, -1]],
+                   dis[window1_year_start:].index[[0, -1]]]
     window_names = [' to '.join(map(lambda s: s.strftime('%Y'), window)) for window in windows]
     window_dict = dict(zip(window_names, windows))
     rcps = dis.columns.get_level_values('RCP').unique().tolist()
@@ -210,6 +223,14 @@ def agg_delta_extremes(env, source, target):
             agg_extremes.loc[(delta, rcp, winname)] = zscore_weighted
 
     agg_extremes.to_pickle(str(target[0]))
+    return 0
+
+
+def concat_hist_fut_extremes(env, source, target):
+    hist = pandas.read_pickle(str(source[0]))
+    fut = pandas.read_pickle(str(source[1]))
+    extremes = pandas.concat([hist, fut], axis=0).sortlevel(1).sortlevel(0)
+    extremes.to_pickle(str(target[0]))
     return 0
 
 

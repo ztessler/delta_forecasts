@@ -150,6 +150,8 @@ defaults = {
 
         'dis_future_source': ('isimip', 'daisy:/data/ISIMIP/RGISresults[{gcm}]/Global/Discharge/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.{ext}'),
         'dis_future_years': (2006, 2099),
+        'dis_future_hist_source': ('isimip', 'daisy:/data/ISIMIP/RGISresults[{gcm}]/Global/Discharge/Global_Discharge_{gcm}+dist_30min_dTS{year}.{ext}'),
+        'dis_future_hist_years': (1950, 2005),
         'dis_future_rcps': ['2p6', '8p5'],
         'dis_future_gcm': 'GFDL-ESM2M',
         'dis_future_tmp': '#data/isimip/Global_Discharge_{gcm}[RCP{rcp}]+dist_30min_dTS{year}.tmp.{ext}',
@@ -158,8 +160,12 @@ defaults = {
         'dis_future_annual': '#data/isimip/dis_future_{rcp}_{year}.pd',
         'dis_future_rcp': '#data/isimip/dis_future_{rcp}.pd',
         'dis_future': '#data/isimip/dis_future.pd',
+        'dis_future_hist': '#data/isimip/dis_future_hist.pd',
         'dis_future_extremes_basins': '#data/experiments/{exp}/dis_future_extreme_zscore_basins.pd',
+        'dis_future_hist_extremes_basins': '#data/experiments/{exp}/dis_future_hist_extreme_zscore_basins.pd',
         'dis_future_window_mean_dis': '#data/experiments/{exp}/dis_future_window_means.pd',
+        'dis_future_hist_extremes': '#data/experiments/{exp}/dis_future_hist_extreme_zscore.pd',
+        'dis_future_fut_extremes': '#data/experiments/{exp}/dis_future_fut_extreme_zscore.pd',
         'dis_future_extremes': '#data/experiments/{exp}/dis_future_extreme_zscore.pd',
 
         'waves_future_source': ('csiro', 'http://tds.csiro.au/thredds/dodsC/Global_wave_projections/{forecast}/CMIP5/{rcp}/{gcm}/ww3_outf_{yyyymm}.nc'),
