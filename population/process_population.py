@@ -319,3 +319,11 @@ def extract_delta_ssp_vals(env, source, target):
                 data.loc[delta, (ssp, forecast)] = deltamean * delta_proj.area.squeeze()/(1000**2)
     data.to_pickle(str(target[0]))
     return 0
+
+
+def compute_percap_gdp(env, source, target):
+    gdps = pandas.read_pickle(str(source[0]))
+    pops = pandas.read_pickle(str(source[1]))
+    percap = gdps/pops
+    percap.to_pickle(str(target[0]))
+    return 0

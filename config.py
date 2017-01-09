@@ -136,6 +136,7 @@ defaults = {
         'ssp_gdp_source': ('ssp', '/Users/ztessler/data/SSP_pop_gdp_Murakami/gdp_ssp{ssp}.csv'),
         'ssp_gdp': '#data/ssp/gdp_ssp{ssp}.{ext}',
         'delta_ssp_gdps': '#data/ssp/delta_ssp_gdps.pd',
+        'delta_ssp_percap_gdp': '#data/ssp/delta_ssp_percap_gdps.pd',
 
         'storm_surge': '#data/experiments/{exp}/surge_return_levels.pd',
         'surge_populations': '#data/experiments/{exp}/surge_pop_exposure.pd',

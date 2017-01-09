@@ -121,3 +121,9 @@ for experiment, config in experiments.iteritems():
             ssps=common['ssps'],
             ssp_years=common['ssp_forecasts'],
             ssp_names=common['ssp_names'])
+
+    env.Command(
+            source=[config['delta_ssp_gdps'],
+                    config['delta_ssp_pops']],
+            target=config['delta_ssp_percap_gdp'],
+            action=pp.compute_percap_gdp)
