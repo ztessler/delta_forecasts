@@ -115,7 +115,7 @@ for experiment, config in experiments.iteritems():
     ssp_gdp_rasts = [config['ssp_gdp'].format(ssp=ssp, ext='tif') for ssp in common['ssps']]
     env.Command(
             source=([config['deltas']]+
-                     ssp_pop_rasts),
+                     ssp_gdp_rasts),
             target=config['delta_ssp_gdps'],
             action=pp.extract_delta_ssp_vals,
             ssps=common['ssps'],
