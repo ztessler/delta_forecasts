@@ -125,5 +125,5 @@ for experiment, config in experiments.iteritems():
     env.Command(
             source=[config['delta_ssp_gdps'],
                     config['delta_ssp_pops']],
-            target=config['delta_ssp_percap_gdp'],
+            target=config['delta_ssp_percap_gdps'],
             action=pp.compute_percap_gdp)

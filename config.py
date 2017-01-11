@@ -136,7 +136,9 @@ defaults = {
         'ssp_gdp_source': ('ssp', '/Users/ztessler/data/SSP_pop_gdp_Murakami/gdp_ssp{ssp}.csv'),
         'ssp_gdp': '#data/ssp/gdp_ssp{ssp}.{ext}',
         'delta_ssp_gdps': '#data/ssp/delta_ssp_gdps.pd',
-        'delta_ssp_percap_gdp': '#data/ssp/delta_ssp_percap_gdps.pd',
+        'delta_ssp_gdps_adj': '#data/experiments/{exp}/delta_ssp_gdps_adj.pd',
+        'delta_ssp_percap_gdps': '#data/ssp/delta_ssp_percap_gdps.pd',
+        'delta_ssp_percap_gdps_adj': '#data/experiments/{exp}/delta_ssp_percap_gdps_adj.pd',
 
         'storm_surge': '#data/experiments/{exp}/surge_return_levels.pd',
         'surge_populations': '#data/experiments/{exp}/surge_pop_exposure.pd',
@@ -219,6 +221,13 @@ defaults = {
 
         'vuln_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
         'vuln': '#data/experiments/{exp}/vuln.pd',
+        'vuln_norm': 'unity',
+        'econ_vuln': '#data/experiments/{exp}/econ_vuln.pd',
+        'vuln_adjustments': ['energy_cost'],
+        'econ_vuln_adj': '#data/experiments/{exp}/econ_vuln_adj.pd',
+        'energy_cost_source': ('eia_outlook_2017', '/Users/ztessler/data/EIA/Macroeconomic_Indicators_Outlook2017.csv'),
+        'energy_cost_index_key': '18-AEO2017.23.ref2017-d120816a', # Macroeconomic Indicators: Wholesale Price Index: Fuel and Power: Reference case
+        'energy_cost_index_data': '#data/experiments/{exp}/energy_costs.pd',
 
         'basin_pixel_areas': '#data/basin_pixel_areas.tif',
         'upstream_zeros': '#data/upstream_zeros.pd',
