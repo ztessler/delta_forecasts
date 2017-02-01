@@ -136,7 +136,8 @@ for experiment, config in experiments.iteritems():
             source=[config['sed_aggradation'],
                     config['natural_subsidence'],
                     config['groundwater_subsidence'],
-                    config['oilgas_subsidence']],
+                    config['oilgas_subsidence'],
+                    config['gia_uplift'].format(ext='pd')],
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr'],
             action=ps.compute_rslr)

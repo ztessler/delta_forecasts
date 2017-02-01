@@ -280,10 +280,11 @@ def compute_rslr(env, target, source):
     natural_sub = pandas.read_pickle(str(source[1]))
     groundwater_sub = pandas.read_pickle(str(source[2]))
     oilgas_sub = pandas.read_pickle(str(source[3]))
+    gia_uplift = pandas.read_pickle(str(source[4]))
     eustatic_slr = env['eustatic_slr']
 
     # Ericson 2006 Eq. 2
-    rslr = eustatic_slr + natural_sub + groundwater_sub + oilgas_sub - aggradation
+    rslr = eustatic_slr + natural_sub + groundwater_sub + oilgas_sub - gia_uplift - aggradation
 
     eps = np.finfo(np.float).eps
     rslr[rslr<eps] = 0.0
