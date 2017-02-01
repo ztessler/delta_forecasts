@@ -94,6 +94,10 @@ defaults = {
         # 'rslr_lit_source': ('syvitski2009', '/Users/ztessler/data/RSLR/syvitski_2009_rslr.csv'),
         'rslr_lit': '#data/experiments/{exp}/rslr_lit.pd',
 
+        'gia_source': ('grace', '/Users/ztessler/data/GIA/GIA.COMPRESSIBLE.GRIDS.nc'),
+        'gia_model': 'GIA_n60_uplift_200km',
+        'gia_uplift': '#data/experiments/{exp}/gia_uplift.{ext}',
+
         'sed_morph_source': ('syvitski_saito_2007', '/Users/ztessler/data/RSLR/syvitski_saito_2007_morph.csv'),
         'sed_retention': '#data/experiments/{exp}/sed_retention.pd',
         'accomodation_space': '#data/experiments/{exp}/accomodation_space.pd',

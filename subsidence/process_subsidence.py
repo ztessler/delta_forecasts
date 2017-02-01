@@ -6,8 +6,12 @@ import geopandas
 import fiona
 import pint
 import rasterio
+from rasterio.warp import transform_bounds, calculate_default_transform, reproject, RESAMPLING
+from rasterstats import zonal_stats
+import cartopy.crs as ccrs
 import shapely.geometry as sgeom
 import shapely.ops as sops
+from affine import Affine
 from interval import interval
 from collections import defaultdict
 
@@ -222,6 +226,53 @@ def oilgas_subsidence(env, target, source):
     oilgas = pandas.read_pickle(str(source[0]))
     sub = oilgas * 1 #mm/year  Ericson 2006 sec 4.2
     sub.to_pickle(str(target[0]))
+    return 0
+
+
+def extract_gia(env, source, target):
+    deltas = geopandas.read_file(str(source[0])).set_index('Delta')
+    with rasterio.open(str(source[1]), 'r') as rast:
+        gia_rast = rast.read(1)
+        raw_crs = rast.crs
+        raw_affine = rast.affine
+        raw_bounds = rast.bounds
+        raw_width = rast.width
+        raw_height = rast.height
+        raw_nodata = rast.nodata
+    gia_rast = np.roll(gia_rast, 180)
+    raw_affine = Affine.translation(-180, 0) * raw_affine
+
+    gia = pandas.Series(0.0, index=deltas.index)
+    import ipdb
+    for delta in deltas.index:
+        lon, lat = np.array(deltas.centroid[delta])
+        proj = ccrs.LambertAzimuthalEqualArea(central_longitude=lon, central_latitude=lat)
+        delta_proj = deltas.loc[[delta]].to_crs(proj.proj4_params).convex_hull
+        bounds_proj = delta_proj.buffer(50000).bounds.squeeze()
+        bounds = transform_bounds(proj.proj4_params, raw_crs, *bounds_proj)
+        lon1, lat1, lon2, lat2 = bounds
+        x1, y1 = ~raw_affine * (lon1, lat1)
+        x1 = int(np.floor(x1))
+        y1 = int(np.ceil(y1))
+        x2, y2 = ~raw_affine * (lon2, lat2)
+        x2 = int(np.ceil(x2))
+        y2 = int(np.floor(y2))
+
+        dst_affine, dst_width, dst_height = calculate_default_transform(
+                raw_crs, proj.proj4_params, x2-x1, y1-y2,
+                *bounds)
+        gia_proj = np.ones((dst_height, dst_width), dtype=rasterio.float64)
+        reproject(gia_rast, gia_proj, raw_affine, raw_crs, raw_nodata,
+            dst_affine, proj.proj4_params, raw_nodata, RESAMPLING.bilinear)
+        if len(gia_proj.flatten()) > 1:
+            stats = zonal_stats(delta_proj, gia_proj, affine=dst_affine, nodata=raw_nodata, all_touched=True)
+            meanval = stats[0]['mean']
+        else:
+            meanval = gia_proj[0,0]
+
+        gia[delta] = meanval
+
+    gia.to_pickle(str(target[0]))
     return 0
 
 

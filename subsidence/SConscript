@@ -118,6 +118,19 @@ for experiment, config in experiments.iteritems():
             action=ps.oilgas_subsidence)
 
 
+    # Glacial Isostatic Adjustment
+    if config['gia_source'][0] == 'grace':
+        env.Command(
+                source=config['gia_source'][1],
+                target=config['gia_uplift'].format(ext='tif'),
+                action='gdal_translate -a_srs "EPSG:4326" -a_ullr 0 90 360 -90 NETCDF:"$SOURCE":{} $TARGET'.format(config['gia_model']))
+        env.Command(
+                source=[config['deltas'],
+                        config['gia_uplift'].format(ext='tif')],
+                target=config['gia_uplift'].format(ext='pd'),
+                action=ps.extract_gia,
+                gia_model=config['gia_model'])
+
     # accelerated sea-level rise
     env.Command(
             source=[config['sed_aggradation'],
