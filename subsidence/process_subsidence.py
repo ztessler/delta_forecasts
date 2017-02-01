@@ -243,7 +243,6 @@ def extract_gia(env, source, target):
     raw_affine = Affine.translation(-180, 0) * raw_affine
 
     gia = pandas.Series(0.0, index=deltas.index)
-    import ipdb
     for delta in deltas.index:
         lon, lat = np.array(deltas.centroid[delta])
         proj = ccrs.LambertAzimuthalEqualArea(central_longitude=lon, central_latitude=lat)
