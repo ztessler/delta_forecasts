@@ -228,6 +228,24 @@ def adjust_hypso_for_rslr(env, source, target):
     return 0
 
 
+def apply_hypso_curve_to_ssp_pops(env, source, target):
+    hypso = pandas.read_pickle(str(source[0]))
+    pops = pandas.read_pickle(str(source[1])).reorder_levels([1,0], axis=1) # order as forecast year, ssps
+
+    deltas = pops.index
+    forecasts = pops.columns.levels[0]
+    ssps = pops.columns.levels[1]
+    multicol = pandas.MultiIndex.from_product([deltas, forecasts, ssps], names=['Delta', 'Forecast', 'Pop_Scenario'])
+    n_years_ssps = len(forecasts) * len(ssps)
+    n_elevs = len(hypso.index)
+    pop_hypso = pandas.DataFrame(index=hypso.index, columns=multicol)
+    for delta in deltas:
+        _hypso = hypso.loc[:, delta] / hypso.loc[np.inf, delta]
+        pop_hypso.loc[:, (delta, slice(None), slice(None))] = _hypso[:, np.newaxis] * pops.loc[delta, :][np.newaxis, :]
+    pop_hypso.to_pickle(str(target[0]))
+    return 0
+
+
 def rasterize_ssp_data(env, source, target):
     with rasterio.open(str(source[0]), 'r') as basins_rast:
         basins = basins_rast.read(1)

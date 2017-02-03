@@ -60,8 +60,10 @@ defaults = {
             '#data/experiments/{exp}/pop_elevations.pd',
         'pop_hypso_growth': # populations at different elevations given rslr forecasts
             '#data/experiments/{exp}/pop_elevations_forecasts.pd',
+        'ssp_pop_hypso_growth': '#data/experiments/{exp}/ssp_pop_elevations.pd',
         'pop_hypso_growth_rslr':
             '#data/experiments/{exp}/pop_elevations_forecasts_rslr.pd',
+        'ssp_pop_hypso_growth_rslr': '#data/experiments/{exp}/ssp_pop_elevations_rslr.pd',
         'hypso_plot':
             '#figures/{exp}/hyspometric/{delta}_hypsometric_{popyear}.png',
 

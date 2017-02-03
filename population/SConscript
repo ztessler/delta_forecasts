@@ -84,6 +84,19 @@ for experiment, config in experiments.iteritems():
             action=pp.adjust_hypso_for_rslr,
             elevyear=common['elevyear'])
 
+    env.Command(
+            source=[config['pop_hypso'],
+                    config['delta_ssp_pops']],
+            target=config['ssp_pop_hypso_growth'],
+            action=pp.apply_hypso_curve_to_ssp_pops)
+
+    env.Command(
+            source=[config['ssp_pop_hypso_growth'],
+                    config['rslr']],
+            target=config['ssp_pop_hypso_growth_rslr'],
+            action=pp.adjust_hypso_for_rslr,
+            elevyear=common['elevyear'])
+
     # SSPs
     for ssp in common['ssps']:
         env.Command(
