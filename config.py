@@ -229,8 +229,10 @@ defaults = {
         'vuln': '#data/experiments/{exp}/vuln.pd',
         'vuln_norm': 'unity',
         'econ_vuln': '#data/experiments/{exp}/econ_vuln.pd',
+        'econ_capacity': '#data/experiments/{exp}/econ_capacity.pd',
         'vuln_adjustments': ['energy_cost'],
         'econ_vuln_adj': '#data/experiments/{exp}/econ_vuln_adj.pd',
+        'econ_capacity_adj': '#data/experiments/{exp}/econ_capacity_adj.pd',
         'energy_cost_source': ('eia_outlook_2017', '/Users/ztessler/data/EIA/Macroeconomic_Indicators_Outlook2017.csv'),
         'energy_cost_index_key': '18-AEO2017.23.ref2017-d120816a', # Macroeconomic Indicators: Wholesale Price Index: Fuel and Power: Reference case
         'energy_cost_index_data': '#data/experiments/{exp}/energy_costs.pd',
