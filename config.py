@@ -237,6 +237,8 @@ defaults = {
         'energy_cost_index_key': '18-AEO2017.23.ref2017-d120816a', # Macroeconomic Indicators: Wholesale Price Index: Fuel and Power: Reference case
         'energy_cost_index_data': '#data/experiments/{exp}/energy_costs.pd',
 
+        'risk_quadrants_plot_snapshot': '#figures/{exp}/risk_quadrants/risk_quadrants_snapshot.png',
+
         'basin_pixel_areas': '#data/basin_pixel_areas.tif',
         'upstream_zeros': '#data/upstream_zeros.pd',
         'upstream_ones': '#data/upstream_ones.pd',

@@ -182,3 +182,36 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     f.savefig(str(target[0]))
     plt.close(f)
     return 0
+
+
+def plot_risk_quadrants(env, source, target):
+    hazard = pandas.read_pickle(str(source[0])) # waves, discharge, surge?
+    exposure = pandas.read_pickle(str(source[1])) # population (log?), or rslr
+    vuln = pandas.read_pickle(str(source[2]))  # norm(norm(gdp) + norm(percap gdp))
+
+    # hazard
+    RCP = env['RCP']
+    hazard_window = env['hazard_window']
+
+    # vuln
+    SSP = env['SSP']
+    forecast = env['forecast']
+
+    hazard = hazard.loc[(slice(None), RCP, hazard_window)]
+    vuln = vuln.loc[:, (SSP, forecast)]
+
+    df = pandas.DataFrame({'h': hazard, 'e': exposure, 'v': vuln})
+
+    hazard_name = env['hazard_name']
+    exposure_name = env['exposure_name']
+    vuln_name = env['vuln_name']
+
+    # import ipdb;ipdb.set_trace()
+    mpl.style.use('ggplot')
+    f, a = plt.subplots(1,1)
+    marker_size = 200 * df['v']
+    a.scatter(x=df['e'], y=df['h'], s=marker_size)
+    # df.plot(kind='scatter', x='Exposure', y='Hazard', s=df['Vulnerability']*100, ax=a)
+    f.savefig(str(target[0]))
+
+    return 0
