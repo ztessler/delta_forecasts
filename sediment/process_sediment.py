@@ -166,6 +166,26 @@ def add_new_reservoirs(env, target, source):
     return 0
 
 
+def compute_res_potential(env, source, target):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        basins = rast.read(1)
+    with rasterio.open(str(source[1]), 'r') as rast:
+        relief = rast.read(1)
+    with rasterio.open(str(source[2]), 'r') as rast:
+        runoff = rast.read(1)
+    basinids = pandas.read_pickle(str(source[3]))
+
+    relief[relief < 0] = 0
+    potential = relief * runoff
+
+    basin_potential = pandas.Series(index=basinids.index)
+    for (delta, basinid) in basinids.index:
+        basin_potential[(delta, basinid)] = potential[basins==basinid].sum()
+
+    basin_potential.to_pickle(str(target[0]))
+    return 0
+
+
 def compute_Eh(env, target, source):
     gdp = pandas.read_pickle(str(source[0]))
     popdens = pandas.read_pickle(str(source[1]))

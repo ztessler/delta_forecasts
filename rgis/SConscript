@@ -40,6 +40,10 @@ rgis_files = {
             wbm_remote_dir, 'CMORPH-GPCP1dd_dTS2003-Present', 'RGISresults',
             'Global', 'Discharge',
             'Global_Discharge_CMORPH-GPCP1dd+Prist_06min_aLT.gdbc.gz'),
+        'runoff_rast': os.path.join(
+            wbm_remote_dir, 'CMORPH-GPCP1dd_dTS2003-Present', 'RGISresults',
+            'Global', 'Runoff',
+            'Global_Runoff_CMORPH-GPCP1dd+Prist_06min_aLT.gdbc.gz'),
         }
 for experiment, config in experiments.iteritems():
     for name, remotepath in rgis_files.items():

@@ -76,6 +76,8 @@ defaults = {
         'reservoir_adj': '#data/experiments/{exp}/reservoir_adj{ver}.{ext}',
         'discharge_source': ('rgis',),
         'discharge_rast': '#data/rgis/discharge{ver}.{ext}',
+        'runoff_source': ('rgis',),
+        'runoff_rast': '#data/rgis/runoff{ver}.{ext}',
         'airtemp_source': ('rgis',),
         'airtemp_rast': '#data/rgis/airtemp{ver}.{ext}',
         'ice_source': ('rgis',),
@@ -84,6 +86,8 @@ defaults = {
         'lithology_rast': '#data/rgis/lithology{ver}.{ext}',
         'relief_source': ('rgis',),
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
+
+        'basin_res_potential': '#data/experiments/{exp}/res_potential.pd',
 
         'zeros_rast': '#data/zeros.tif',
         'zeros30_rast': '#data/zeros30.tif',

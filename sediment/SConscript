@@ -13,6 +13,15 @@ Import('*')
 # Saito 2007 for ratios) and delta surface area
 
 for experiment, config in experiments.iteritems():
+
+    env.Command(
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['relief_rast'].format(ver='', ext='tif'),
+                    config['runoff_rast'].format(ver='', ext='tif'),
+                    config['basin_ids']],
+            target=config['basin_res_potential'],
+            action=ps.compute_res_potential)
+
     if experiment != 'pristine':
         if config['reservoir_source'][0] == 'grand':
             env.Command(
