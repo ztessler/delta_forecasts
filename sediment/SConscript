@@ -108,3 +108,24 @@ for expA in experiments.keys():
                 title='Sediment flux scenario differences',
                 logy=True,
                 )
+
+        env.Command(
+                source=[experiments[expA]['Qs'],
+                        experiments[expB]['Qs']],
+                target=experiments[expA]['sed_flux_change_plot'].format(scenarios=scenarios, expA=expA, expB=expB, ext='png'),
+                action=ps.plot_scalars_percent_change,
+                scenarios=[experiments[expA]['name'], experiments[expB]['name']],
+                ylabel='Sediment flux change, %',
+                xlabel='Delta',
+                title='Sediment flux scenario % change',
+                )
+        env.Command(
+                source=[experiments[expB]['Qs'],
+                        experiments[expA]['Qs']],
+                target=experiments[expA]['sed_flux_change_plot'].format(scenarios=scenarios, expA=expB, expB=expA, ext='png'),
+                action=ps.plot_scalars_percent_change,
+                scenarios=[experiments[expB]['name'], experiments[expA]['name']],
+                ylabel='Sediment flux change, %',
+                xlabel='Delta',
+                title='Sediment flux scenario % change',
+                )

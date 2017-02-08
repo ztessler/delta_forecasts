@@ -170,3 +170,24 @@ for expA in experiments.keys():
                 title='RSLR scenario differences',
                 logy=False,
                 )
+
+        env.Command(
+                source=[experiments[expA]['rslr'],
+                        experiments[expB]['rslr']],
+                target=experiments[expA]['rslr_change_plot'].format(scenarios=scenarios, expA=expA, expB=expB, ext='png'),
+                action=psed.plot_scalars_percent_change,
+                scenarios=[experiments[expA]['name'], experiments[expB]['name']],
+                ylabel='RSLR change, %',
+                xlabel='Delta',
+                title='RSLR scenario % change',
+                )
+        env.Command(
+                source=[experiments[expB]['rslr'],
+                        experiments[expA]['rslr']],
+                target=experiments[expA]['rslr_change_plot'].format(scenarios=scenarios, expA=expB, expB=expA, ext='png'),
+                action=psed.plot_scalars_percent_change,
+                scenarios=[experiments[expB]['name'], experiments[expA]['name']],
+                ylabel='RSLR change, %',
+                xlabel='Delta',
+                title='RSLR scenario % change',
+                )

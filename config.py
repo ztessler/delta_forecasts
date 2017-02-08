@@ -227,7 +227,9 @@ defaults = {
         'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
 
         'sed_flux_comparison_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_{scenarios}.{ext}',
+        'sed_flux_change_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_change_{expA}_to_{expB}.{ext}',
         'rslr_comparison_plot': '#figures/joint/{scenarios}/rslr/rslr_{scenarios}.{ext}',
+        'rslr_change_plot': '#figures/joint/{scenarios}/rslr/rslr_change_{expA}_to_{expB}.{ext}',
 
         'vuln_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
         'vuln': '#data/experiments/{exp}/vuln.pd',
@@ -332,6 +334,8 @@ while not done: # iterate until all parents and grandparents and great... have b
 for experiment in experiments.keys():
     replacements = {
             'exp': experiment,
+            'expA': '{expA}',
+            'expB': '{expB}',
             'popyear': common['popyear'],
             'ver': '{ver}',
             'ext': '{ext}',
