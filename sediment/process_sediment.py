@@ -225,18 +225,22 @@ def compute_Qs(env, target, source):
 
 def plot_delta_scalars(env, target, source):
     mpl.style.use('ggplot')
-    scenarios = env['scenarios']
+    scenarios = env.get('scenarios', None)
     ylabel = env['ylabel']
     xlabel = env['xlabel']
     title = env['title']
-    logy = env['logy']
+    logy = env.get('logy', False)
 
     qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
-    qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
-    df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
-            columns=[scenarios[0], scenarios[1]])
+    if len(source) > 1:
+        qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
+        df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
+                columns=[scenarios[0], scenarios[1]])
+        df = df.sort_values(by=scenarios[0], ascending=False)
+    else:
+        df = qs0
+        df = df.sort_values(ascending=False)
     df = df.drop('Congo')
-    df = df.sort_values(by=scenarios[0], ascending=False)
 
     f, a = plt.subplots(1, 1, figsize=(16,8))
     df.plot(kind='bar', logy=logy, ax=a)

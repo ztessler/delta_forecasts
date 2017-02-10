@@ -27,6 +27,15 @@ env.Command(
         action=ps.steady_state_subsidence,
         eustatic_slr=experiments['pristine']['eustatic_slr'])
 
+env.Command(
+        source=experiments['pristine']['natural_subsidence'],
+        target=experiments['pristine']['natural_subsidence_plot'],
+        action=psed.plot_delta_scalars,
+        ylabel='Subsidence rate, mm/yr',
+        xlabel='Delta',
+        title='Estimated natural subsidence rates',
+        )
+
 
 for experiment, config in experiments.iteritems():
     env.Command(

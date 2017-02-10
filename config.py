@@ -222,6 +222,7 @@ defaults = {
         'basin30_mouths': '#data/basin30_mouths.pd',
 
         'natural_subsidence': '#data/experiments/pristine/natural_subsidence.pd',
+        'natural_subsidence_plot': '#figures/{exp}/natural_subsidence.png',
         'sed_aggradation': '#data/experiments/{exp}/sed_aggradation.pd',
         'rslr': '#data/experiments/{exp}/rslr.pd',
         'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
