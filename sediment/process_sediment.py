@@ -158,7 +158,7 @@ def add_new_reservoirs(env, target, source):
             for i in range(num_new_res):
                 valid_dis = np.ma.masked_where(mask, dis)
                 new_loc = np.unravel_index(np.argmin(np.abs(valid_dis - dis_class_mean(dis_class))), dis.shape)
-                res[new_loc] = new_vols[dis_class]
+                res[new_loc] = new_vols.loc[dis_class]
                 mask[new_loc] = True
 
     with rasterio.open(str(target[0]), 'w', **res_meta) as resout:
