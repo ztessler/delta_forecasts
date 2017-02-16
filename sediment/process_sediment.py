@@ -283,3 +283,44 @@ def plot_scalars_percent_change(env, target, source):
 
     return 0
 
+
+def plot_rslr_timeseries(env, source, target):
+    mpl.style.use('ggplot')
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    scenarios = env['scenarios']
+    deltas = env['deltas']
+    slr_min = Q_(env['slr_min'], 'mm/year')
+    slr_mid = Q_(env['slr_mid'], 'mm/year')
+    slr_max = Q_(env['slr_max'], 'mm/year')
+
+    years = env['years']
+    years = pandas.Series(range(years[0], years[1]+1))
+    yr_index = Q_(pandas.Series(years.index), 'year')
+
+    rslr_land_A = Q_(pandas.read_pickle(str(source[0])), 'mm/year')
+    rslr_land_B = Q_(pandas.read_pickle(str(source[1])), 'mm/year')
+
+    fig, axs = plt.subplots(len(deltas), 1, figsize=(4, 4*len(deltas)))
+    if not isinstance(axs, np.ndarray):
+        axs = [axs]
+    for delta, ax in zip(deltas, axs):
+        for rslr, c in zip([rslr_land_A, rslr_land_B], mpl.rcParams['axes.prop_cycle']):
+            rslr_min = (yr_index * (rslr[delta] + slr_min)).to('m').magnitude
+            rslr_mid = (yr_index * (rslr[delta] + slr_mid)).to('m').magnitude
+            rslr_max = (yr_index * (rslr[delta] + slr_max)).to('m').magnitude
+            rslr_min.index = years
+            rslr_mid.index = years
+            rslr_max.index = years
+
+            patch = ax.fill_between(x=years, y1=rslr_min, y2=rslr_max, alpha=.3, color=c['color'])
+            ax.plot(rslr_mid, color=c['color'], lw=2)
+
+            ax.set_title(delta)
+            ax.set_ylabel('Relative sea-level rise, (m)')
+            ax.set_xlabel('Year')
+
+    fig.tight_layout()
+    fig.savefig(str(target[0]))
+    return 0

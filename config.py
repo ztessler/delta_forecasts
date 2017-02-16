@@ -225,6 +225,7 @@ defaults = {
         'natural_subsidence_plot': '#figures/{exp}/natural_subsidence.png',
         'sed_aggradation': '#data/experiments/{exp}/sed_aggradation.pd',
         'rslr': '#data/experiments/{exp}/rslr.pd',
+        'rslr_land': '#data/experiments/{exp}/rslr_land.pd',
         'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
 
         'sed_flux_comparison_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_{scenarios}.{ext}',
@@ -245,6 +246,7 @@ defaults = {
         'energy_cost_index_data': '#data/experiments/{exp}/energy_costs.pd',
 
         'risk_quadrants_plot_snapshot': '#figures/{exp}/risk_quadrants/risk_quadrants_snapshot.png',
+        'rslr_timeseries_plot': '#figures/joint/{scenarios}/rslr_timeseries_{expA}_{expB}.{ext}',
 
         'basin_pixel_areas': '#data/basin_pixel_areas.tif',
         'upstream_zeros': '#data/upstream_zeros.pd',

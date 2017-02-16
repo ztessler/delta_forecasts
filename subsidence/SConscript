@@ -151,6 +151,16 @@ for experiment, config in experiments.iteritems():
             target=config['rslr'],
             action=ps.compute_rslr)
 
+    env.Command(
+            source=[config['sed_aggradation'],
+                    config['natural_subsidence'],
+                    config['groundwater_subsidence'],
+                    config['oilgas_subsidence'],
+                    config['gia_uplift'].format(ext='pd')],
+            eustatic_slr=0,
+            target=config['rslr_land'],
+            action=ps.compute_rslr)
+
     if experiment != 'pristine':
         env.Command(
                 source=[config['natural_subsidence'],

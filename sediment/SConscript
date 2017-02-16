@@ -129,3 +129,18 @@ for expA in experiments.keys():
                 xlabel='Delta',
                 title='Sediment flux scenario % change',
                 )
+
+        plot_deltas = ['Amazon', 'Ganges', 'Mekong']
+        env.Command(
+            source=[experiments[expA]['rslr_land'],
+                    experiments[expB]['rslr_land']],
+            target=experiments[expA]['rslr_timeseries_plot'].format(scenarios=scenarios, expA=expA, expB=expB, ext='png'),
+            action=[ps.plot_rslr_timeseries,
+                    'convert -trim $TARGET $TARGET'],
+            scenarios=[experiments[expB]['name'], experiments[expA]['name']],
+            deltas=plot_deltas,
+            slr_min=1.5,
+            slr_mid=3,
+            slr_max=4.5,
+            years=[2000, 2100],
+            )
