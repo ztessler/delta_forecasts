@@ -139,8 +139,8 @@ for expA in experiments.keys():
                     'convert -trim $TARGET $TARGET'],
             scenarios=[experiments[expB]['name'], experiments[expA]['name']],
             deltas=plot_deltas,
-            slr_min=1.5,
-            slr_mid=3,
-            slr_max=4.5,
+            slr_cur=experiments['contemp']['eustatic_slr'],
+            slr_2100_RCP2p6=experiments['contemp']['slr_rate_2100_RCP2.6'],
+            slr_2100_RCP8p5=experiments['contemp']['slr_rate_2100_RCP8.5'],
             years=[2000, 2100],
             )

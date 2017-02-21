@@ -291,35 +291,61 @@ def plot_rslr_timeseries(env, source, target):
 
     scenarios = env['scenarios']
     deltas = env['deltas']
-    slr_min = Q_(env['slr_min'], 'mm/year')
-    slr_mid = Q_(env['slr_mid'], 'mm/year')
-    slr_max = Q_(env['slr_max'], 'mm/year')
+    slr_cur = env['slr_cur'] # 'mm/year'
+    slr_2100_RCP2p6 = env['slr_2100_RCP2p6'] # 'mm/year'
+    slr_2100_RCP8p5 = env['slr_2100_RCP8p5'] # 'mm/year'
 
     years = env['years']
     years = pandas.Series(range(years[0], years[1]+1))
-    yr_index = Q_(pandas.Series(years.index), 'year')
+    yr_index = pandas.Series(years.index) # 'year'
 
-    rslr_land_A = Q_(pandas.read_pickle(str(source[0])), 'mm/year')
-    rslr_land_B = Q_(pandas.read_pickle(str(source[1])), 'mm/year')
+    rslr_land_A = pandas.read_pickle(str(source[0])) # 'mm/year'
+    rslr_land_B = pandas.read_pickle(str(source[1])) # 'mm/year'
 
-    fig, axs = plt.subplots(len(deltas), 1, figsize=(4, 4*len(deltas)))
+    slr_const = pandas.Series(slr_cur, index=yr_index) # 'mm/year'
+    sl_const = (slr_const.cumsum() - slr_const[0]) / 1000. # 'm'
+
+    slr_2p6 = pandas.Series(np.linspace(slr_cur, slr_2100_RCP2p6, len(yr_index)), index=yr_index) # 'mm/year'
+    sl_2p6 = (slr_2p6.cumsum() - slr_2p6[0]) / 1000. # 'm'
+
+    slr_8p5 = pandas.Series(np.linspace(slr_cur, slr_2100_RCP8p5, len(yr_index)), index=yr_index) # 'mm/year'
+    sl_8p5 = (slr_8p5.cumsum() - slr_8p5[0]) / 1000. # 'm'
+
+    fig, axs = plt.subplots(len(deltas), 1, figsize=(4, 3*len(deltas)))
+    mpl.rcParams.update({
+                         'axes.labelsize': 'small',
+                         'axes.titlesize': 'medium',
+                         'legend.fontsize': 'small'})
+    linestyle = {'const': '-', '2p6': '--', '8p5': ':'}
     if not isinstance(axs, np.ndarray):
         axs = [axs]
-    for delta, ax in zip(deltas, axs):
-        for rslr, c in zip([rslr_land_A, rslr_land_B], mpl.rcParams['axes.prop_cycle']):
-            rslr_min = (yr_index * (rslr[delta] + slr_min)).to('m').magnitude
-            rslr_mid = (yr_index * (rslr[delta] + slr_mid)).to('m').magnitude
-            rslr_max = (yr_index * (rslr[delta] + slr_max)).to('m').magnitude
-            rslr_min.index = years
-            rslr_mid.index = years
-            rslr_max.index = years
+    for i, (delta, ax) in enumerate(zip(deltas, axs)):
+        for j, (rslr, c) in enumerate(zip([rslr_land_A, rslr_land_B], mpl.rcParams['axes.prop_cycle'])):
+            rslr_const = (yr_index * (rslr[delta] + slr_cur)) / 1000. # 'm'
+            rslr_2p6 = ((yr_index * rslr[delta]) / 1000.) + sl_2p6 # 'm'
+            rslr_8p5 = ((yr_index * rslr[delta]) / 1000.) + sl_8p5 # 'm'
+            rslr_const.index = years
+            rslr_2p6.index = years
+            rslr_8p5.index = years
 
-            patch = ax.fill_between(x=years, y1=rslr_min, y2=rslr_max, alpha=.3, color=c['color'])
-            ax.plot(rslr_mid, color=c['color'], lw=2)
+            ax.plot(rslr_const, color=c['color'], lw=2, linestyle=linestyle['const'], label=scenarios[j])
+            ax.plot(rslr_const, color=c['color'], lw=2, linestyle=linestyle['const'])
+            ax.plot(rslr_2p6, color=c['color'], lw=2, linestyle=linestyle['2p6'])
+            ax.plot(rslr_8p5, color=c['color'], lw=2, linestyle=linestyle['8p5'])
 
             ax.set_title(delta)
-            ax.set_ylabel('Relative sea-level rise, (m)')
-            ax.set_xlabel('Year')
+            ax.set_ylabel('Relative sea-level rise, (m)', fontsize='small')
+
+        ax.plot([], [], color='.5', lw=2, linestyle=linestyle['const'], label='Const SLR')
+        ax.plot([], [], color='.5', lw=2, linestyle=linestyle['2p6'], label='RCP 2.6 SLR')
+        ax.plot([], [], color='.5', lw=2, linestyle=linestyle['8p5'], label='RCP 8.5 SLR')
+        if i == 0:
+            ax.legend(loc=2, frameon=False, handlelength=3)
+        if i == len(deltas)-1:
+            ax.set_xlabel('Year', fontsize='small')
+        else:
+            ax.xaxis.set_ticklabels([])
+        ax.tick_params(axis='both', which='major', labelsize='small')
 
     fig.tight_layout()
     fig.savefig(str(target[0]))

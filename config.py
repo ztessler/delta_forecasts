@@ -256,6 +256,10 @@ defaults = {
 
         'srtm': 3,
         'eustatic_slr': 3.0,
+        'slr_rate_2100_RCP2.6': 4.4, # IPCC AR5 Table 13.5
+        'slr_rate_2100_RCP4.5': 6.1,
+        'slr_rate_2100_RCP6.0': 7.4,
+        'slr_rate_2100_RCP8.5': 11.2,
 
         'name': 'Contemporary',
         'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
