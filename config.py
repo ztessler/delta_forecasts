@@ -66,6 +66,12 @@ defaults = {
         'ssp_pop_hypso_growth_rslr': '#data/experiments/{exp}/ssp_pop_elevations_rslr.pd',
         'hypso_plot':
             '#figures/{exp}/hyspometric/{delta}_hypsometric_{popyear}.png',
+        'delta_max_elev_percentile': 99,
+        'delta_max_elev': '#data/delta_grad/{delta}_max_elev.txt',
+        'deltas_max_elev': '#data/delta_grad/max_elev.pd',
+        'delta_length': '#data/delta_grad/{delta}_length.txt',
+        'deltas_length': '#data/delta_grad/length.pd',
+        'delta_gradients': '#data/delta_grad/gradient.pd',
 
         'basins_source': ('rgis',),
         'basins_rast': '#data/rgis/basins{ver}.{ext}',

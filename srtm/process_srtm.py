@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas
 import geopandas
 import rasterio
 from rasterio.features import rasterize
@@ -69,3 +70,44 @@ def clip_srtm_to_delta(env, target, source):
 
         return 0
 
+
+def estimate_max_elev(env, source, target):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        dem = rast.read(1, masked=True)
+    percentile = env['percentile']
+    elev = np.percentile(dem[~dem.mask], percentile)
+    with open(str(target[0]), 'w') as fout:
+        fout.write(str(elev)+'\n')
+    return 0
+
+
+def estimate_delta_length(env, source, target):
+    delta = geopandas.read_file(str(source[0]))
+    center = delta.centroid.squeeze()
+    aed = ccrs.AzimuthalEquidistant(central_longitude=center.x, central_latitude=center.y)
+    delta_aed = delta.to_crs(aed.proj4_params)
+    # boundary = delta_aed.convex_hull.boundary
+    circ_radius = np.sqrt(delta_aed.area.squeeze()/np.pi)
+    with open(str(target[0]), 'w') as fout:
+        fout.write(str(circ_radius)+'\n')
+    return 0
+
+
+def txt_nums_to_df(env, source, target):
+    deltas = env['deltas']
+    df = pandas.Series(index=deltas)
+    for (delta, s) in zip(deltas, source):
+        with open(str(s), 'r') as fin:
+            df[delta] = float(fin.readline().strip())
+    df.to_pickle(str(target[0]))
+    return 0
+
+
+def compute_gradient(env, source, target):
+    elev = pandas.read_pickle(str(source[0]))
+    length = pandas.read_pickle(str(source[1]))
+    geo_scaling = float(env['geo_scaling'])
+
+    gradient = elev / (geo_scaling * length)
+    gradient.to_pickle(str(target[0]))
+    return 0
