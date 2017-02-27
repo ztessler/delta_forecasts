@@ -31,6 +31,7 @@ env.Command(
         source=experiments['pristine']['natural_subsidence'],
         target=experiments['pristine']['natural_subsidence_plot'],
         action=psed.plot_delta_scalars,
+        scenarios=['Pristine'],
         ylabel='Subsidence rate, mm/yr',
         xlabel='Delta',
         title='Estimated natural subsidence rates',
@@ -175,9 +176,21 @@ for experiment, config in experiments.iteritems():
 
 for expA in experiments.keys():
     for expB in experiments[expA]['compare_with']:
-        if 'pristine' in [expA, expB]:
-            continue
         scenarios = expA + '_' + expB
+        if 'pristine' in [expA, expB]:
+            exp, expi = ((expA, 0) if expA != 'pristine' else (expB, 1))
+            env.Command(
+                    source=experiments[exp]['rslr'],
+                    target=experiments[exp]['rslr_comparison_plot'].format(scenarios=scenarios, ext='png'),
+                    action=psed.plot_delta_scalars,
+                    scenarios=[experiments[exp]['name']],
+                    ylabel='RSLR, mm/yr',
+                    xlabel='Delta',
+                    title='RSLR scenario differences',
+                    logy=False,
+                    exp_num=expi, # for color cycle control
+                    )
+            continue
         env.Command(
                 source=[experiments[expA]['rslr'],
                         experiments[expB]['rslr']],

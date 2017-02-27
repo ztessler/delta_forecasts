@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import itertools
 import pandas
 import rasterio
 import fiona
@@ -230,20 +231,25 @@ def plot_delta_scalars(env, target, source):
     xlabel = env['xlabel']
     title = env['title']
     logy = env.get('logy', False)
+    exp_num = env.get('exp_num', None) # for color cycle control
 
     qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
     if len(source) > 1:
         qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
         df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
                 columns=[scenarios[0], scenarios[1]])
-        df = df.sort_values(by=scenarios[0], ascending=False)
     else:
-        df = qs0
-        df = df.sort_values(ascending=False)
+        df = pandas.DataFrame({scenarios[0]:qs0},
+                columns=[scenarios[0]])
+    df = df.sort_values(by=scenarios[0], ascending=False)
     df = df.drop('Congo')
 
     f, a = plt.subplots(1, 1, figsize=(16,8))
-    df.plot(kind='bar', logy=logy, ax=a)
+    if exp_num is None:
+        df.plot(kind='bar', logy=logy, ax=a)
+    else:
+        color = next(itertools.islice(iter(mpl.rcParams['axes.prop_cycle']), exp_num, exp_num+1))['color']
+        df.plot(kind='bar', logy=logy, ax=a, color=color)
 
     a.set_ylabel(ylabel)
     a.set_xlabel(xlabel)
