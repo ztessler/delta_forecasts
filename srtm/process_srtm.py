@@ -87,9 +87,9 @@ def estimate_delta_length(env, source, target):
     aed = ccrs.AzimuthalEquidistant(central_longitude=center.x, central_latitude=center.y)
     delta_aed = delta.to_crs(aed.proj4_params)
     # boundary = delta_aed.convex_hull.boundary
-    circ_radius = np.sqrt(delta_aed.area.squeeze()/np.pi)
+    circ_diam = 2 * np.sqrt(delta_aed.area.squeeze()/np.pi)
     with open(str(target[0]), 'w') as fout:
-        fout.write(str(circ_radius)+'\n')
+        fout.write(str(circ_diam)+'\n')
     return 0
 
 

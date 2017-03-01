@@ -56,4 +56,4 @@ for experiment, config in experiments.iteritems():
                     config['deltas_length']],
             target=config['delta_gradients'],
             action=ps.compute_gradient,
-            geo_scaling=4) # extra length of river due to meandering, and delta shape deviations from a circle
+            geo_scaling=3) # extra length of river due to meandering, and delta shape deviations from a circle
