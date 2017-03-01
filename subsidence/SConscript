@@ -38,11 +38,36 @@ env.Command(
         )
 
 
+    # rslr_lit = Q_(panads.read_pickle(str(source[0])), 'mm/year')
+    # Qs_prist = Q_(pandas.read_pickle(str(source[1])), 'kg/s')
+    # Qs_contemp = Q_(pandas.read_pickle(str(source[2])), 'kg/s')
+    # groundwater_sub = Q_(pandas.read_pickle(str(source[3])), 'mm/year')
+    # oilgas_sub = Q_(pandas.read_pickle(str(source[4])), 'mm/year')
+    # gia_uplift = Q_(pandas.read_pickle(str(source[5])), 'mm/year')
+    # area = Q_(pandas.read_pickle(str(source[6])), 'km**2')
+    # dens = Q_(env['sed_dens'], 'kg/m**3')
+    # prist_slr = Q_(env['prist_slr'], 'mm/year')
+    # contemp_slr = Q_(env['contemp_slr'], 'mm/year')
+env.Command(
+        source=[experiments['contemp']['rslr_lit'],
+                experiments['pristine']['Qs'],
+                experiments['contemp']['Qs'],
+                experiments['contemp']['groundwater_subsidence'],
+                experiments['contemp']['oilgas_subsidence'],
+                experiments['contemp']['gia_uplift'].format(ext='pd'),
+                experiments['contemp']['delta_areas']],
+        target=experiments['pristine']['retention_rate_rslr_lit'],
+        action=ps.compute_retention_from_rslr_lit,
+        sed_dens=1.5,
+        prist_slr=experiments['pristine']['eustatic_slr'],
+        contemp_slr=experiments['contemp']['eustatic_slr'])
+
+
 for experiment, config in experiments.iteritems():
     env.Command(
             source=[config['delta_zeros'],
                     config['sed_morph_source'][1]],
-            target=config['sed_retention'],
+            target=config['sed_retention_lit'],
             action=ps.import_sed_retention_ratio)
 
     env.Command(

@@ -275,6 +275,30 @@ def compute_rslr(env, target, source):
     rslr.to_pickle(str(target[0]))
 
 
+def compute_retention_from_rslr_lit(env, source, target):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    rslr_lit = Q_(pandas.read_pickle(str(source[0])), 'mm/year')
+    Qs_prist = Q_(pandas.read_pickle(str(source[1])), 'kg/s')
+    Qs_contemp = Q_(pandas.read_pickle(str(source[2])), 'kg/s')
+    groundwater_sub = Q_(pandas.read_pickle(str(source[3])), 'mm/year')
+    oilgas_sub = Q_(pandas.read_pickle(str(source[4])), 'mm/year')
+    gia_uplift = Q_(pandas.read_pickle(str(source[5])), 'mm/year')
+    area = Q_(pandas.read_pickle(str(source[6])), 'km**2')
+    dens = Q_(env['sed_dens'], 'kg/m**3')
+    prist_slr = Q_(env['prist_slr'], 'mm/year')
+    contemp_slr = Q_(env['contemp_slr'], 'mm/year')
+
+    # RSLR_contemp = slr_contemp + subsidence_prist + sub_groundwater + sub_oilgas - gia - agg_contemp
+    # RSLR_contemp = slr_contemp + (agg_prist - slr_prist) + sub_groundwater + sub_oilgas - gia - agg_contemp
+    # RSLR_contemp = slr_contemp + ((Qs_prist * retention / dens / area) - slr_prist) + sub_groundwater + sub_oilgas - gia - (Qs_contemp * retention / dens / area)
+    # RSLR_contemp = (slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia) + ((Qs_prist - Qs_contemp) * retention / dens / area)
+    # (Qs_contemp - Qs_prist) * (retention / dens / area) = slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia - RSLR_contemp
+    # retention = (slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia - RSLR_contemp) / (Qs_contemp - Qs_prist) * dens * area
+    retention = (contemp_slr - prist_slr + groundwater_sub + oilgas_sub - gia_uplift - rslr_lit) / (Qs_contemp - Qs_prist) * dens * area
+
+
 def rslr_regression_model(env, target, source):
     nat_sub = pandas.read_pickle(str(source[0]))
     agg = pandas.read_pickle(str(source[1]))

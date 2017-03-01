@@ -100,18 +100,21 @@ defaults = {
         'ones_rast': '#data/ones.tif',
         'ones30_rast': '#data/ones30.tif',
 
-        'rslr_lit_source': ('higgins2014', '/Users/ztessler/data/RSLR/higgins_rslr.csv'),
+        # 'rslr_lit_source': ('higgins2014', '/Users/ztessler/data/RSLR/higgins_rslr.csv'),
         # 'rslr_lit_source': ('higgins2014_agg', '/Users/ztessler/data/RSLR/higgins_rslr_summary.csv'),
         'rslr_lit_mean_weight': 2,
-        # 'rslr_lit_source': ('syvitski2009', '/Users/ztessler/data/RSLR/syvitski_2009_rslr.csv'),
+        'rslr_lit_source': ('syvitski2009', '/Users/ztessler/data/RSLR/syvitski_2009_rslr.csv'),
         'rslr_lit': '#data/experiments/{exp}/rslr_lit.pd',
+        'retention_rate_rslr_lit': '#data/experiments/pristine/retention_rate_rslr_lit.pd',
+        'sed_aggradation_from_rslr_lit': '#data/experiments/{exp}/sed_aggradation_rslr_lit.pd',
 
         'gia_source': ('grace', '/Users/ztessler/data/GIA/GIA.COMPRESSIBLE.GRIDS.nc'),
         'gia_model': 'GIA_n60_uplift_200km',
         'gia_uplift': '#data/experiments/{exp}/gia_uplift.{ext}',
 
-        'sed_morph_source': ('syvitski_saito_2007', '/Users/ztessler/data/RSLR/syvitski_saito_2007_morph.csv'),
         'sed_retention': '#data/experiments/{exp}/sed_retention.pd',
+        'sed_morph_source': ('syvitski_saito_2007', '/Users/ztessler/data/RSLR/syvitski_saito_2007_morph.csv'),
+        'sed_retention_lit': '#data/experiments/{exp}/sed_retention_lit.pd',
         'accomodation_space': '#data/experiments/{exp}/accomodation_space.pd',
         'shape_factor': .5,
 
