@@ -234,8 +234,10 @@ defaults = {
         'rslr_land': '#data/experiments/{exp}/rslr_land.pd',
         'rslr_regress': '#data/experiments/{exp}/rslr_regress.{ext}',
 
+        'sed_flux_plot': '#figures/{exp}/sed_flux_{exp}.{ext}',
         'sed_flux_comparison_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_{scenarios}.{ext}',
         'sed_flux_change_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_change_{expA}_to_{expB}.{ext}',
+        'rslr_plot': '#figures/{exp}/rslr_{exp}.{ext}',
         'rslr_comparison_plot': '#figures/joint/{scenarios}/rslr/rslr_{scenarios}.{ext}',
         'rslr_change_plot': '#figures/joint/{scenarios}/rslr/rslr_change_{expA}_to_{expB}.{ext}',
 

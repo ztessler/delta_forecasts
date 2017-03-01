@@ -94,6 +94,17 @@ for experiment, config in experiments.iteritems():
             target=config['Qs'],
             action=ps.compute_Qs)
 
+    env.Command(
+            source=config['Qs'],
+            target=config['sed_flux_plot'].format(ext='png'),
+            action=ps.plot_delta_scalars,
+            scenarios=config['name'],
+            ylabel='Sediment flux, kg/s',
+            xlabel='Delta',
+            title='Sediment flux',
+            logy=False,
+            )
+
 for expA in experiments.keys():
     for expB in experiments[expA]['compare_with']:
         scenarios = expA + '_' + expB

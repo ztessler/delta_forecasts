@@ -227,6 +227,8 @@ def compute_Qs(env, target, source):
 def plot_delta_scalars(env, target, source):
     mpl.style.use('ggplot')
     scenarios = env.get('scenarios', None)
+    if not isinstance(scenarios, list):
+        scenarios = [scenarios]
     ylabel = env['ylabel']
     xlabel = env['xlabel']
     title = env['title']
