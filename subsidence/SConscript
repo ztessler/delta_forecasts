@@ -22,10 +22,26 @@ Import('*')
 
 
 env.Command(
+        source=experiments['pristine']['sed_aggradation_low_retention'],
+        target=experiments['pristine']['natural_subsidence_low_retention'],
+        action=ps.steady_state_subsidence,
+        eustatic_slr=experiments['pristine']['eustatic_slr'])
+env.Command(
         source=experiments['pristine']['sed_aggradation'],
         target=experiments['pristine']['natural_subsidence'],
         action=ps.steady_state_subsidence,
         eustatic_slr=experiments['pristine']['eustatic_slr'])
+env.Command(
+        source=experiments['pristine']['sed_aggradation_high_retention'],
+        target=experiments['pristine']['natural_subsidence_high_retention'],
+        action=ps.steady_state_subsidence,
+        eustatic_slr=experiments['pristine']['eustatic_slr'])
+env.Command(
+        source=[experiments['pristine']['natural_subsidence_low_retention'],
+                experiments['pristine']['natural_subsidence'],
+                experiments['pristine']['natural_subsidence_high_retention']],
+        target=experiments['pristine']['natural_subsidence_all_retention'],
+        action=ps.retention_merge_to_df)
 
 env.Command(
         source=experiments['pristine']['natural_subsidence'],
@@ -75,10 +91,30 @@ for experiment, config in experiments.iteritems():
     env.Command(
             source=[config['delta_areas'],
                     config['Qs']],
+            target=config['sed_aggradation_low_retention'],
+            action=ps.sed_aggradation,
+            sed_dens=config['sed_dens'],
+            retention=config['retention_frac_low'])
+    env.Command(
+            source=[config['delta_areas'],
+                    config['Qs']],
             target=config['sed_aggradation'],
             action=ps.sed_aggradation,
             sed_dens=config['sed_dens'],
             retention=config['retention_frac_mid'])
+    env.Command(
+            source=[config['delta_areas'],
+                    config['Qs']],
+            target=config['sed_aggradation_high_retention'],
+            action=ps.sed_aggradation,
+            sed_dens=config['sed_dens'],
+            retention=config['retention_frac_high'])
+    env.Command(
+            source=[config['sed_aggradation_low_retention'],
+                    config['sed_aggradation'],
+                    config['sed_aggradation_high_retention']],
+            target=config['sed_aggradation_all_retention'],
+            action=ps.retention_merge_to_df)
     # env.Command(
             # source=[config['delta_areas'],
                     # config['Qs'],
@@ -159,6 +195,15 @@ for experiment, config in experiments.iteritems():
 
     # accelerated sea-level rise
     env.Command(
+            source=[config['sed_aggradation_low_retention'],
+                    config['natural_subsidence_low_retention'],
+                    config['groundwater_subsidence'],
+                    config['oilgas_subsidence'],
+                    config['gia_uplift'].format(ext='pd')],
+            eustatic_slr=config['eustatic_slr'],
+            target=config['rslr_low_retention'],
+            action=ps.compute_rslr)
+    env.Command(
             source=[config['sed_aggradation'],
                     config['natural_subsidence'],
                     config['groundwater_subsidence'],
@@ -167,6 +212,21 @@ for experiment, config in experiments.iteritems():
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr'],
             action=ps.compute_rslr)
+    env.Command(
+            source=[config['sed_aggradation_high_retention'],
+                    config['natural_subsidence_high_retention'],
+                    config['groundwater_subsidence'],
+                    config['oilgas_subsidence'],
+                    config['gia_uplift'].format(ext='pd')],
+            eustatic_slr=config['eustatic_slr'],
+            target=config['rslr_high_retention'],
+            action=ps.compute_rslr)
+    env.Command(
+            source=[config['rslr_low_retention'],
+                    config['rslr'],
+                    config['rslr_high_retention']],
+            target=config['rslr_all_retention'],
+            action=ps.retention_merge_to_df)
 
     env.Command(
             source=[config['sed_aggradation'],

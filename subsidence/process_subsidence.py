@@ -277,6 +277,18 @@ def compute_rslr(env, target, source):
     rslr.to_pickle(str(target[0]))
 
 
+def retention_merge_to_df(env, source, target):
+    low = pandas.read_pickle(str(source[0]))
+    mid = pandas.read_pickle(str(source[1]))
+    high = pandas.read_pickle(str(source[2]))
+
+    ci = pandas.CategoricalIndex(['low', 'mid', 'high'], ordered=True)
+    merged = pandas.DataFrame({'low': low, 'mid': mid, 'high': high},
+                              columns=ci)
+    merged.to_pickle(str(target[0]))
+    return 0
+
+
 def compute_retention_from_rslr_lit(env, source, target):
     ureg = pint.UnitRegistry()
     Q_ = ureg.Quantity
