@@ -116,7 +116,13 @@ defaults = {
         'sed_morph_source': ('syvitski_saito_2007', '/Users/ztessler/data/RSLR/syvitski_saito_2007_morph.csv'),
         'sed_retention_lit': '#data/experiments/{exp}/sed_retention_lit.pd',
         'accomodation_space': '#data/experiments/{exp}/accomodation_space.pd',
+
         'shape_factor': .5,
+        'sed_dens': 1.5, # g/cm**3
+        'retention_frac_low': .30,
+        'retention_frac_mid': .50,
+        'retention_frac_high': .70,
+
 
         'groundwater_source': ('wada', '/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc'),
         'groundwater_rast': '#data/experiments/{exp}/groundwater{ver}.{ext}',

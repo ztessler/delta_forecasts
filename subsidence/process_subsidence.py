@@ -106,11 +106,13 @@ def sed_aggradation(env, target, source):
             'kg/s')
 
     # estimate from Blum and Roberts 2009, Nature GeoSci, mississippi value
-    sed_density = Q_(1.5, 'g/cm**3') # g/cm**3, also in BT/km**3
+    # sed_density = Q_(1.5, 'g/cm**3') # g/cm**3, also in BT/km**3
+    sed_density = Q_(env['sed_dens'], 'g/cm**3')
 
     # estimate from same paper, range of 30-70%. references Ganges values of 30%, and 39-71%.
     # mississippi values from storage/load estimates are in this range. use 50%
-    retention_frac = 0.5
+    # retention_frac = 0.5
+    retention_frac = env['retention']
 
     # biogenic sediment ??
 
