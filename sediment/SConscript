@@ -142,7 +142,7 @@ for expA in experiments.keys():
                 )
 
         plot_deltas = ['Amazon', 'Ganges', 'Mekong']
-        env.Command(
+        myCommand(
             source=[experiments[expA]['rslr_land'],
                     experiments[expB]['rslr_land']],
             target=experiments[expA]['rslr_timeseries_plot'].format(scenarios=scenarios, expA=expA, expB=expB, ext='png'),
