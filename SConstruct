@@ -16,6 +16,25 @@ Export('env')
 Export('experiments')
 Export('common')
 
+def myCommand(**kwargs):
+    '''
+    env.Command wrapper that forces env override arguments to be sconsign
+    signature database. Wraps all extra kwargs in env.Value nodes and adds
+    them to the source list, after the existing sources. Changing the extra
+    arguments will cause the target to be rebuilt, as long as the data's string
+    representation changes.
+    '''
+    source = kwargs.pop('source')
+    target = kwargs.pop('target')
+    action = kwargs.pop('action')
+    if not isinstance(source, list):
+        source = [source]
+    if None in source:
+        source.remove(None)
+    source.extend([env.Value('{}={!r}'.format(k,v)) for k,v in kwargs.iteritems()])
+    return env.Command(target=target, source=source, action=action, **kwargs)
+Export('myCommand')
+
 SConscript('geography/SConscript')
 SConscript('population/SConscript')
 SConscript('srtm/SConscript')
@@ -33,7 +52,7 @@ def save_config(env, target, source):
         json.dump(config, f)
     return 0
 for experiment, config in experiments.iteritems():
-    env.Command(
+    myCommand(
             target=config['config_out'],
             source=None,
             action=save_config,

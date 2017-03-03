@@ -21,17 +21,17 @@ Import('*')
 ###
 
 
-env.Command(
+myCommand(
         source=experiments['pristine']['sed_aggradation_low_retention'],
         target=experiments['pristine']['natural_subsidence_low_retention'],
         action=ps.steady_state_subsidence,
         eustatic_slr=experiments['pristine']['eustatic_slr'])
-env.Command(
+myCommand(
         source=experiments['pristine']['sed_aggradation'],
         target=experiments['pristine']['natural_subsidence'],
         action=ps.steady_state_subsidence,
         eustatic_slr=experiments['pristine']['eustatic_slr'])
-env.Command(
+myCommand(
         source=experiments['pristine']['sed_aggradation_high_retention'],
         target=experiments['pristine']['natural_subsidence_high_retention'],
         action=ps.steady_state_subsidence,
@@ -53,7 +53,7 @@ env.Command(
         title='Estimated natural subsidence rates',
         )
 
-env.Command(
+myCommand(
         source=[experiments['contemp']['rslr_lit'],
                 experiments['pristine']['Qs'],
                 experiments['contemp']['Qs'],
@@ -88,21 +88,21 @@ for experiment, config in experiments.iteritems():
             mean_weighting=config['rslr_lit_mean_weight'],
             action=ps.import_rslr_lit)
 
-    env.Command(
+    myCommand(
             source=[config['delta_areas'],
                     config['Qs']],
             target=config['sed_aggradation_low_retention'],
             action=ps.sed_aggradation,
             sed_dens=config['sed_dens'],
             retention=config['retention_frac_low'])
-    env.Command(
+    myCommand(
             source=[config['delta_areas'],
                     config['Qs']],
             target=config['sed_aggradation'],
             action=ps.sed_aggradation,
             sed_dens=config['sed_dens'],
             retention=config['retention_frac_mid'])
-    env.Command(
+    myCommand(
             source=[config['delta_areas'],
                     config['Qs']],
             target=config['sed_aggradation_high_retention'],
@@ -194,7 +194,7 @@ for experiment, config in experiments.iteritems():
                 gia_model=config['gia_model'])
 
     # accelerated sea-level rise
-    env.Command(
+    myCommand(
             source=[config['sed_aggradation_low_retention'],
                     config['natural_subsidence_low_retention'],
                     config['groundwater_subsidence'],
@@ -203,7 +203,7 @@ for experiment, config in experiments.iteritems():
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr_low_retention'],
             action=ps.compute_rslr)
-    env.Command(
+    myCommand(
             source=[config['sed_aggradation'],
                     config['natural_subsidence'],
                     config['groundwater_subsidence'],
@@ -212,7 +212,7 @@ for experiment, config in experiments.iteritems():
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr'],
             action=ps.compute_rslr)
-    env.Command(
+    myCommand(
             source=[config['sed_aggradation_high_retention'],
                     config['natural_subsidence_high_retention'],
                     config['groundwater_subsidence'],
@@ -228,7 +228,7 @@ for experiment, config in experiments.iteritems():
             target=config['rslr_all_retention'],
             action=ps.retention_merge_to_df)
 
-    env.Command(
+    myCommand(
             source=[config['sed_aggradation'],
                     config['natural_subsidence'],
                     config['groundwater_subsidence'],
@@ -250,16 +250,16 @@ for experiment, config in experiments.iteritems():
             )
 
     if experiment != 'pristine':
-        env.Command(
+        myCommand(
                 source=[config['natural_subsidence'],
                         config['sed_aggradation'],
                         config['groundwater_subsidence'],
                         config['oilgas_subsidence'],
                         config['rslr_lit']],
-                eustatic_slr=config['eustatic_slr'],
                 target=[config['rslr_regress'].format(ext='pd'),
                         config['rslr_regress'].format(ext='txt')],
-                action=ps.rslr_regression_model)
+                action=ps.rslr_regression_model,
+                eustatic_slr=config['eustatic_slr'])
 
 for expA in experiments.keys():
     for expB in experiments[expA]['compare_with']:
