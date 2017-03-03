@@ -3,6 +3,7 @@
 
 import os
 import json
+import hashlib
 from config import experiments, common
 
 SetOption('max_drift', 1)
@@ -24,6 +25,8 @@ def myCommand(**kwargs):
     arguments will cause the target to be rebuilt, as long as the data's string
     representation changes.
     '''
+    def hash(v):
+        return hashlib.md5(repr(v)).hexdigest()
     source = kwargs.pop('source')
     target = kwargs.pop('target')
     action = kwargs.pop('action')
@@ -31,7 +34,7 @@ def myCommand(**kwargs):
         source = [source]
     if None in source:
         source.remove(None)
-    source.extend([env.Value('{}={!r}'.format(k,v)) for k,v in kwargs.iteritems()])
+    source.extend([env.Value('{}={}'.format(k,hash(v))) for k,v in kwargs.iteritems()])
     return env.Command(target=target, source=source, action=action, **kwargs)
 Export('myCommand')
 
