@@ -43,10 +43,11 @@ env.Command(
         target=experiments['pristine']['natural_subsidence_all_retention'],
         action=ps.retention_merge_to_df)
 
-env.Command(
+myCommand(
         source=experiments['pristine']['natural_subsidence'],
         target=experiments['pristine']['natural_subsidence_plot'],
         action=psed.plot_delta_scalars,
+        nsources=1,
         scenarios=['Pristine'],
         ylabel='Subsidence rate, mm/yr',
         xlabel='Delta',
@@ -81,7 +82,7 @@ for experiment, config in experiments.iteritems():
             target=config['accomodation_space'],
             action=ps.import_accomodation_space)
 
-    env.Command(
+    myCommand(
             source=[config['delta_zeros'],
                     config['rslr_lit_source'][1]],
             target=config['rslr_lit'],
@@ -186,7 +187,7 @@ for experiment, config in experiments.iteritems():
                 source=config['gia_source'][1],
                 target=config['gia_uplift'].format(ext='tif'),
                 action='gdal_translate -a_srs "EPSG:4326" -a_ullr 0 90 360 -90 NETCDF:"$SOURCE":{} $TARGET'.format(config['gia_model']))
-        env.Command(
+        myCommand(
                 source=[config['deltas'],
                         config['gia_uplift'].format(ext='tif')],
                 target=config['gia_uplift'].format(ext='pd'),
@@ -238,10 +239,11 @@ for experiment, config in experiments.iteritems():
             target=config['rslr_land'],
             action=ps.compute_rslr)
 
-    env.Command(
+    myCommand(
             source=config['rslr'],
             target=config['rslr_plot'].format(ext='png'),
             action=psed.plot_delta_scalars,
+            nsources=1,
             scenarios=config['name'],
             ylabel='RSLR, mm/yr',
             xlabel='Delta',
@@ -266,10 +268,11 @@ for expA in experiments.keys():
         scenarios = expA + '_' + expB
         if 'pristine' in [expA, expB]:
             exp, expi = ((expA, 0) if expA != 'pristine' else (expB, 1))
-            env.Command(
+            myCommand(
                     source=experiments[exp]['rslr'],
                     target=experiments[exp]['rslr_comparison_plot'].format(scenarios=scenarios, ext='png'),
                     action=psed.plot_delta_scalars,
+                    nsources=1,
                     scenarios=[experiments[exp]['name']],
                     ylabel='RSLR, mm/yr',
                     xlabel='Delta',
@@ -278,11 +281,12 @@ for expA in experiments.keys():
                     exp_num=expi, # for color cycle control
                     )
             continue
-        env.Command(
+        myCommand(
                 source=[experiments[expA]['rslr'],
                         experiments[expB]['rslr']],
                 target=experiments[expA]['rslr_comparison_plot'].format(scenarios=scenarios, ext='png'),
                 action=psed.plot_delta_scalars,
+                nsources=2,
                 scenarios=[experiments[expA]['name'], experiments[expB]['name']],
                 ylabel='RSLR, mm/yr',
                 xlabel='Delta',
@@ -290,7 +294,7 @@ for expA in experiments.keys():
                 logy=False,
                 )
 
-        env.Command(
+        myCommand(
                 source=[experiments[expA]['rslr'],
                         experiments[expB]['rslr']],
                 target=experiments[expA]['rslr_change_plot'].format(scenarios=scenarios, expA=expA, expB=expB, ext='png'),
@@ -300,7 +304,7 @@ for expA in experiments.keys():
                 xlabel='Delta',
                 title='RSLR scenario % change',
                 )
-        env.Command(
+        myCommand(
                 source=[experiments[expB]['rslr'],
                         experiments[expA]['rslr']],
                 target=experiments[expA]['rslr_change_plot'].format(scenarios=scenarios, expA=expB, expB=expA, ext='png'),

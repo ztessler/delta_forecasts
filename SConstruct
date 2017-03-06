@@ -17,7 +17,7 @@ Export('env')
 Export('experiments')
 Export('common')
 
-def myCommand(**kwargs):
+def myCommand(target, source, action, **kwargs):
     '''
     env.Command wrapper that forces env override arguments to be sconsign
     signature database. Wraps all extra kwargs in env.Value nodes and adds
@@ -26,10 +26,8 @@ def myCommand(**kwargs):
     representation changes.
     '''
     def hash(v):
+        # if this is changed then all targets with env overrides will be rebuilt
         return hashlib.md5(repr(v)).hexdigest()
-    source = kwargs.pop('source')
-    target = kwargs.pop('target')
-    action = kwargs.pop('action')
     if not isinstance(source, list):
         source = [source]
     if None in source:

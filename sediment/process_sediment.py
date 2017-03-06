@@ -234,9 +234,10 @@ def plot_delta_scalars(env, target, source):
     title = env['title']
     logy = env.get('logy', False)
     exp_num = env.get('exp_num', None) # for color cycle control
+    nsources = env['nsources']
 
     qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
-    if len(source) > 1:
+    if nsources > 1:
         qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
         df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
                 columns=[scenarios[0], scenarios[1]])
