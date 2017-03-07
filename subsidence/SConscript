@@ -101,7 +101,7 @@ for experiment, config in experiments.iteritems():
             target=config['sed_aggradation'],
             action=ps.sed_aggradation,
             sed_dens=config['sed_dens'],
-            retention=config['retention_frac_mid'])
+            retention=config['retention_frac'])
     myCommand(
             source=[config['delta_areas'],
                     config['Qs']],

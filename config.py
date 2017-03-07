@@ -120,7 +120,7 @@ defaults = {
         'shape_factor': .5,
         'sed_dens': 1.5, # g/cm**3
         'retention_frac_low': .30,
-        'retention_frac_mid': .50,
+        'retention_frac': .50,
         'retention_frac_high': .70,
 
 
