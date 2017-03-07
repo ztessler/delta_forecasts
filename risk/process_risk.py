@@ -121,9 +121,8 @@ def compute_exposure_ranges(env, target, source):
 def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     def round_to_1digit(x):
         return int(round(x, -int(np.floor(np.log10(abs(x))))))
-
-    exposures = [pandas.read_pickle(str(s)) for s in source[:-1]]
-    ranges = pandas.read_pickle(str(source[-1]))
+    exposures = [pandas.read_pickle(str(s)) for s in source[:2]]
+    ranges = pandas.read_pickle(str(source[2]))
     deltas = exposures[0].sum(level='Delta').dropna().index
     scenarios = env['scenarios']
 
