@@ -69,7 +69,7 @@ def mk_plot_multiscenario_exposure(a, pops, scenarios, legend=True):
 
 
 def plot_surge_annual_exposure_multiscenario(env, target, source):
-    exposures = [pandas.read_pickle(str(s)) for s in source]
+    exposures = [pandas.read_pickle(str(s)) for s in source[:env['nsources']]]
     delta = env['delta']
     scenarios = env['scenarios']
 

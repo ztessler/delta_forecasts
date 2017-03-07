@@ -21,7 +21,8 @@ for experiment, config in experiments.iteritems():
             target=config['surge_percap_risk'],
             action=pr.per_capita_exposure)
 
-    env.Command(
+    ######
+    myCommand(
             source=[config['dis_future_extremes'],
                     # config['ssp_pop_hypso_growth_rslr'],
                     config['rslr'],
@@ -38,7 +39,7 @@ for experiment, config in experiments.iteritems():
             )
 
     for delta in common['deltas']:
-        env.Command(
+        myCommand(
                 source=config['surge_annual_exposure'],
                 target=config['surge_annual_exposure_plot'].format(delta=delta, ext='png'),
                 action=pr.plot_surge_annual_exposure,
@@ -55,7 +56,7 @@ env.Command(
 for expA in experiments.keys():
     for expB in experiments[expA]['compare_with']:
         scenarios = expA + '_' + expB
-        env.Command(
+        myCommand(
                 source=[experiments[expA]['surge_annual_exposure'],
                         experiments[expB]['surge_annual_exposure'],
                         config['surge_annual_exposure_ranges']],
@@ -63,7 +64,7 @@ for expA in experiments.keys():
                 action=pr.plot_surge_annual_exposure_multiscenario_multidelta,
                 scenarios=[experiments[expA]['name'], experiments[expB]['name']])
         for delta in common['deltas']:
-            env.Command(
+            myCommand(
                     source=[experiments[expA]['surge_annual_exposure'],
                             experiments[expB]['surge_annual_exposure']],
                     target=config['surge_annual_exposure_comparison_plot'].format(delta=delta, scenarios=scenarios, ext='png'),

@@ -32,6 +32,7 @@ def myCommand(target, source, action, **kwargs):
         source = [source]
     if None in source:
         source.remove(None)
+    kwargs['nsources'] = len(source)
     source.extend([env.Value('{}={}'.format(k,hash(v))) for k,v in kwargs.iteritems()])
     return env.Command(target=target, source=source, action=action, **kwargs)
 Export('myCommand')
