@@ -34,7 +34,7 @@ for experiment, config in experiments.iteritems():
             res_rast = config['reservoir_adj'].format(ver='', ext='tif')
             if config['reservoir_adj_source'][0] == 'factor':
                 factor = config['reservoir_adj_source'][1]
-                env.Command(
+                myCommand(
                         source=config['reservoir_rast'].format(ver='', ext='tif'),
                         target=res_rast,
                         action=gis.multiply_rast,
@@ -109,7 +109,7 @@ for experiment, config in experiments.iteritems():
 for expA in experiments.keys():
     for expB in experiments[expA]['compare_with']:
         scenarios = expA + '_' + expB
-        env.Command(
+        myCommand(
                 source=[experiments[expA]['Qs'],
                         experiments[expB]['Qs']],
                 target=experiments[expA]['sed_flux_comparison_plot'].format(scenarios=scenarios, ext='png'),
@@ -122,7 +122,7 @@ for expA in experiments.keys():
                 logy=True,
                 )
 
-        env.Command(
+        myCommand(
                 source=[experiments[expA]['Qs'],
                         experiments[expB]['Qs']],
                 target=experiments[expA]['sed_flux_change_plot'].format(scenarios=scenarios, expA=expA, expB=expB, ext='png'),
@@ -132,7 +132,7 @@ for expA in experiments.keys():
                 xlabel='Delta',
                 title='Sediment flux scenario % change',
                 )
-        env.Command(
+        myCommand(
                 source=[experiments[expB]['Qs'],
                         experiments[expA]['Qs']],
                 target=experiments[expA]['sed_flux_change_plot'].format(scenarios=scenarios, expA=expB, expB=expA, ext='png'),
