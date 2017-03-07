@@ -281,7 +281,7 @@ defaults = {
         'delta_ones': '#data/delta_ones.pd',
 
         'srtm': 3,
-        'eustatic_slr': 3.0,
+        'eustatic_slr': 3.2, # church and white 2012 from sat record, 3.2 [2.8-3.6] between 1993-2010 from ipcc ar5 wg1 ch 3.7.2
         'slr_rate_2100_RCP2.6': 4.4, # IPCC AR5 Table 13.5
         'slr_rate_2100_RCP4.5': 6.1,
         'slr_rate_2100_RCP6.0': 7.4,
@@ -300,7 +300,7 @@ experiments = {
             'Eh': defaults['upstream_ones'],
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
-            'eustatic_slr': 1.5,
+            'eustatic_slr': 0.2, # IPCC AR5 WG1 "order of tenths of mm/year"
             'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
             },
         'accel-slr': {
