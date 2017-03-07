@@ -21,7 +21,7 @@ Import('*')
 ###
 
 # only compute natural subsidence for "pristine-like" scenarios
-for experiment in ['pristine']:
+for experiment in ['pristine', 'retention_high']:
     config = experiments[experiment]
 
     myCommand(
