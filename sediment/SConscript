@@ -94,7 +94,7 @@ for experiment, config in experiments.iteritems():
             target=config['Qs'],
             action=ps.compute_Qs)
 
-    env.Command(
+    myCommand(
             source=config['Qs'],
             target=config['sed_flux_plot'].format(ext='png'),
             action=ps.plot_delta_scalars,
