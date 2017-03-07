@@ -332,7 +332,7 @@ experiments = {
             # 'ssp_scenario': 3,
             'pop_growth_source': defaults['ssp_pop_source'],
             },
-        'retention_low': {
+        'retention-low': {
             'parent': 'contemp',
             'name': 'Low Sediment Retention',
             'compare_with': ['contemp'],
@@ -340,15 +340,15 @@ experiments = {
             'retention_frac': .20,
             'retention_frac_high': .35,
             },
-        'retention_high': {
+        'retention-high': {
             'parent': 'contemp',
             'name': 'High Sediment Retention',
-            'compare_with': ['pristine', 'contemp', 'retention_low'],
-            'natural_subsidence_low_retention': '#data/experiments/retention_high/natural_subsidence_low.pd',
-            'natural_subsidence': '#data/experiments/retention_high/natural_subsidence.pd',
-            'natural_subsidence_high_retention': '#data/experiments/retention_high/natural_subsidence_high.pd',
-            'natural_subsidence_all_retention': '#data/experiments/retention_high/natural_subsidence_all.pd',
-            'natural_subsidence_plot': '#figures/retention_high/natural_subsidence.png',
+            'compare_with': ['pristine', 'contemp', 'retention-low'],
+            'natural_subsidence_low_retention': '#data/experiments/retention-high/natural_subsidence_low.pd',
+            'natural_subsidence': '#data/experiments/retention-high/natural_subsidence.pd',
+            'natural_subsidence_high_retention': '#data/experiments/retention-high/natural_subsidence_high.pd',
+            'natural_subsidence_all_retention': '#data/experiments/retention-high/natural_subsidence_all.pd',
+            'natural_subsidence_plot': '#figures/retention-high/natural_subsidence.png',
             'retention_frac_low': .65,
             'retention_frac': .80,
             'retention_frac_high': .95,
