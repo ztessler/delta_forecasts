@@ -20,38 +20,42 @@ Import('*')
 # retention/seddensity/biogenic terms)
 ###
 
+# only compute natural subsidence for "pristine-like" scenarios
+for experiment in ['pristine']:
+    config = experiments[experiment]
 
-myCommand(
-        source=experiments['pristine']['sed_aggradation_low_retention'],
-        target=experiments['pristine']['natural_subsidence_low_retention'],
-        action=ps.steady_state_subsidence,
-        eustatic_slr=experiments['pristine']['eustatic_slr'])
-myCommand(
-        source=experiments['pristine']['sed_aggradation'],
-        target=experiments['pristine']['natural_subsidence'],
-        action=ps.steady_state_subsidence,
-        eustatic_slr=experiments['pristine']['eustatic_slr'])
-myCommand(
-        source=experiments['pristine']['sed_aggradation_high_retention'],
-        target=experiments['pristine']['natural_subsidence_high_retention'],
-        action=ps.steady_state_subsidence,
-        eustatic_slr=experiments['pristine']['eustatic_slr'])
-env.Command(
-        source=[experiments['pristine']['natural_subsidence_low_retention'],
-                experiments['pristine']['natural_subsidence'],
-                experiments['pristine']['natural_subsidence_high_retention']],
-        target=experiments['pristine']['natural_subsidence_all_retention'],
-        action=ps.retention_merge_to_df)
+    myCommand(
+            source=config['sed_aggradation_low_retention'],
+            target=config['natural_subsidence_low_retention'],
+            action=ps.steady_state_subsidence,
+            eustatic_slr=config['eustatic_slr'])
+    myCommand(
+            source=config['sed_aggradation'],
+            target=config['natural_subsidence'],
+            action=ps.steady_state_subsidence,
+            eustatic_slr=config['eustatic_slr'])
+    myCommand(
+            source=config['sed_aggradation_high_retention'],
+            target=config['natural_subsidence_high_retention'],
+            action=ps.steady_state_subsidence,
+            eustatic_slr=config['eustatic_slr'])
+    env.Command(
+            source=[config['natural_subsidence_low_retention'],
+                    config['natural_subsidence'],
+                    config['natural_subsidence_high_retention']],
+            target=config['natural_subsidence_all_retention'],
+            action=ps.retention_merge_to_df)
 
-myCommand(
-        source=experiments['pristine']['natural_subsidence'],
-        target=experiments['pristine']['natural_subsidence_plot'],
-        action=psed.plot_delta_scalars,
-        scenarios=['Pristine'],
-        ylabel='Subsidence rate, mm/yr',
-        xlabel='Delta',
-        title='Estimated natural subsidence rates',
-        )
+    myCommand(
+            source=config['natural_subsidence'],
+            target=config['natural_subsidence_plot'],
+            action=psed.plot_delta_scalars,
+            scenarios=[config['name']],
+            ylabel='Subsidence rate, mm/yr',
+            xlabel='Delta',
+            title='Estimated natural subsidence rates',
+            )
+
 
 myCommand(
         source=[experiments['contemp']['rslr_lit'],
