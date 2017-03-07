@@ -55,6 +55,23 @@ for experiment, config in experiments.iteritems():
                                 config['basin_ids']],
                         target=res_rast,
                         action=ps.add_new_reservoirs)
+
+            elif config['reservoir_adj_source'][0] == 'match_basin_utilization':
+                env.Command(
+                        source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                config['basins_rast'].format(ver='', ext='tif'),
+                                config['basin_ids']],
+                        target=config['res_target_size_distribution'],
+                        action=ps.estimate_reservoir_size_distribution,
+                        ref_basin=config['reservoir_adj_source'][1])
+
+                env.Command(
+                        source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                config['res_potential']],
+                        target=config['reservoir_adj'].format(ver='', ext='pd'),
+                        action=ps.scale_reservoirs_by_basin_utilization,
+                        ref_basin=config['reservoir_adj_source'][1])
+
         else:
             res_rast = config['reservoir_rast'].format(ver='', ext='tif')
 

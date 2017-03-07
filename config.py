@@ -318,6 +318,11 @@ experiments = {
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
             },
+        # 'US-reservoir-utilization': {
+            # 'parent': 'contemp',
+            # 'name': 'Reservoir Growth (to match Mississippi River utilization)',
+            # 'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
+            # },
         'rgis-reservoirs': {
             'parent': 'contemp',
             'name': 'RGIS reservoirs',

@@ -187,6 +187,47 @@ def compute_res_potential(env, source, target):
     return 0
 
 
+                # env.Command(
+                        # source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                # config['basins_rast'].format(ver='', ext='tif'),
+                                # config['basin_ids']],
+                        # target=config['res_target_size_distribution'],
+                        # action=ps.estimate_reservoir_size_distribution,
+                        # ref_basin=config['reservoir_adj_source'][1])
+def estimate_reservoir_size_distribution(env, source, target):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        reservoirs = rast.read(1)
+    with rasterio.open(str(source[1]), 'r') as rast:
+        basins = rast.read(1)
+    basinids = pandas.read_pickle(str(source[2]))
+    ref_basin = env['ref_basin']
+
+    # discharge_classes = ((10000, np.inf), (1000, 10000), (100, 1000), (10, 100), (0, 10))
+    ref_basin_sizes = []
+    for basinid in basinids.loc[ref_basin].index:
+        ref_basin_sizes.append(reservoirs[np.logical_and(basins==basinid, reservoirs>0)].tolist())
+
+    with open(str(target[0]), 'wb') as fout:
+        pickle.dump(ref_basin_sizes, fout)
+    return 0
+
+
+
+
+                # env.Command(
+                        # source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                # config['res_potential']],
+                        # target=config['reservoir_adj'].format(ver='', ext='pd'),
+                        # action=ps.scale_reservoirs_by_basin_utilization,
+                        # ref_basin=config['reservoir_adj_source'][1])
+def scale_reservoirs_by_basin_utilization(env, source, target):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        basins = rast.read(1)
+    potential = pandas.read_pickle(str(source[1]))
+    ref_basin = env['ref_basin']
+
+
+
 def compute_Eh(env, target, source):
     gdp = pandas.read_pickle(str(source[0]))
     popdens = pandas.read_pickle(str(source[1]))
