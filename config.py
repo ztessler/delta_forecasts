@@ -288,7 +288,7 @@ defaults = {
         'slr_rate_2100_RCP8.5': 11.2,
 
         'name': 'Contemporary',
-        'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
+        'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high'],
         }
 
 experiments = {
@@ -301,7 +301,7 @@ experiments = {
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 0.2, # IPCC AR5 WG1 "order of tenths of mm/year"
-            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs'],
+            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high'],
             },
         'accel-slr': {
             'parent': 'contemp',
@@ -335,7 +335,7 @@ experiments = {
         'retention-low': {
             'parent': 'contemp',
             'name': 'Low Sediment Retention',
-            'compare_with': ['contemp'],
+            'compare_with': ['retention-high'],
             'retention_frac_low': .05,
             'retention_frac': .20,
             'retention_frac_high': .35,
@@ -343,7 +343,6 @@ experiments = {
         'retention-high': {
             'parent': 'contemp',
             'name': 'High Sediment Retention',
-            'compare_with': ['pristine', 'contemp', 'retention-low'],
             'natural_subsidence_low_retention': '#data/experiments/retention-high/natural_subsidence_low.pd',
             'natural_subsidence': '#data/experiments/retention-high/natural_subsidence.pd',
             'natural_subsidence_high_retention': '#data/experiments/retention-high/natural_subsidence_high.pd',
