@@ -177,6 +177,7 @@ def compute_res_potential(env, source, target):
     basinids = pandas.read_pickle(str(source[3]))
 
     relief[relief < 0] = 0
+    runoff[runoff < 0] = 0
     potential = relief * runoff
 
     basin_potential = pandas.Series(index=basinids.index)
