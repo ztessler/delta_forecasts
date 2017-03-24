@@ -289,7 +289,7 @@ defaults = {
         'slr_rate_2100_RCP8.5': 11.2,
 
         'name': 'Contemporary',
-        'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high'],
+        'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'US-reservoir-utilization', 'retention-low', 'retention-high'],
         }
 
 experiments = {
@@ -302,7 +302,7 @@ experiments = {
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 0.2, # IPCC AR5 WG1 "order of tenths of mm/year"
-            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high'],
+            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high', 'US-reservoir-utilization'],
             },
         'accel-slr': {
             'parent': 'contemp',
@@ -318,6 +318,7 @@ experiments = {
             'parent': 'contemp',
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
+            'compare_with': ['US-reservoir-utilization'],
             },
         'US-reservoir-utilization': {
             'parent': 'contemp',
