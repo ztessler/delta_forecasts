@@ -94,6 +94,7 @@ defaults = {
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
 
         'basin_res_potential': '#data/experiments/{exp}/res_potential.pd',
+        'basin_res_utilization': '#data/experiments/{exp}/res_utilization.pd',
 
         'zeros_rast': '#data/zeros.tif',
         'zeros30_rast': '#data/zeros30.tif',
@@ -318,11 +319,11 @@ experiments = {
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
             },
-        # 'US-reservoir-utilization': {
-            # 'parent': 'contemp',
-            # 'name': 'Reservoir Growth (to match Mississippi River utilization)',
-            # 'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
-            # },
+        'US-reservoir-utilization': {
+            'parent': 'contemp',
+            'name': 'Reservoir Growth (to match Mississippi River utilization)',
+            'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
+            },
         'rgis-reservoirs': {
             'parent': 'contemp',
             'name': 'RGIS reservoirs',

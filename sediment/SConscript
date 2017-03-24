@@ -14,13 +14,6 @@ Import('*')
 
 for experiment, config in experiments.iteritems():
 
-    env.Command(
-            source=[config['basins_rast'].format(ver='', ext='tif'),
-                    config['relief_rast'].format(ver='', ext='tif'),
-                    config['runoff_rast'].format(ver='', ext='tif'),
-                    config['basin_ids']],
-            target=config['basin_res_potential'],
-            action=ps.compute_res_potential)
 
     if experiment != 'pristine':
         if config['reservoir_source'][0] == 'grand':
@@ -58,18 +51,21 @@ for experiment, config in experiments.iteritems():
 
             elif config['reservoir_adj_source'][0] == 'match_basin_utilization':
                 env.Command(
-                        source=[config['reservoir_rast'].format(ver='', ext='tif'),
-                                config['basins_rast'].format(ver='', ext='tif'),
+                        source=[config['basins_rast'].format(ver='', ext='tif'),
+                                config['relief_rast'].format(ver='', ext='tif'),
+                                config['runoff_rast'].format(ver='', ext='tif'),
                                 config['basin_ids']],
-                        target=config['res_target_size_distribution'],
-                        action=ps.estimate_reservoir_size_distribution,
-                        ref_basin=config['reservoir_adj_source'][1])
+                        target=config['basin_res_potential'],
+                        action=ps.compute_res_potential)
 
                 env.Command(
-                        source=[config['reservoir_rast'].format(ver='', ext='tif'),
-                                config['res_potential']],
-                        target=config['reservoir_adj'].format(ver='', ext='pd'),
-                        action=ps.scale_reservoirs_by_basin_utilization,
+                        source=[
+                                config['reservoir_rast'].format(ver='', ext='tif'),
+                                config['basins_rast'].format(ver='', ext='tif'),
+                                config['basin_res_potential']],
+                        target=[config['basin_res_utilization'],
+                                config['reservoir_adj'].format(ver='', ext='tif')],
+                        action=ps.scale_reservoirs_by_utilization,
                         ref_basin=config['reservoir_adj_source'][1])
 
         else:

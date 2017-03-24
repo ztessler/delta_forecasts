@@ -188,45 +188,56 @@ def compute_res_potential(env, source, target):
     return 0
 
 
-                # env.Command(
-                        # source=[config['reservoir_rast'].format(ver='', ext='tif'),
-                                # config['basins_rast'].format(ver='', ext='tif'),
-                                # config['basin_ids']],
-                        # target=config['res_target_size_distribution'],
-                        # action=ps.estimate_reservoir_size_distribution,
-                        # ref_basin=config['reservoir_adj_source'][1])
-def estimate_reservoir_size_distribution(env, source, target):
+# def compute_basin_res_utilization(env, source, target):
+    # with rasterio.open(str(source[0]), 'r') as rast:
+        # res = rast.read(1)
+    # with rasterio.open(str(source[1]), 'r') as rast:
+        # basins = rast.read(1)
+    # basinids = pandas.read_pickle(str(source[2]))
+    # potential = pandas.read_pickle(str(source[3]))
+
+    # basin_resvol = pandas.Series(index=basinids.index)
+    # for (delta, basinid) in basinids.index:
+        # basin_resvol[(delta, basinid)] = res[basins==basinid].sum()
+
+    # utilization = basin_resvol / potential
+    # utilization.to_pickle(str(target[0]))
+    # return 0
+
+
+def scale_reservoirs_by_utilization(env, source, target):
     with rasterio.open(str(source[0]), 'r') as rast:
-        reservoirs = rast.read(1)
+        res = rast.read(1)
+        meta = rast.meta
+        meta['transform'] = meta['affine']
     with rasterio.open(str(source[1]), 'r') as rast:
         basins = rast.read(1)
-    basinids = pandas.read_pickle(str(source[2]))
+    potential = pandas.read_pickle(str(source[2]))
     ref_basin = env['ref_basin']
+    ref_basinid = potential.loc[ref_basin].index.sort_values(ascending=True)[0]
 
-    # discharge_classes = ((10000, np.inf), (1000, 10000), (100, 1000), (10, 100), (0, 10))
-    ref_basin_sizes = []
-    for basinid in basinids.loc[ref_basin].index:
-        ref_basin_sizes.append(reservoirs[np.logical_and(basins==basinid, reservoirs>0)].tolist())
+    basin_resvol = pandas.Series(index=potential.index)
+    for (delta, basinid) in potential.index:
+        basin_resvol[(delta, basinid)] = res[basins==basinid].sum()
+    utilization = basin_resvol / potential
+    ref_utilization = utilization[(ref_basin, ref_basinid)]
 
-    with open(str(target[0]), 'wb') as fout:
-        pickle.dump(ref_basin_sizes, fout)
+    res_adj = np.zeros_like(res)
+    for (delta, basinid) in potential.index:
+        basin_utilization = utilization[(delta, basinid)]
+        if basin_utilization > 0:
+            scaling = ref_utilization / basin_utilization
+            res_adj[basins==basinid] = res[basins==basinid] * scaling
+        else:
+            # no reservoirs in this basin. add a single one of necessary size to some point in basin
+            # other points already zero
+            y, x = zip(*np.where(basins==basinid))[0]
+            res_adj[y, x] = ref_utilization * potential[(delta, basinid)]
+
+    utilization.to_pickle(str(target[0]))
+    with rasterio.open(str(target[1]), 'w', **meta) as fout:
+        fout.write(res_adj, 1)
     return 0
-
-
-
-
-                # env.Command(
-                        # source=[config['reservoir_rast'].format(ver='', ext='tif'),
-                                # config['res_potential']],
-                        # target=config['reservoir_adj'].format(ver='', ext='pd'),
-                        # action=ps.scale_reservoirs_by_basin_utilization,
-                        # ref_basin=config['reservoir_adj_source'][1])
-def scale_reservoirs_by_basin_utilization(env, source, target):
-    with rasterio.open(str(source[0]), 'r') as rast:
-        basins = rast.read(1)
-    potential = pandas.read_pickle(str(source[1]))
-    ref_basin = env['ref_basin']
-
 
 
 def compute_Eh(env, target, source):
