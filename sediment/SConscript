@@ -161,7 +161,7 @@ for expA in experiments.keys():
             target=experiments[expA]['rslr_timeseries_plot'].format(scenarios=scenarios, expA=expA, expB=expB, ext='png'),
             action=[ps.plot_rslr_timeseries,
                     'convert -trim $TARGET $TARGET'],
-            scenarios=[experiments[expB]['name'], experiments[expA]['name']],
+            scenarios=[experiments[expA]['name'], experiments[expB]['name']],
             deltas=plot_deltas,
             slr_cur=experiments['contemp']['eustatic_slr'],
             slr_2100_RCP2p6=experiments['contemp']['slr_rate_2100_RCP2.6'],
