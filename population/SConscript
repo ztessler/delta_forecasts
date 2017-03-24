@@ -42,7 +42,8 @@ for experiment, config in experiments.iteritems():
             env.Command(
                     source=config['delta_pop_hypso'].format(delta=delta),
                     target=config['hypso_plot'].format(delta=delta),
-                    action=pp.plot_hypsometric,
+                    action=[pp.plot_hypsometric,
+                            'convert -trim $TARGET $TARGET'],
                     delta=delta)
 
         env.Command(
