@@ -285,9 +285,11 @@ def plot_delta_scalars(env, target, source):
     ylabel = env['ylabel']
     xlabel = env['xlabel']
     title = env['title']
-    logy = env.get('logy', False)
+    yscale = env.get('yscale', ('linear', {}))
     exp_num = env.get('exp_num', None) # for color cycle control
     nsources = env['nsources']
+    ylims = env.get('ylims', None)
+    annot = env.get('annot', False)
 
     qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
     if nsources > 1:
@@ -301,11 +303,24 @@ def plot_delta_scalars(env, target, source):
     df = df.drop('Congo')
 
     f, a = plt.subplots(1, 1, figsize=(16,8))
+    a.set_yscale(yscale[0], **yscale[1])
     if exp_num is None:
-        df.plot(kind='bar', logy=logy, ax=a)
+        df.plot(kind='bar', ax=a)
     else:
         color = next(itertools.islice(iter(mpl.rcParams['axes.prop_cycle']), exp_num, exp_num+1))['color']
-        df.plot(kind='bar', logy=logy, ax=a, color=color)
+        df.plot(kind='bar', ax=a, color=color)
+
+    if annot:
+        for p, yval in zip(a.patches, df.values.flatten('F')): # flatten in Fortran order to patch patches list, which goes over each data series first
+            a.annotate(s='{:0.1f}'.format(yval),
+                       xy=(p.get_x(), p.get_height()),
+                       xytext=(p.get_x()+p.get_width()/2., p.get_height()),
+                       textcoords='data',
+                       ha='center', va='bottom',
+                       fontsize='small',
+                       )
+    if ylims is not None:
+        a.set_ylim(*ylims)
 
     a.set_ylabel(ylabel)
     a.set_xlabel(xlabel)

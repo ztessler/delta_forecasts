@@ -46,6 +46,14 @@ for experiment in ['pristine', 'retention-high']:
             target=config['natural_subsidence_all_retention'],
             action=ps.retention_merge_to_df)
 
+    if experiment == 'pristine':
+        yscale = ('symlog', {'linthreshy': 1, 'linscaley': 0.5})
+        ylims = [-.3, 60]
+        annot = True
+    else:
+        yscale = ('linear', {})
+        ylims = None
+        annot = False
     myCommand(
             source=config['natural_subsidence'],
             target=config['natural_subsidence_plot'],
@@ -54,7 +62,10 @@ for experiment in ['pristine', 'retention-high']:
             scenarios=[config['name']],
             ylabel='Subsidence rate, mm/yr',
             xlabel='Delta',
-            title='Estimated natural subsidence rates',
+            title='Steady-state natural subsidence rates',
+            ylims=ylims,
+            yscale=yscale,
+            annot=annot,
             )
 
 
@@ -252,7 +263,6 @@ for experiment, config in experiments.iteritems():
             ylabel='RSLR, mm/yr',
             xlabel='Delta',
             title='Relative Sea-Level Rise Rate',
-            logy=False,
             )
 
     if experiment != 'pristine':
@@ -281,7 +291,6 @@ for expA in experiments.keys():
                     ylabel='RSLR, mm/yr',
                     xlabel='Delta',
                     title='RSLR scenario differences',
-                    logy=False,
                     exp_num=expi, # for color cycle control
                     )
             continue
@@ -295,7 +304,6 @@ for expA in experiments.keys():
                 ylabel='RSLR, mm/yr',
                 xlabel='Delta',
                 title='RSLR scenario differences',
-                logy=False,
                 )
 
         myCommand(

@@ -116,7 +116,6 @@ for experiment, config in experiments.iteritems():
             ylabel='Sediment flux, kg/s',
             xlabel='Delta',
             title='Sediment flux',
-            logy=False,
             )
 
 for expA in experiments.keys():
@@ -132,7 +131,7 @@ for expA in experiments.keys():
                 ylabel='Sediment flux, kg/s',
                 xlabel='Delta',
                 title='Sediment flux scenario differences',
-                logy=True,
+                yscale=('log', {})
                 )
 
         myCommand(
