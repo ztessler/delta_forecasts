@@ -375,7 +375,7 @@ def plot_delta_scalars_lit(env, target, source):
         xs = pandas.Series([p.get_x()+p.get_width()/2. for p in a.patches], index=df.index)
     lit_vals['x'] = xs
     lit_vals['err'] = lit_vals['max'] - lit_vals['mean']
-    a.errorbar(lit_vals['x'], lit_vals['mean'], yerr=lit_vals['err'], ecolor='k', lw=2, capthick=2, fmt='none', alpha=.7)
+    a.errorbar(lit_vals['x'], lit_vals['mean'], yerr=lit_vals['err'], ecolor='k', lw=1.5, capthick=3, fmt='none', alpha=.7)
 
     if annot:
         for p, yval in zip(a.patches, df.values.flatten('F')): # flatten in Fortran order to patch patches list, which goes over each data series first
