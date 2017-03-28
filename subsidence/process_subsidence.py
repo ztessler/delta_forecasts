@@ -31,7 +31,7 @@ def import_rslr_lit(env, target, source):
     deltas = pandas.read_pickle(str(source[0]))
     mean_weighting = env['mean_weighting']
 
-    data = pandas.DataFrame({'mean':[], 'std':[]}, dtype='float')
+    data = pandas.DataFrame({'mean':[], 'std':[], 'min':[], 'max':[]}, dtype='float')
     ranges = defaultdict(list)
     with open(str(source[1])) as f:
         reader = csv.DictReader(f)
@@ -54,6 +54,8 @@ def import_rslr_lit(env, target, source):
             data.loc[delta, 'std'] = np.nanstd(rslrs, ddof=1)
         else:
             data.loc[delta, 'std'] = np.nan
+        data.loc[delta, 'min'] = np.min(rslrs)
+        data.loc[delta, 'max'] = np.max(rslrs)
     # if only a single estimate, set standard deviation to the estimated rslr
     data.loc[data['std'].isnull(), 'std'] = data.loc[data['std'].isnull(), 'mean'] #data.mean()['std']
     data.to_pickle(str(target[0]))

@@ -328,7 +328,87 @@ def plot_delta_scalars(env, target, source):
     plt.tight_layout()
     f.savefig(str(target[0]))
     plt.close(f)
+    return 0
 
+
+def plot_delta_scalars_lit(env, target, source):
+    mpl.style.use('ggplot')
+    scenarios = env.get('scenarios', None)
+    if not isinstance(scenarios, list):
+        scenarios = [scenarios]
+    ylabel = env['ylabel']
+    xlabel = env['xlabel']
+    title = env['title']
+    yscale = env.get('yscale', ('linear', {}))
+    exp_num = env.get('exp_num', None) # for color cycle control
+    nsources = env['nsources']
+    ylims = env.get('ylims', None)
+    annot = env.get('annot', False)
+
+    lit_vals = pandas.read_pickle(str(source[nsources-1]))
+    qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
+    if nsources > 2:
+        qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
+        df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
+                columns=[scenarios[0], scenarios[1]])
+    else:
+        df = pandas.DataFrame({scenarios[0]:qs0},
+                columns=[scenarios[0]])
+    df = df.sort_values(by=scenarios[0], ascending=False)
+    df = df.drop('Congo')
+
+    f, a = plt.subplots(1, 1, figsize=(16,8))
+    a.set_yscale(yscale[0], **yscale[1])
+    if exp_num is None:
+        df.plot(kind='bar', ax=a, legend=False)
+    else:
+        color = next(itertools.islice(iter(mpl.rcParams['axes.prop_cycle']), exp_num, exp_num+1))['color']
+        df.plot(kind='bar', ax=a, color=color, legend=False)
+
+    if ylims is None:
+        ylims = a.get_ylim()
+
+    if nsources > 2:
+        barwidths = a.patches[0].get_width() * (nsources - 1)
+        xs = pandas.Series([p.get_x() + barwidths/2. for p in a.patches[:df.shape[0]]], index=df.index)
+    else:
+        xs = pandas.Series([p.get_x()+p.get_width()/2. for p in a.patches], index=df.index)
+    lit_vals['x'] = xs
+    lit_vals['err'] = lit_vals['max'] - lit_vals['mean']
+    a.errorbar(lit_vals['x'], lit_vals['mean'], yerr=lit_vals['err'], ecolor='k', lw=2, capthick=2, fmt='none')
+
+    if annot:
+        for p, yval in zip(a.patches, df.values.flatten('F')): # flatten in Fortran order to patch patches list, which goes over each data series first
+            a.annotate(s='{:0.1f}'.format(yval),
+                       xy=(p.get_x(), p.get_height()),
+                       xytext=(p.get_x()+p.get_width()/2., p.get_height()),
+                       textcoords='data',
+                       ha='center', va='bottom',
+                       fontsize='small',
+                       )
+
+    a.set_ylim(*ylims)
+    for delta, lit_val in lit_vals.iterrows():
+        if lit_val['max'] > ylims[1]:
+            a.annotate(s='({:0.0f})'.format(lit_val['max']),
+                       xy=(lit_val['x'], ylims[1]),
+                       xytext=(5, 5),
+                       textcoords='offset points',
+                       ha='left', va='bottom',
+                       fontsize='small',
+                       )
+
+    patches, labels = a.get_legend_handles_labels()
+    patches = patches[:-1] # remove errorbars from legend
+    labels = labels[:-1]
+    a.legend(patches, labels, loc='best', framealpha=.5)
+
+    a.set_ylabel(ylabel)
+    a.set_xlabel(xlabel)
+    a.set_title(title)
+    plt.tight_layout()
+    f.savefig(str(target[0]))
+    plt.close(f)
     return 0
 
 

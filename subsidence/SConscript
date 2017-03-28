@@ -264,6 +264,17 @@ for experiment, config in experiments.iteritems():
             xlabel='Delta',
             title='Relative Sea-Level Rise Rate',
             )
+    myCommand(
+            source=[config['rslr'],
+                    config['rslr_lit']],
+            target=config['rslr_plot_lit'].format(ext='png'),
+            action=[psed.plot_delta_scalars_lit,
+                    'convert -trim $TARGET $TARGET'],
+            scenarios=config['name'],
+            ylabel='RSLR, mm/yr',
+            xlabel='Delta',
+            title='Relative Sea-Level Rise Rate',
+            )
 
     if experiment != 'pristine':
         myCommand(
@@ -293,12 +304,36 @@ for expA in experiments.keys():
                     title='RSLR scenario differences',
                     exp_num=expi, # for color cycle control
                     )
+            myCommand(
+                    source=[experiments[exp]['rslr'],
+                            experiments[exp]['rslr_lit']],
+                    target=experiments[exp]['rslr_comparison_plot_lit'].format(scenarios=scenarios, ext='png'),
+                    action=[psed.plot_delta_scalars_lit,
+                            'convert -trim $TARGET $TARGET'],
+                    scenarios=[experiments[exp]['name']],
+                    ylabel='RSLR, mm/yr',
+                    xlabel='Delta',
+                    title='RSLR scenario differences',
+                    exp_num=expi, # for color cycle control
+                    )
             continue
         myCommand(
                 source=[experiments[expA]['rslr'],
                         experiments[expB]['rslr']],
                 target=experiments[expA]['rslr_comparison_plot'].format(scenarios=scenarios, ext='png'),
                 action=[psed.plot_delta_scalars,
+                        'convert -trim $TARGET $TARGET'],
+                scenarios=[experiments[expA]['name'], experiments[expB]['name']],
+                ylabel='RSLR, mm/yr',
+                xlabel='Delta',
+                title='RSLR scenario differences',
+                )
+        myCommand(
+                source=[experiments[expA]['rslr'],
+                        experiments[expB]['rslr'],
+                        experiments[expA]['rslr_lit']],
+                target=experiments[expA]['rslr_comparison_plot_lit'].format(scenarios=scenarios, ext='png'),
+                action=[psed.plot_delta_scalars_lit,
                         'convert -trim $TARGET $TARGET'],
                 scenarios=[experiments[expA]['name'], experiments[expB]['name']],
                 ylabel='RSLR, mm/yr',

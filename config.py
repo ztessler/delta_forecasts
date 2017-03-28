@@ -257,7 +257,9 @@ defaults = {
         'sed_flux_comparison_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_{scenarios}.{ext}',
         'sed_flux_change_plot': '#figures/joint/{scenarios}/sed_flux/sed_flux_change_{expA}_to_{expB}.{ext}',
         'rslr_plot': '#figures/{exp}/rslr_{exp}.{ext}',
+        'rslr_plot_lit': '#figures/{exp}/rslr_{exp}_lit.{ext}',
         'rslr_comparison_plot': '#figures/joint/{scenarios}/rslr/rslr_{scenarios}.{ext}',
+        'rslr_comparison_plot_lit': '#figures/joint/{scenarios}/rslr/rslr_{scenarios}_lit.{ext}',
         'rslr_change_plot': '#figures/joint/{scenarios}/rslr/rslr_change_{expA}_to_{expB}.{ext}',
 
         'vuln_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
