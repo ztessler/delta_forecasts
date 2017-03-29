@@ -486,6 +486,8 @@ def plot_rslr_timeseries(env, source, target):
             ax.set_title(delta)
             ax.set_ylabel('Relative sea-level rise, (m)', fontsize='small')
 
+            # print delta, j, rslr_const[2100], rslr_2p6[2100], rslr_8p5[2100]
+
         ax.plot([], [], color='.5', lw=2, linestyle=linestyle['const'], label='Const SLR')
         ax.plot([], [], color='.5', lw=2, linestyle=linestyle['2p6'], label='RCP 2.6 SLR')
         ax.plot([], [], color='.5', lw=2, linestyle=linestyle['8p5'], label='RCP 8.5 SLR')
