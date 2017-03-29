@@ -28,7 +28,8 @@ for experiment, config in experiments.iteritems():
                     config['rslr'],
                     config['econ_vuln']],
             target=config['risk_quadrants_plot_snapshot'],
-            action=pr.plot_risk_quadrants,
+            action=[pr.plot_risk_quadrants,
+                    'convert -trim $TARGET $TARGET'],
             hazard_name='Discharge',
             exposure_name='RSLR',
             vuln_name='Economic Capacity',
@@ -42,7 +43,8 @@ for experiment, config in experiments.iteritems():
         myCommand(
                 source=config['surge_annual_exposure'],
                 target=config['surge_annual_exposure_plot'].format(delta=delta, ext='png'),
-                action=pr.plot_surge_annual_exposure,
+                action=[pr.plot_surge_annual_exposure,
+                        'convert -trim $TARGET $TARGET'],
                 delta=delta,
                 exp=config['name'])
 
@@ -61,13 +63,15 @@ for expA in experiments.keys():
                         experiments[expB]['surge_annual_exposure'],
                         config['surge_annual_exposure_ranges']],
                 target=config['surge_annual_exposure_comparison_multidelta_plot'].format(scenarios=scenarios, ext='png'),
-                action=pr.plot_surge_annual_exposure_multiscenario_multidelta,
+                action=[pr.plot_surge_annual_exposure_multiscenario_multidelta,
+                        'convert -trim $TARGET $TARGET'],
                 scenarios=[experiments[expA]['name'], experiments[expB]['name']])
         for delta in common['deltas']:
             myCommand(
                     source=[experiments[expA]['surge_annual_exposure'],
                             experiments[expB]['surge_annual_exposure']],
                     target=config['surge_annual_exposure_comparison_plot'].format(delta=delta, scenarios=scenarios, ext='png'),
-                    action=pr.plot_surge_annual_exposure_multiscenario,
+                    action=[pr.plot_surge_annual_exposure_multiscenario,
+                            'convert -trim $TARGET $TARGET'],
                     delta=delta,
                     scenarios=[experiments[expA]['name'], experiments[expB]['name']])
