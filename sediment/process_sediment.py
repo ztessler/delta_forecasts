@@ -6,6 +6,7 @@ import pandas
 import rasterio
 import fiona
 import pint
+from collections import OrderedDict
 
 
 def rasterize_grand_dams(env, target, source):
@@ -291,14 +292,10 @@ def plot_delta_scalars(env, target, source):
     ylims = env.get('ylims', None)
     annot = env.get('annot', False)
 
-    qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
-    if nsources > 1:
-        qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
-        df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
-                columns=[scenarios[0], scenarios[1]])
-    else:
-        df = pandas.DataFrame({scenarios[0]:qs0},
-                columns=[scenarios[0]])
+    qs = OrderedDict()
+    for i in range(nsources):
+        qs[scenarios[i]] = pandas.read_pickle(str(source[i])).groupby(level='Delta').sum()
+    df = pandas.DataFrame(qs, columns=qs.keys())
     df = df.sort_values(by=scenarios[0], ascending=False)
     df = df.drop('Congo')
 
@@ -346,14 +343,10 @@ def plot_delta_scalars_lit(env, target, source):
     annot = env.get('annot', False)
 
     lit_vals = pandas.read_pickle(str(source[nsources-1]))
-    qs0 = pandas.read_pickle(str(source[0])).groupby(level='Delta').sum()
-    if nsources > 2:
-        qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
-        df = pandas.DataFrame({scenarios[0]:qs0, scenarios[1]:qs1},
-                columns=[scenarios[0], scenarios[1]])
-    else:
-        df = pandas.DataFrame({scenarios[0]:qs0},
-                columns=[scenarios[0]])
+    qs = OrderedDict()
+    for i in range(nsources-1):
+        qs[scenarios[i]] = pandas.read_pickle(str(source[i])).groupby(level='Delta').sum()
+    df = pandas.DataFrame(qs, columns=qs.keys())
     df = df.sort_values(by=scenarios[0], ascending=False)
     df = df.drop('Congo')
 
@@ -375,7 +368,7 @@ def plot_delta_scalars_lit(env, target, source):
         xs = pandas.Series([p.get_x()+p.get_width()/2. for p in a.patches], index=df.index)
     lit_vals['x'] = xs
     lit_vals['err'] = lit_vals['max'] - lit_vals['mean']
-    a.errorbar(lit_vals['x'], lit_vals['mean'], yerr=lit_vals['err'], ecolor='k', lw=1.5, capthick=3, fmt='none', alpha=.7)
+    a.errorbar(lit_vals['x'], lit_vals['mean'], yerr=lit_vals['err'], ecolor='k', lw=1, capthick=3, fmt='none', alpha=.7)
 
     if annot:
         for p, yval in zip(a.patches, df.values.flatten('F')): # flatten in Fortran order to patch patches list, which goes over each data series first
