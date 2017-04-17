@@ -94,7 +94,9 @@ defaults = {
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
 
         'basin_res_potential': '#data/experiments/{exp}/res_potential.pd',
+        'basin_res_potential_rast': '#data/experiments/{exp}/res_potential.tif',
         'basin_res_utilization': '#data/experiments/{exp}/res_utilization.pd',
+        'basin_res_util_map': '#figures/{exp}/res_utilization_map.{ext}',
 
         'zeros_rast': '#data/zeros.tif',
         'zeros30_rast': '#data/zeros30.tif',
@@ -222,6 +224,7 @@ defaults = {
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te': '#data/experiments/{exp}/bqart_Te.pd',
+        'Te_per_res': '#data/experiments/{exp}/bqart_Te_per_res.pd',
         'Eh': '#data/experiments/{exp}/bqart_Eh.pd',
         'B': '#data/experiments/{exp}/bqart_B.pd',
         'Qs': '#data/experiments/{exp}/bqart_Qs.pd',

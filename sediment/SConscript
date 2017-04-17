@@ -55,7 +55,8 @@ for experiment, config in experiments.iteritems():
                                 config['relief_rast'].format(ver='', ext='tif'),
                                 config['runoff_rast'].format(ver='', ext='tif'),
                                 config['basin_ids']],
-                        target=config['basin_res_potential'],
+                        target=[config['basin_res_potential'],
+                                config['basin_res_potential_rast']],
                         action=ps.compute_res_potential)
 
                 env.Command(
@@ -68,6 +69,14 @@ for experiment, config in experiments.iteritems():
                         action=ps.scale_reservoirs_by_utilization,
                         ref_basin=config['reservoir_adj_source'][1])
 
+                env.Command(
+                        source=[config['basin_res_potential'],
+                                config['basin_res_utilization'],
+                                config['basin_res_potential_rast'],
+                                config['basins_rast'].format(ver='', ext='tif')],
+                        target=config['basin_res_util_map'].format(ext='png'),
+                        action=ps.make_res_maps)
+
         else:
             res_rast = config['reservoir_rast'].format(ver='', ext='tif')
 
@@ -78,6 +87,17 @@ for experiment, config in experiments.iteritems():
                         config['basin_ids']],
                 target=config['Te'],
                 action=ps.res_trapping)
+
+        ###
+        if experiment == 'rgis-reservoirs':
+            env.Command(
+                    source=[res_rast,
+                            config['discharge_rast'].format(ver='', ext='tif'),
+                            config['basins_rast'].format(ver='', ext='tif'),
+                            config['basin_ids']],
+                    target=config['Te_per_res'],
+                    action=ps.res_trapping_per_res)
+        ###
 
         env.Command(
                 source=[config['per_capita_gdp'].format(ver='', ext='pd'),

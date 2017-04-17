@@ -1,11 +1,14 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import itertools
 import pandas
 import rasterio
 import fiona
 import pint
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 from collections import OrderedDict
 
 
@@ -65,11 +68,41 @@ def res_trapping(env, target, source):
     return 0
 
 
-                # env.Command(
-                        # source=[config['reservoir_adj_source'][1],
-                                # config['delta_zeros']],
-                        # target=config['reservoir_adj'].format(ver='', ext='pd'),
-                        # action=ps.parse_zarfl_xls)
+def res_trapping_per_res(env, target, source):
+    import ipdb;ipdb.set_trace()
+    # NOTE think about how to handle unregulated portions of basin. if just one small upstream dam on tiny river, Te for that res would be high, and weighted average would be high, but total Te should be low.
+        reslocs = np.logical_and(basins == basin_id, resvol>0)
+    utilization = 0.67
+    with rasterio.open(str(source[0]), 'r') as resrast,\
+             rasterio.open(str(source[1]), 'r') as disrast,\
+             rasterio.open(str(source[2]), 'r') as basinrast:
+        kwargs = resrast.meta.copy()
+        resvol = resrast.read(1, masked=True) * utilization * (1000**3) # convert km**3 to m**3
+        dis = disrast.read(1, masked=True)  # m**3 / s
+        basins = basinrast.read(1, masked=True)
+    resvol.mask[resvol==0] = True
+    basin_ids = pandas.read_pickle(str(source[3]))
+
+    Te = pandas.Series(0.0, index=basin_ids.index)
+    for delta, basin_id in basin_ids.index:
+        # if basin_id == 3:
+            # import ipdb;ipdb.set_trace()
+        reslocs = np.logical_and(basins == basin_id, resvol>0)
+        resvols = resvol[reslocs]
+        resdis = dis[reslocs]
+        te_disweightedsum = 0
+        dissum = 0
+        for v, d in zip(resvols, resdis):
+            dt = v/d / (60*60*24*365)
+            te = 1 - (0.05 / np.sqrt(dt))
+            te_disweightedsum += (te * d)
+            dissum += d
+        if dissum > 0:
+            Te[(delta, basin_id)] = te_disweightedsum / dissum
+    Te.to_pickle(str(target[0]))
+    return 0
+
+
 def parse_zarfl_xls(env, target, source):
     zarfl = pandas.read_excel(str(source[0]), sheetname='Table S7').iloc[:, 1:]
     deltas = pandas.read_pickle(str(source[1]))
@@ -171,12 +204,15 @@ def add_new_reservoirs(env, target, source):
 def compute_res_potential(env, source, target):
     with rasterio.open(str(source[0]), 'r') as rast:
         basins = rast.read(1)
+        meta = rast.meta
+        meta['transform'] = meta['affine']
     with rasterio.open(str(source[1]), 'r') as rast:
         relief = rast.read(1)
     with rasterio.open(str(source[2]), 'r') as rast:
         runoff = rast.read(1)
     basinids = pandas.read_pickle(str(source[3]))
 
+    invalid = np.logical_or(relief<0, runoff<np.percentile(runoff[runoff>0], 30.))
     relief[relief < 0] = 0
     runoff[runoff < 0] = 0
     potential = relief * runoff
@@ -186,6 +222,10 @@ def compute_res_potential(env, source, target):
         basin_potential[(delta, basinid)] = potential[basins==basinid].sum()
 
     basin_potential.to_pickle(str(target[0]))
+
+    potential[invalid] = meta['nodata']
+    with rasterio.open(str(target[1]), 'w', **meta) as tif:
+        tif.write(potential, 1)
     return 0
 
 
@@ -238,6 +278,65 @@ def scale_reservoirs_by_utilization(env, source, target):
     utilization.to_pickle(str(target[0]))
     with rasterio.open(str(target[1]), 'w', **meta) as fout:
         fout.write(res_adj, 1)
+    return 0
+
+
+def make_res_maps(env, source, target):
+    potential = pandas.read_pickle(str(source[0]))
+    utilization = pandas.read_pickle(str(source[1]))
+    potential = potential.drop('Congo')
+    utilization = utilization.drop('Congo')
+    with rasterio.open(str(source[2]), 'r') as rast:
+        pot_rast = rast.read(1, masked=True)
+    with rasterio.open(str(source[3]), 'r') as rast:
+        basins = rast.read(1, masked=True)
+        x1, y1, x2, y2 = rast.window_bounds(((0, rast.height), (0, rast.width)))
+        extent = [x1, x2, y1, y2]
+
+    pot_basin_rast = np.zeros_like(basins)
+    util_basin_rast = np.zeros_like(basins)
+
+    # potential = potential.groupby(level='Delta').transform(np.sum)
+    for (delta, basinid) in potential.index:
+        # if (basins==basinid).sum() > 20:
+        pot_basin_rast[basins==basinid] = np.log10(potential[(delta, basinid)])
+        util_basin_rast[basins==basinid] = np.log10(utilization[(delta, basinid)])
+    pot_basin_rast[pot_basin_rast==0] = np.nan
+    pot_basin_rast[~np.isfinite(pot_basin_rast)] = np.nan
+    util_basin_rast[util_basin_rast==0] = np.nan
+    util_basin_rast[~np.isfinite(util_basin_rast)] = np.nan
+
+    pc = ccrs.PlateCarree()
+    fig, (a1, a2) = plt.subplots(1, 2,
+                            subplot_kw={'projection': pc},
+                            figsize=(10,3))
+
+    cm = mpl.cm.plasma
+
+    # a0.coastlines(lw=.5)
+    # a0.add_feature(cfeature.OCEAN, facecolor='0.8', edgecolor='0.8')
+    # im = a0.imshow(np.log10(pot_rast), origin='upper', extent=extent, transform=pc, cmap=cm)
+    # fig.colorbar(im, ax=a0)
+    # a0.set_title('Hydropower Potential')
+
+    # a1.coastlines(lw=.5)
+    a1.add_feature(cfeature.OCEAN, facecolor='0.8', edgecolor='0.8')
+    im = a1.imshow(pot_basin_rast, origin='upper', extent=extent, transform=pc, cmap=cm)
+    divider = make_axes_locatable(a1)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    fig.colorbar(im, cax=cax)
+    a1.set_title('Basin Hydropower Potential')
+
+    # a2.coastlines(lw=.5)
+    a2.add_feature(cfeature.OCEAN, facecolor='0.8', edgecolor='0.8')
+    im = a2.imshow(util_basin_rast, origin='upper', extent=extent, transform=pc, cmap=cm)
+    divider = make_axes_locatable(a2)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    fig.colorbar(im, cax=cax)
+    a2.set_title('Contemporary Utilization')
+
+    fig.tight_layout()
+    fig.savefig(str(target[0]))
     return 0
 
 
