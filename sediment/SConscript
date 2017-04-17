@@ -15,7 +15,7 @@ Import('*')
 for experiment, config in experiments.iteritems():
 
 
-    if experiment not in ['pristine', 'pristine-progradation']:
+    if experiment not in ['pristine', 'pristine-progradation', 'pristine-const-nat-sub']:
         if config['reservoir_source'][0] == 'grand':
             env.Command(
                     source=[config['reservoir_source'][1],
