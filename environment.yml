@@ -1,29 +1,37 @@
 name: geopy27
+channels: !!python/tuple
+- conda-forge
+- defaults
 dependencies:
 - affine=1.2.0=py27_0
 - anaconda-client=1.2.2=py27_0
 - appnope=0.1.0=py27_0
 - argcomplete=1.0.0=py27_1
 - backports_abc=0.4=py27_0
+- beautifulsoup4=4.5.1=py27_0
 - click=4.1=py27_0
-- click-plugins=1.0.3=py27_0
-- cligj=0.4.0=py27_0
 - clyent=1.2.0=py27_0
+- conda-forge::backports.shutil_get_terminal_size=1.0.0=py27_1
+- conda-forge::genshi=0.7=py27_0
+- conda-forge::httplib2=0.9.2=py27_0
+- conda-forge::ipython=5.3.0=py27_0
+- conda-forge::pandas=0.19.2=np110py27_1
+- conda-forge::paste=2.0.3=py27_0
+- conda-forge::pastescript=2.0.2=py27_0
+- conda-forge::pathlib2=2.2.1=py27_0
+- conda-forge::prompt_toolkit=1.0.14=py27_0
+- conda-forge::pydap=3.1.1=py27_0
+- conda-forge::scandir=1.5=py27_1
+- conda-forge::wcwidth=0.1.7=py27_0
 - curl=7.45.0=0
 - cycler=0.9.0=py27_0
 - cython=0.23.4=py27_1
 - decorator=4.0.6=py27_0
-- descartes=1.0.1=py27_0
 - enum34=1.1.2=py27_0
-- fiona=1.6.3=py27_0
 - freetype=2.5.5=0
-- gdal=1.11.3=py27_0
-- geopandas=0.1.1=py27_0
-- geos=3.4.2=4
 - hdf4=4.2.11=0
 - hdf5=1.8.15.1=2
 - ipykernel=4.2.2=py27_0
-- ipython=4.0.3=py27_0
 - ipython_genutils=0.1.0=py27_0
 - ipywidgets=4.1.1=py27_0
 - jinja2=2.8=py27_0
@@ -46,13 +54,12 @@ dependencies:
 - notebook=4.1.0=py27_0
 - numpy=1.10.4=py27_0
 - openssl=1.0.2d=0
-- pandas=0.17.1=np110py27_0
+- pastedeploy=1.5.2=py27_1
 - path.py=8.1.2=py27_1
 - patsy=0.4.1=py27_0
 - pexpect=3.3=py27_0
 - pickleshare=0.5=py27_0
 - pip=8.1.1=py27_1
-- proj.4=4.9.1=1
 - ptyprocess=0.5=py27_0
 - pygments=2.1=py27_0
 - pyparsing=2.0.3=py27_0
@@ -66,14 +73,13 @@ dependencies:
 - pyzmq=15.2.0=py27_0
 - qt=4.8.7=1
 - qtconsole=4.1.1=py27_0
-- rasterio=0.31.0=py27_0
-- rasterstats=0.10.0=py27_0
 - readline=6.2=2
 - requests=2.9.1=py27_0
 - scipy=0.16.1=np110py27_0
-- scons=2.4.1=py27_0
+- scitools::geos=3.4.2=4
+- scitools::proj.4=4.9.1=1
+- scitools::shapely=1.5.13=np110py27_1
 - setuptools=19.6.2=py27_0
-- shapely=1.5.13=np110py27_1
 - simplegeneric=0.8.1=py27_0
 - singledispatch=3.4.0.3=py27_0
 - sip=4.16.9=py27_0
@@ -90,8 +96,18 @@ dependencies:
 - xlrd=0.9.4=py27_0
 - yaml=0.1.6=0
 - zlib=1.2.8=0
+- ztessler::click-plugins=1.0.3=py27_0
+- ztessler::cligj=0.4.0=py27_0
+- ztessler::descartes=1.0.1=py27_0
+- ztessler::fiona=1.6.3=py27_0
+- ztessler::gdal=1.11.3=py27_0
+- ztessler::geopandas=0.1.1=py27_0
+- ztessler::rasterio=0.31.0=py27_0
+- ztessler::rasterstats=0.10.0=py27_0
+- ztessler::scons=2.4.1=py27_0
 - pip:
   - backports-abc==0.4
+  - backports.shutil-get-terminal-size==1.0.0
   - backports.ssl-match-hostname==3.4.0.2
   - cartopy (/Users/ztessler/src/cartopy/lib)==0.14.dev0
   - ipdb==0.8.1
@@ -100,6 +116,8 @@ dependencies:
   - jupyter-console==4.1.0
   - jupyter-core==4.0.6
   - pint==0.7.1
+  - prompt-toolkit==1.0.14
   - pyinterval==1.0.0
   - pyshp==1.2.3
+prefix: /Users/ztessler/miniconda3/envs/geopy27
 
