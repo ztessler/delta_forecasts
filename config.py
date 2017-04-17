@@ -290,8 +290,10 @@ defaults = {
         'slr_rate_2100_RCP6.0': 7.4,
         'slr_rate_2100_RCP8.5': 11.2,
 
+        'rslr_plot_contemp_USres_lowretention_lit': '#figures/contemp/rslr_contemp_USres_lowretention_lit.png',
+
         'name': 'Contemporary',
-        'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'US-reservoir-utilization', 'retention-low', 'retention-high'],
+        'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'US-reservoir-utilization', 'retention-low', 'retention-high', 'USresutil-and-retentionlow'],
         }
 
 experiments = {
@@ -324,7 +326,7 @@ experiments = {
             },
         'US-reservoir-utilization': {
             'parent': 'contemp',
-            'name': 'Reservoir Growth (to match Mississippi River utilization)',
+            'name': 'Reservoir Growth (high utilization)',
             'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
             },
         'rgis-reservoirs': {
@@ -360,6 +362,15 @@ experiments = {
             'retention_frac_low': .65,
             'retention_frac': .80,
             'retention_frac_high': .95,
+            },
+        'USresutil-and-retentionlow': {
+            'parent': 'contemp',
+            'name': 'Reservoir Growth and Low Sediment Retention',
+            'compare_with': ['US-reservoir-utilization', 'retention-high'],
+            'retention_frac_low': .05,
+            'retention_frac': .20,
+            'retention_frac_high': .35,
+            'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
             },
         }
 
