@@ -298,6 +298,15 @@ defaults = {
 
 experiments = {
         'contemp': defaults,
+        'contemp_prograde': {
+            'parent': 'contemp',
+            'name': 'Contemporary with progradation',
+            'natural_subsidence_low_retention': '#data/experiments/pristine-progradation/natural_subsidence_low.pd',
+            'natural_subsidence': '#data/experiments/pristine-progradation/natural_subsidence.pd',
+            'natural_subsidence_high_retention': '#data/experiments/pristine-progradation/natural_subsidence_high.pd',
+            'natural_subsidence_all_retention': '#data/experiments/pristine-progradation/natural_subsidence_all.pd',
+            'natural_subsidence_plot': '#figures/pristine-progradation/natural_subsidence.png',
+            },
         'pristine': {
             'parent': 'contemp',
             'name': 'Pristine',
@@ -307,6 +316,22 @@ experiments = {
             'groundwater_source': ('zeros', None),
             'eustatic_slr': 0.2, # IPCC AR5 WG1 13.2.1.4 "order tenths of mm yr-1"
             'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high', 'US-reservoir-utilization'],
+            },
+        'pristine-progradation': {
+            'parent': 'contemp',
+            'name': 'Pristine with progradation',
+            'Te': defaults['upstream_zeros'],
+            'Eh': defaults['upstream_ones'],
+            'oilgas_source': ('zeros', None),
+            'groundwater_source': ('zeros', None),
+            'eustatic_slr': 0.2, # IPCC AR5 WG1 13.2.1.4 "order tenths of mm yr-1"
+            'compare_with': ['contemp', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high', 'US-reservoir-utilization'],
+            'natural_subsidence_low_retention': '#data/experiments/pristine-progradation/natural_subsidence_low.pd',
+            'natural_subsidence': '#data/experiments/pristine-progradation/natural_subsidence.pd',
+            'natural_subsidence_high_retention': '#data/experiments/pristine-progradation/natural_subsidence_high.pd',
+            'natural_subsidence_all_retention': '#data/experiments/pristine-progradation/natural_subsidence_all.pd',
+            'natural_subsidence_plot': '#figures/pristine-progradation/natural_subsidence.png',
+            'delta_age': 8000.0,
             },
         'accel-slr': {
             'parent': 'contemp',

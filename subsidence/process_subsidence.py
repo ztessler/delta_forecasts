@@ -145,6 +145,28 @@ def sed_aggradation_variable_retention(env, target, source):
     return 0
 
 
+def sed_aggradation_with_progradation(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    area = Q_(pandas.read_pickle(str(source[0])),
+            'km**2')
+    Qs = Q_(pandas.read_pickle(str(source[1]))
+            .groupby(level='Delta')
+            .sum(),
+            'kg/s')
+
+    sed_density = Q_(env['sed_dens'], 'g/cm**3')
+    retention_frac = env['retention']
+    delta_age = Q_(env['delta_age'], 'years')
+
+    growth_rate = area / delta_age
+    new_area = area + (growth_rate * Q_(1.0, 'year'))
+
+    aggradation = Qs * retention_frac / sed_density / new_area
+    aggradation.to('mm/year').magnitude.to_pickle(str(target[0]))
+    return 0
+
 
 def steady_state_subsidence(env, target, source):
     ureg = pint.UnitRegistry()

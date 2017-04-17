@@ -21,7 +21,7 @@ Import('*')
 ###
 
 # only compute natural subsidence for "pristine-like" scenarios
-for experiment in ['pristine', 'retention-high']:
+for experiment in ['pristine', 'retention-high', 'pristine-progradation']:
     config = experiments[experiment]
 
     myCommand(
@@ -46,7 +46,7 @@ for experiment in ['pristine', 'retention-high']:
             target=config['natural_subsidence_all_retention'],
             action=ps.retention_merge_to_df)
 
-    if experiment == 'pristine':
+    if experiment in ['pristine', 'pristine-progradation']:
         yscale = ('symlog', {'linthreshy': 1, 'linscaley': 0.5})
         ylims = [-.3, 60]
         annot = True
@@ -104,27 +104,54 @@ for experiment, config in experiments.iteritems():
             mean_weighting=config['rslr_lit_mean_weight'],
             action=ps.import_rslr_lit)
 
-    myCommand(
-            source=[config['delta_areas'],
-                    config['Qs']],
-            target=config['sed_aggradation_low_retention'],
-            action=ps.sed_aggradation,
-            sed_dens=config['sed_dens'],
-            retention=config['retention_frac_low'])
-    myCommand(
-            source=[config['delta_areas'],
-                    config['Qs']],
-            target=config['sed_aggradation'],
-            action=ps.sed_aggradation,
-            sed_dens=config['sed_dens'],
-            retention=config['retention_frac'])
-    myCommand(
-            source=[config['delta_areas'],
-                    config['Qs']],
-            target=config['sed_aggradation_high_retention'],
-            action=ps.sed_aggradation,
-            sed_dens=config['sed_dens'],
-            retention=config['retention_frac_high'])
+    if experiment == 'pristine-progradation':
+        myCommand(
+                source=[config['delta_areas'],
+                        config['Qs']],
+                target=config['sed_aggradation_low_retention'],
+                action=ps.sed_aggradation_with_progradation,
+                sed_dens=config['sed_dens'],
+                retention=config['retention_frac_low'],
+                delta_age=8000.0)
+        myCommand(
+                source=[config['delta_areas'],
+                        config['Qs']],
+                target=config['sed_aggradation'],
+                action=ps.sed_aggradation_with_progradation,
+                sed_dens=config['sed_dens'],
+                retention=config['retention_frac'],
+                delta_age=8000.0)
+        myCommand(
+                source=[config['delta_areas'],
+                        config['Qs']],
+                target=config['sed_aggradation_high_retention'],
+                action=ps.sed_aggradation_with_progradation,
+                sed_dens=config['sed_dens'],
+                retention=config['retention_frac_high'],
+                delta_age=8000.0)
+    else:
+        myCommand(
+                source=[config['delta_areas'],
+                        config['Qs']],
+                target=config['sed_aggradation_low_retention'],
+                action=ps.sed_aggradation,
+                sed_dens=config['sed_dens'],
+                retention=config['retention_frac_low'])
+        myCommand(
+                source=[config['delta_areas'],
+                        config['Qs']],
+                target=config['sed_aggradation'],
+                action=ps.sed_aggradation,
+                sed_dens=config['sed_dens'],
+                retention=config['retention_frac'])
+        myCommand(
+                source=[config['delta_areas'],
+                        config['Qs']],
+                target=config['sed_aggradation_high_retention'],
+                action=ps.sed_aggradation,
+                sed_dens=config['sed_dens'],
+                retention=config['retention_frac_high'])
+
     env.Command(
             source=[config['sed_aggradation_low_retention'],
                     config['sed_aggradation'],
