@@ -146,6 +146,7 @@ defaults = {
         'storm_surge_vect': '#data/unisdr/storm_surge/storm_surge.shp',
 
         'basins': '#data/basins{ver}.{ext}',
+        'basinscells': '#data/basinscells{ver}.{ext}',
         'basins30': '#data/basins30{ver}.{ext}',
         'basins30cells': '#data/basins30cells{ver}.{ext}',
         'reservoirs': '#data/experiments/{exp}/reservoir{ver}.pd',

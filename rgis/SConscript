@@ -89,6 +89,14 @@ for experiment, config in experiments.iteritems():
                     source=config['basins'].format(ver='', ext='tsv'),
                     action=pr.tsv_to_pandas)
             env.Command(
+                    target=config['basinscells'].format(ver='', ext='tsv'),
+                    source=localfile,
+                    action='rgis2table -a DBCells $SOURCE > $TARGET')
+            env.Command(
+                    target=config['basinscells'].format(ver='', ext='pd'),
+                    source=config['basinscells'].format(ver='', ext='tsv'),
+                    action=pr.tsv_to_pandas)
+            env.Command(
                     target=config[name].format(ver='.1', ext='gdbd'),
                     source=localfile,
                     action='netCells2Grid -f BasinID -t BasinID -u BasinID -d Global $SOURCE $TARGET')
