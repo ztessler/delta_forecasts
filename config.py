@@ -77,6 +77,7 @@ defaults = {
         'basins_rast': '#data/rgis/basins{ver}.{ext}',
         'basins30_source': ('rgis',),
         'basins30_rast': '#data/rgis/basins30{ver}.{ext}',
+        'flowdir_rast': '#data/rgis/flowdir{ver}.{ext}',
         'reservoir_source': ('grand', '/Users/ztessler/data/Dams_GRanD/dams-rev01-global-shp/GRanD_dams_v1_1.shp'),
         'reservoir_rast': '#data/experiments/{exp}/reservoirs{ver}.{ext}',
         'reservoir_adj': '#data/experiments/{exp}/reservoir_adj{ver}.{ext}',

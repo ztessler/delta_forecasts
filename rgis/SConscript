@@ -112,6 +112,23 @@ for experiment, config in experiments.iteritems():
                     target=ncfile,
                     source=config[name].format(ver='.3', ext='gdbd'),
                     action='rgis2netcdf $SOURCE $TARGET')
+            # flow directions, "FromCell" codes
+            env.Command(
+                    target=config['flowdir_rast'].format(ver='.1', ext='gdbd'),
+                    source=localfile,
+                    action='netCells2Grid -f FromCell -t FromCell -u FromCell -d Global $SOURCE $TARGET')
+            env.Command(
+                    target=config['flowdir_rast'].format(ver='.2', ext='gdbd'),
+                    source=config['flowdir_rast'].format(ver='.1', ext='gdbd'),
+                    action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
+            env.Command(
+                    target=config['flowdir_rast'].format(ver='.3', ext='gdbd'),
+                    source=config['flowdir_rast'].format(ver='.2', ext='gdbd'),
+                    action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
+            env.Command(
+                    target=config['flowdir_rast'].format(ver='', ext='nc'),
+                    source=config['flowdir_rast'].format(ver='.3', ext='gdbd'),
+                    action='rgis2netcdf $SOURCE $TARGET')
         elif name == 'basins30_rast':
             env.Command(
                     target=config['basins30'].format(ver='', ext='tsv'),
@@ -172,3 +189,9 @@ for experiment, config in experiments.iteritems():
                     target=tiffile_06min,
                     source=tiffile,
                     action=gis.regrid_to_06min)
+            if name == 'basins_rast':
+                env.Command(
+                        target=config['flowdir_rast'].format(ver='', ext='tif'),
+                        source=config['flowdir_rast'].format(ver='', ext='nc'),
+                        action=gis.georef_nc)
+
