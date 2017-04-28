@@ -201,12 +201,14 @@ def delta_countries(env, target, source):
     return 0
 
 
-def basin_river_network(env, source, target):
+def build_basin_river_network(env, source, target):
     with rasterio.open(str(source[0]), 'r') as rast:
         basins = rast.read(1)
     with rasterio.open(str(source[1]), 'r') as rast:
         flowdir = rast.read(1)
-    mouths = pandas.read_pickle(str(source[2]))
+    with rasterio.open(str(source[2]), 'r') as rast:
+        pixarea = rast.read(1)
+    mouths = pandas.read_pickle(str(source[3]))
 
     neighbors = {
             1: (1, 0),
@@ -228,9 +230,15 @@ def basin_river_network(env, source, target):
             G.add_node((x, y))
             if tocell > 0:
                 dx, dy = neighbors[tocell]
-                G.add_edge((x, y), (x+dx, y+dy))
+                if basins[y+dy, x+dx] == basinid:
+                    G.add_edge((x, y), (x+dx, y+dy))
                 # pos[(x, y)] = (x, -y)
                 # pos[(x+dx, y+dy)] = (x+dx, -(y+dy))
+
+        # compute contributing area for each node
+        for node in nx.topological_sort(G):
+            G.node[node]['contributing_area'] = pixarea[(node[1], node[0])] + sum([G.node[n]['contributing_area'] for n in G.predecessors(node)])
+
         nets[(delta, basinid)] = G
 
     nets.to_pickle(str(target[0]))
