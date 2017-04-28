@@ -12,6 +12,7 @@ import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 from rasterstats import zonal_stats
 from collections import OrderedDict, defaultdict
+import networkx as nx
 
 
 def clean_delta_name(delta):
@@ -197,4 +198,40 @@ def delta_countries(env, target, source):
 
     with open(str(target[0]), 'w') as out:
         json.dump(fractions, out)
+    return 0
+
+
+def basin_river_network(env, source, target):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        basins = rast.read(1)
+    with rasterio.open(str(source[1]), 'r') as rast:
+        flowdir = rast.read(1)
+    mouths = pandas.read_pickle(str(source[2]))
+
+    neighbors = {
+            1: (1, 0),
+            2: (1, 1),
+            4: (0, 1),
+            8: (-1, 1),
+            16: (-1, 0),
+            32: (-1, -1),
+            64: (0, -1),
+            128: (1, -1),
+            }
+
+    nets = pandas.Series(index=mouths.index, dtype=object)
+    for delta, basinid in nets.index:
+        G = nx.DiGraph()
+        # pos = {}
+        for y, x in zip(*np.where(basins==basinid)):
+            tocell = int(flowdir[y, x])
+            G.add_node((x, y))
+            if tocell > 0:
+                dx, dy = neighbors[tocell]
+                G.add_edge((x, y), (x+dx, y+dy))
+                # pos[(x, y)] = (x, -y)
+                # pos[(x+dx, y+dy)] = (x+dx, -(y+dy))
+        nets[(delta, basinid)] = G
+
+    nets.to_pickle(str(target[0]))
     return 0

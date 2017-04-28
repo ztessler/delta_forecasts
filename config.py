@@ -78,6 +78,7 @@ defaults = {
         'basins30_source': ('rgis',),
         'basins30_rast': '#data/rgis/basins30{ver}.{ext}',
         'flowdir_rast': '#data/rgis/flowdir{ver}.{ext}',
+        'pixarea_rast': '#data/rgis/pixarea{ver}.{ext}',
         'reservoir_source': ('grand', '/Users/ztessler/data/Dams_GRanD/dams-rev01-global-shp/GRanD_dams_v1_1.shp'),
         'reservoir_rast': '#data/experiments/{exp}/reservoirs{ver}.{ext}',
         'reservoir_adj': '#data/experiments/{exp}/reservoir_adj{ver}.{ext}',
@@ -94,6 +95,7 @@ defaults = {
         'relief_source': ('rgis',),
         'relief_rast': '#data/rgis/relief{ver}.{ext}',
 
+        'basin_networks': '#data/basin_river_networks.nx.pd',
         'basin_res_potential': '#data/experiments/{exp}/res_potential.pd',
         'basin_res_potential_rast': '#data/experiments/{exp}/res_potential.tif',
         'basin_res_utilization': '#data/experiments/{exp}/res_utilization.pd',

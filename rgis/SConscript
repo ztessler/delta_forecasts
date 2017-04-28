@@ -96,39 +96,25 @@ for experiment, config in experiments.iteritems():
                     target=config['basinscells'].format(ver='', ext='pd'),
                     source=config['basinscells'].format(ver='', ext='tsv'),
                     action=pr.tsv_to_pandas)
-            env.Command(
-                    target=config[name].format(ver='.1', ext='gdbd'),
-                    source=localfile,
-                    action='netCells2Grid -f BasinID -t BasinID -u BasinID -d Global $SOURCE $TARGET')
-            env.Command(
-                    target=config[name].format(ver='.2', ext='gdbd'),
-                    source=config[name].format(ver='.1', ext='gdbd'),
-                    action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
-            env.Command(
-                    target=config[name].format(ver='.3', ext='gdbd'),
-                    source=config[name].format(ver='.2', ext='gdbd'),
-                    action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
-            env.Command(
-                    target=ncfile,
-                    source=config[name].format(ver='.3', ext='gdbd'),
-                    action='rgis2netcdf $SOURCE $TARGET')
-            # flow directions, "FromCell" codes
-            env.Command(
-                    target=config['flowdir_rast'].format(ver='.1', ext='gdbd'),
-                    source=localfile,
-                    action='netCells2Grid -f FromCell -t FromCell -u FromCell -d Global $SOURCE $TARGET')
-            env.Command(
-                    target=config['flowdir_rast'].format(ver='.2', ext='gdbd'),
-                    source=config['flowdir_rast'].format(ver='.1', ext='gdbd'),
-                    action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
-            env.Command(
-                    target=config['flowdir_rast'].format(ver='.3', ext='gdbd'),
-                    source=config['flowdir_rast'].format(ver='.2', ext='gdbd'),
-                    action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
-            env.Command(
-                    target=config['flowdir_rast'].format(ver='', ext='nc'),
-                    source=config['flowdir_rast'].format(ver='.3', ext='gdbd'),
-                    action='rgis2netcdf $SOURCE $TARGET')
+            for field, gdbdfield in [('basins_rast', 'BasinID'),
+                                     ('flowdir_rast', 'ToCell'),
+                                     ('pixarea_rast', 'CellArea')]:
+                env.Command(
+                        target=config[field].format(ver='.1', ext='gdbd'),
+                        source=localfile,
+                        action='netCells2Grid -f {0} -t {0} -u {0} -d Global $SOURCE $TARGET'.format(gdbdfield))
+                env.Command(
+                        target=config[field].format(ver='.2', ext='gdbd'),
+                        source=config[field].format(ver='.1', ext='gdbd'),
+                        action='grdRenameLayers -r 1 XXXX $SOURCE $TARGET')
+                env.Command(
+                        target=config[field].format(ver='.3', ext='gdbd'),
+                        source=config[field].format(ver='.2', ext='gdbd'),
+                        action='grdDateLayers -y 1 -e day $SOURCE $TARGET')
+                env.Command(
+                        target=config[field].format(ver='', ext='nc'),
+                        source=config[field].format(ver='.3', ext='gdbd'),
+                        action='rgis2netcdf $SOURCE $TARGET')
         elif name == 'basins30_rast':
             env.Command(
                     target=config['basins30'].format(ver='', ext='tsv'),
@@ -193,5 +179,9 @@ for experiment, config in experiments.iteritems():
                 env.Command(
                         target=config['flowdir_rast'].format(ver='', ext='tif'),
                         source=config['flowdir_rast'].format(ver='', ext='nc'),
+                        action=gis.georef_nc)
+                env.Command(
+                        target=config['pixarea_rast'].format(ver='', ext='tif'),
+                        source=config['pixarea_rast'].format(ver='', ext='nc'),
                         action=gis.georef_nc)
 

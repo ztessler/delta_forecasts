@@ -41,6 +41,13 @@ for experiment, config in experiments.iteritems():
                 delta=delta)
 
     env.Command(
+            source=[config['basins_rast'].format(ver='', ext='tif'),
+                    config['flowdir_rast'].format(ver='', ext='tif'),
+                    config['basin_mouths']],
+            target=config['basin_networks'],
+            action=geo.basin_river_network)
+
+    env.Command(
             source=[config['deltas'],
                     config['basins_rast'].format(ver='',ext='tif')],
             target=config['basin_ids'],
