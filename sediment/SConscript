@@ -85,19 +85,29 @@ for experiment, config in experiments.iteritems():
                         config['discharge_rast'].format(ver='', ext='tif'),
                         config['basins_rast'].format(ver='', ext='tif'),
                         config['basin_ids']],
-                target=config['Te'],
-                action=ps.res_trapping)
+                target=config['Te_bulk'],
+                action=ps.res_trapping_bulk)
 
-        ###
-        if experiment == 'rgis-reservoirs':
+        if config['calc_Te_on_network']: # need to have georef'ed locations for reservoirs
             env.Command(
                     source=[res_rast,
+                            config['runoff_rast'].format(ver='', ext='tif'),
                             config['discharge_rast'].format(ver='', ext='tif'),
+                            config['pixarea_rast'].format(ver='', ext='tif'),
                             config['basins_rast'].format(ver='', ext='tif'),
-                            config['basin_ids']],
-                    target=config['Te_per_res'],
-                    action=ps.res_trapping_per_res)
-        ###
+                            config['basin_networks']],
+                    target=config['Te_along_network'],
+                    action=ps.res_trapping_along_network)
+
+            env.Command(
+                    source=[res_rast,
+                            config['runoff_rast'].format(ver='', ext='tif'),
+                            config['discharge_rast'].format(ver='', ext='tif'),
+                            config['pixarea_rast'].format(ver='', ext='tif'),
+                            config['basins_rast'].format(ver='', ext='tif'),
+                            config['basin_networks']],
+                    target=config['Te_along_network_weighted'],
+                    action=ps.res_trapping_along_network_flow_weighted)
 
         env.Command(
                 source=[config['per_capita_gdp'].format(ver='', ext='pd'),
@@ -110,10 +120,14 @@ for experiment, config in experiments.iteritems():
             target=config['I'],
             action=ps.compute_I)
 
+    if config['calc_Te_on_network']: # need to have georef'ed locations for reservoirs
+        Te = config['Te_along_network_weighted']
+    else:
+        Te = config['Te_bulk']
     env.Command(
             source=[config['I'],
                     config['lithology'].format(ver='', ext='pd'),
-                    config['Te'],
+                    Te,
                     config['Eh']],
             target=config['B'],
             action=ps.compute_B)

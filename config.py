@@ -227,8 +227,10 @@ defaults = {
 
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
-        'Te': '#data/experiments/{exp}/bqart_Te.pd',
-        'Te_per_res': '#data/experiments/{exp}/bqart_Te_per_res.pd',
+        'Te_bulk': '#data/experiments/{exp}/bqart_Te_bulk.pd',
+        'Te_along_network': '#data/experiments/{exp}/bqart_Te_along_network.pd',
+        'Te_along_network_weighted': '#data/experiments/{exp}/bqart_Te_along_network_weighted.pd',
+        'calc_Te_on_network': True,
         'Eh': '#data/experiments/{exp}/bqart_Eh.pd',
         'B': '#data/experiments/{exp}/bqart_B.pd',
         'Qs': '#data/experiments/{exp}/bqart_Qs.pd',
@@ -307,7 +309,9 @@ experiments = {
         'pristine': {
             'parent': 'contemp',
             'name': 'Pristine',
-            'Te': defaults['upstream_zeros'],
+            'Te_bulk': defaults['upstream_zeros'],
+            'Te_along_network': defaults['upstream_zeros'],
+            'Te_along_network_weighted': defaults['upstream_zeros'],
             'Eh': defaults['upstream_ones'],
             'oilgas_source': ('zeros', None),
             'groundwater_source': ('zeros', None),
@@ -369,12 +373,14 @@ experiments = {
             'parent': 'contemp',
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
+            'calc_Te_on_network': False,
             'compare_with': ['US-reservoir-utilization'],
             },
         'US-reservoir-utilization': {
             'parent': 'contemp',
             'name': 'Reservoir Growth (high utilization)',
             'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
+            'calc_Te_on_network': False,
             },
         'rgis-reservoirs': {
             'parent': 'contemp',

@@ -10,6 +10,7 @@ import pint
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from collections import OrderedDict
+import networkx as nx
 
 
 def rasterize_grand_dams(env, target, source):
@@ -44,7 +45,7 @@ def compute_I(env, target, source):
     return 0
 
 
-def res_trapping(env, target, source):
+def res_trapping_bulk(env, target, source):
     utilization = 0.67
     with rasterio.open(str(source[0]), 'r') as resrast,\
              rasterio.open(str(source[1]), 'r') as disrast,\
@@ -68,38 +69,99 @@ def res_trapping(env, target, source):
     return 0
 
 
-def res_trapping_per_res(env, target, source):
-    import ipdb;ipdb.set_trace()
-    # NOTE think about how to handle unregulated portions of basin. if just one small upstream dam on tiny river, Te for that res would be high, and weighted average would be high, but total Te should be low.
-        reslocs = np.logical_and(basins == basin_id, resvol>0)
-    utilization = 0.67
-    with rasterio.open(str(source[0]), 'r') as resrast,\
-             rasterio.open(str(source[1]), 'r') as disrast,\
-             rasterio.open(str(source[2]), 'r') as basinrast:
-        kwargs = resrast.meta.copy()
-        resvol = resrast.read(1, masked=True) * utilization * (1000**3) # convert km**3 to m**3
-        dis = disrast.read(1, masked=True)  # m**3 / s
-        basins = basinrast.read(1, masked=True)
-    resvol.mask[resvol==0] = True
-    basin_ids = pandas.read_pickle(str(source[3]))
+def res_trapping_along_network(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
 
-    Te = pandas.Series(0.0, index=basin_ids.index)
-    for delta, basin_id in basin_ids.index:
-        # if basin_id == 3:
-            # import ipdb;ipdb.set_trace()
-        reslocs = np.logical_and(basins == basin_id, resvol>0)
-        resvols = resvol[reslocs]
-        resdis = dis[reslocs]
-        te_disweightedsum = 0
-        dissum = 0
-        for v, d in zip(resvols, resdis):
-            dt = v/d / (60*60*24*365)
-            te = 1 - (0.05 / np.sqrt(dt))
-            te_disweightedsum += (te * d)
-            dissum += d
-        if dissum > 0:
-            Te[(delta, basin_id)] = te_disweightedsum / dissum
-    Te.to_pickle(str(target[0]))
+    with rasterio.open(str(source[0]), 'r') as rast:
+        resvol = rast.read(1)
+    with rasterio.open(str(source[1]), 'r') as rast:
+        runoff = rast.read(1)
+    with rasterio.open(str(source[2]), 'r') as rast:
+        discharge = rast.read(1)
+    with rasterio.open(str(source[3]), 'r') as rast:
+        pixarea = rast.read(1)
+    with rasterio.open(str(source[4]), 'r') as rast:
+        basins = rast.read(1)
+    networks = pandas.read_pickle(str(source[5]))
+
+    utilization = 0.67
+    resvol = utilization * Q_(resvol, 'km**3').to('m**3').magnitude
+    discharge = Q_(discharge, 'm**3/s').to('m**3/year').magnitude
+    cellflux = (Q_(runoff, 'mm/day') * Q_(pixarea, 'km**2')).to('m**3/year').magnitude
+
+    TE = pandas.Series(0.0, index=networks.index)
+    for (delta, basinid), G in list(networks.iteritems()):
+        total_flux = 0 # discharge
+        for y, x in zip(*np.where(basins==basinid)):
+            total_flux += cellflux[y, x]
+        max_discharge = discharge[basins==basinid].max()
+        # mouth_discharge = discharge[y0, x0]
+        ratio = max_discharge / total_flux # account for evapotranspirative losses. scale by distance along flowpath?
+
+        te_weighted = 0
+        for y, x in zip(*np.where(basins==basinid)):
+            flux = cellflux[y, x]
+            downstream = nx.descendants(G, (x, y))
+            vol = max(0, resvol[y, x]) #self not included in descendants
+            for node in downstream:
+                if resvol[node[1], node[0]] > 0:
+                    vol += resvol[node[1], node[0]]
+            if (flux > 0) and (vol > 0):
+                dt = vol / (flux * ratio) # scale flux so that total flux matches discharge
+                te = max((1 - (0.05 / np.sqrt(dt))), 0)
+                te_weighted += te * flux
+        TE[(delta, basinid)] = te_weighted / total_flux
+
+    TE.to_pickle(str(target[0]))
+    return 0
+
+
+def res_trapping_along_network_flow_weighted(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    with rasterio.open(str(source[0]), 'r') as rast:
+        resvol = rast.read(1)
+    with rasterio.open(str(source[2]), 'r') as rast:
+        dis = rast.read(1)
+    with rasterio.open(str(source[4]), 'r') as rast:
+        basins = rast.read(1)
+    networks = pandas.read_pickle(str(source[5]))
+
+    utilization = 0.67
+    resvol = utilization * Q_(resvol, 'km**3').to('m**3').magnitude
+    dis = Q_(dis, 'm**3/s').to('m**3/year').magnitude
+
+    TE = pandas.Series(0.0, index=networks.index)
+    for (delta, basinid), G in list(networks.iteritems()):
+        mouthx, mouthy = nx.topological_sort(G)[-1]
+        te_weighted = 0
+        total_flux_weight = 0
+        for y, x in zip(*np.where(basins==basinid)):
+            flux = G.node[(x,y)]['runoff']
+            downstream = nx.descendants(G, (x, y))
+            sumvol = max(0, resvol[y, x]) #self not included in descendants
+            local_dis_from_node = (flux / G.node[(x,y)]['contributing_runoff']) * dis[y,x]
+            sum_dis_weighted_by_resvol = local_dis_from_node * max(0, resvol[y,x])
+            for node in downstream:
+                nodex, nodey = node
+                if resvol[nodey, nodex] > 0:
+                    local_dis_from_node = (flux / G.node[(nodex,nodey)]['contributing_runoff']) * dis[nodey,nodex]
+                    sumvol += resvol[nodey, nodex]
+                    sum_dis_weighted_by_resvol += local_dis_from_node * resvol[nodey, nodex]
+
+            flux_weight_at_mouth = (flux / G.node[(mouthx,mouthy)]['contributing_runoff']) * dis[mouthy, mouthx]
+            if (sum_dis_weighted_by_resvol > 0) and (sumvol > 0):
+                weighted_dis = sum_dis_weighted_by_resvol / sumvol # average discharge along path of originating flux at locations of reservoirs, weighted by reservoir size
+                dt = sumvol / weighted_dis
+                te = max((1 - (0.05 / np.sqrt(dt))), 0)
+                te_weighted += te * flux_weight_at_mouth
+            total_flux_weight += flux_weight_at_mouth
+
+        TE[(delta, basinid)] = te_weighted / total_flux_weight
+
+    TE.to_pickle(str(target[0]))
     return 0
 
 
