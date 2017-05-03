@@ -263,7 +263,7 @@ def add_new_reservoirs(env, target, source):
     return 0
 
 
-def compute_res_potential(env, source, target):
+def compute_res_potential_and_utilization(env, source, target):
     with rasterio.open(str(source[0]), 'r') as rast:
         basins = rast.read(1)
         meta = rast.meta
@@ -272,7 +272,9 @@ def compute_res_potential(env, source, target):
         relief = rast.read(1)
     with rasterio.open(str(source[2]), 'r') as rast:
         runoff = rast.read(1)
-    basinids = pandas.read_pickle(str(source[3]))
+    with rasterio.open(str(source[3]), 'r') as rast:
+        res = rast.read(1)
+    basinids = pandas.read_pickle(str(source[4]))
 
     invalid = np.logical_or(relief<0, runoff<np.percentile(runoff[runoff>0], 30.))
     relief[relief < 0] = 0
@@ -280,13 +282,17 @@ def compute_res_potential(env, source, target):
     potential = relief * runoff
 
     basin_potential = pandas.Series(index=basinids.index)
+    basin_resvol = pandas.Series(index=basinids.index)
     for (delta, basinid) in basinids.index:
         basin_potential[(delta, basinid)] = potential[basins==basinid].sum()
+        basin_resvol[(delta, basinid)] = res[basins==basinid].sum()
+    utilization = basin_resvol / basin_potential
 
     basin_potential.to_pickle(str(target[0]))
+    utilization.to_pickle(str(target[1]))
 
     potential[invalid] = meta['nodata']
-    with rasterio.open(str(target[1]), 'w', **meta) as tif:
+    with rasterio.open(str(target[2]), 'w', **meta) as tif:
         tif.write(potential, 1)
     return 0
 
@@ -316,13 +322,10 @@ def scale_reservoirs_by_utilization(env, source, target):
     with rasterio.open(str(source[1]), 'r') as rast:
         basins = rast.read(1)
     potential = pandas.read_pickle(str(source[2]))
+    utilization = pandas.read_pickle(str(source[2]))
     ref_basin = env['ref_basin']
     ref_basinid = potential.loc[ref_basin].index.sort_values(ascending=True)[0]
 
-    basin_resvol = pandas.Series(index=potential.index)
-    for (delta, basinid) in potential.index:
-        basin_resvol[(delta, basinid)] = res[basins==basinid].sum()
-    utilization = basin_resvol / potential
     ref_utilization = utilization[(ref_basin, ref_basinid)]
 
     res_adj = np.zeros_like(res)
