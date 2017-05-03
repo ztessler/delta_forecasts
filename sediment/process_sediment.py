@@ -263,6 +263,95 @@ def add_new_reservoirs(env, target, source):
     return 0
 
 
+def calc_new_res_volumes(env, source, target):
+    '''
+    Compute volumes of new reservoirs to be added to river network
+    '''
+    with rasterio.open(str(source[0])) as rast:
+        res_meta = rast.meta
+        res = rast.read(1)
+    potential = pandas.read_pickle(str(source[1]))
+    utilization = pandas.read_pickle(str(source[2]))
+    with rasterio.open(str(source[3])) as rast:
+        basins = rast.read(1)
+    basinids = pandas.read_pickle(str(source[4]))
+    method = env['method']
+
+    new_res_vols = pandas.Series(None, index=basinids.index, dtype=object)
+
+    if isinstance(method, int) or isinstance(method, float):
+        factor = method
+        mean_res = res[res>0].mean()
+        for delta, basinid in basinids.index:
+            res_vols = sorted(res[np.logical_and(basins==basinid, res>0)].tolist())
+            if len(res_vols) == 0:
+                new_res_vols[(delta, basinid)] = []
+                continue
+            new_vol = sum(res_vols) * (factor - 1.)
+            new_res_vols[(delta, basinid)] = [mean_res] * int(new_vol // mean_res) + [new_vol % mean_res]
+    else:
+        ref_basin = method
+        ref_basinid = basinids.loc[ref_basin].index.sort_values(ascending=True)[0]
+        ref_util = utilization[ref_basin, ref_basinid]
+        mean_res = res[res>0].mean()
+        for delta, basinid in basinids.index:
+            res_vols = sorted(res[np.logical_and(basins==basinid, res>0)].tolist())
+            target_vol = ref_util * potential[delta, basinid]
+            if target_vol < sum(res_vols):
+                # handle seperately, don't add new res just shrink current ones
+                new_res_vols[(delta, basinid)] = target_vol / sum(res_vols)
+                continue
+            new_vol = target_vol - sum(res_vols)
+            new_res_vols[(delta, basinid)] = [mean_res] * int(new_vol // mean_res) + [new_vol % mean_res]
+
+    new_res_vols.to_pickle(str(target[0]))
+    return 0
+
+
+def calc_new_res_volumes_zarfl(env, source, target):
+    '''
+    Compute volumes of new reservoirs to be added to river network, from zarfl data
+    '''
+    with rasterio.open(str(source[0])) as rast:
+        res_meta = rast.meta
+        res = rast.read(1)
+    res_adj = pandas.read_pickle(str(source[1]))
+    with rasterio.open(str(source[2])) as rast:
+        dis = rast.read(1)
+    with rasterio.open(str(source[3])) as rast:
+        basins = rast.read(1)
+    basinids = pandas.read_pickle(str(source[4]))
+
+    new_res_vols = pandas.Series(None, index=basinids.index, dtype=object)
+
+    def dis_class_endmembers(s):
+        return map(float, s.replace('>','').split('-'))
+    def dis_class_mean(s):
+        return np.mean(dis_class_endmembers(s))
+
+    # estimate typical dam sizes based on river discharge
+    # assume new dams will be similar sizes with respect to riv dis as exisiting dams
+    new_vols = pandas.Series(0.0, index=res_adj.columns.levels[res_adj.columns.names.index('Discharge class')])
+    for dis_class in new_vols.index:
+        endmembers = dis_class_endmembers(dis_class)
+        if len(endmembers) == 2:
+            dam_locs = np.logical_and(res>0, np.logical_and(dis>=endmembers[0], dis<endmembers[1]))
+        elif len(endmembers) == 1:
+            dam_locs = np.logical_and(res>0, dis>endmembers)
+        else:
+            raise ValueError
+        new_vols[dis_class] = res[dam_locs].mean()
+    for delta, nums_new in res_adj.loc[:, (slice(None), 'new')].iterrows():
+        basinid = basinids.loc[delta].index.sort_values(ascending=True)[0]
+        new_res_vols[(delta, basinid)] = []
+        for (dis_size, _), num_new in nums_new.iteritems():
+            for i in range(num_new):
+                new_res_vols[(delta, basinid)].append(new_vols.loc[dis_size])
+
+    new_res_vols.to_pickle(str(target[0]))
+    return 0
+
+
 def compute_res_potential_and_utilization(env, source, target):
     with rasterio.open(str(source[0]), 'r') as rast:
         basins = rast.read(1)

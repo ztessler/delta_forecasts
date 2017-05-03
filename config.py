@@ -81,6 +81,7 @@ defaults = {
         'pixarea_rast': '#data/rgis/pixarea{ver}.{ext}',
         'reservoir_source': ('grand', '/Users/ztessler/data/Dams_GRanD/dams-rev01-global-shp/GRanD_dams_v1_1.shp'),
         'reservoir_rast': '#data/experiments/{exp}/reservoirs{ver}.{ext}',
+        'reservoir_new_vols': '#data/experiments/{exp}/reservoir_new_vols.pd',
         'reservoir_adj': '#data/experiments/{exp}/reservoir_adj{ver}.{ext}',
         'discharge_source': ('rgis',),
         'discharge_rast': '#data/rgis/discharge{ver}.{ext}',

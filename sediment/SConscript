@@ -42,13 +42,43 @@ for experiment, config in experiments.iteritems():
 
         if config.get('reservoir_adj_source'):
             res_rast = config['reservoir_adj'].format(ver='', ext='tif')
+
             if config['reservoir_adj_source'][0] == 'factor':
                 factor = config['reservoir_adj_source'][1]
-                myCommand(
-                        source=config['reservoir_rast'].format(ver='', ext='tif'),
-                        target=res_rast,
-                        action=gis.multiply_rast,
-                        factor=factor)
+                # myCommand(
+                        # source=config['reservoir_rast'].format(ver='', ext='tif'),
+                        # target=res_rast,
+                        # action=gis.multiply_rast,
+                        # factor=factor)
+                env.Command(
+                        source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                config['basin_res_potential'],
+                                config['basin_res_utilization'],
+                                config['basins_rast'].format(ver='', ext='tif'),
+                                config['basin_ids']],
+                        target=config['reservoir_new_vols'],
+                        action=ps.calc_new_res_volumes,
+                        method=factor)
+
+            elif config['reservoir_adj_source'][0] == 'match_basin_utilization':
+                # env.Command(
+                        # source=[
+                                # config['reservoir_rast'].format(ver='', ext='tif'),
+                                # config['basins_rast'].format(ver='', ext='tif'),
+                                # config['basin_res_potential'],
+                                # config['basin_res_utilization']],
+                        # target=config['reservoir_adj'].format(ver='', ext='tif'),
+                        # action=ps.scale_reservoirs_by_utilization,
+                        # ref_basin=config['reservoir_adj_source'][1])
+                env.Command(
+                        source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                config['basin_res_potential'],
+                                config['basin_res_utilization'],
+                                config['basins_rast'].format(ver='', ext='tif'),
+                                config['basin_ids']],
+                        target=config['reservoir_new_vols'],
+                        action=ps.calc_new_res_volumes,
+                        method=config['reservoir_adj_source'][1])
 
             elif config['reservoir_adj_source'][0] == 'zarfl2015':
                 env.Command(
@@ -57,26 +87,22 @@ for experiment, config in experiments.iteritems():
                         target=config['reservoir_adj'].format(ver='', ext='pd'),
                         action=ps.parse_zarfl_xls)
 
+                # env.Command(
+                        # source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                                # config['reservoir_adj'].format(ver='', ext='pd'),
+                                # config['discharge_rast'].format(ver='', ext='tif'),
+                                # config['basins_rast'].format(ver='', ext='tif'),
+                                # config['basin_ids']],
+                        # target=res_rast,
+                        # action=ps.add_new_reservoirs)
                 env.Command(
                         source=[config['reservoir_rast'].format(ver='', ext='tif'),
                                 config['reservoir_adj'].format(ver='', ext='pd'),
                                 config['discharge_rast'].format(ver='', ext='tif'),
                                 config['basins_rast'].format(ver='', ext='tif'),
                                 config['basin_ids']],
-                        target=res_rast,
-                        action=ps.add_new_reservoirs)
-
-            elif config['reservoir_adj_source'][0] == 'match_basin_utilization':
-
-                env.Command(
-                        source=[
-                                config['reservoir_rast'].format(ver='', ext='tif'),
-                                config['basins_rast'].format(ver='', ext='tif'),
-                                config['basin_res_potential'],
-                                config['basin_res_utilization']],
-                        target=config['reservoir_adj'].format(ver='', ext='tif'),
-                        action=ps.scale_reservoirs_by_utilization,
-                        ref_basin=config['reservoir_adj_source'][1])
+                        target=config['reservoir_new_vols'],
+                        action=ps.calc_new_res_volumes_zarfl)
 
 
         else:
