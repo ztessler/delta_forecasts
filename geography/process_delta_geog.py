@@ -243,10 +243,10 @@ def build_basin_river_network(env, source, target):
 
         # compute contributing area for each node
         for node in nx.topological_sort(G):
-            G.node[node]['area'] = pixarea[(node[1], node[0])]
-            G.node[node]['runoff'] = runoff[(node[1], node[0])]
-            G.node[node]['contributing_area'] = pixarea[(node[1], node[0])] + sum([G.node[n]['contributing_area'] for n in G.predecessors(node)])
-            G.node[node]['contributing_runoff'] = runoff[(node[1], node[0])] + sum([G.node[n]['contributing_runoff'] for n in G.predecessors(node)])
+            G.node[node]['area'] = pixarea[node[1], node[0]]
+            G.node[node]['runoff'] = runoff[node[1], node[0]]
+            G.node[node]['contributing_area'] = pixarea[node[1], node[0]] + sum([G.node[n]['contributing_area'] for n in G.predecessors(node)])
+            G.node[node]['contributing_runoff'] = runoff[node[1], node[0]] + sum([G.node[n]['contributing_runoff'] for n in G.predecessors(node)])
 
         nets[(delta, basinid)] = G
 
