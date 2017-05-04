@@ -104,6 +104,13 @@ for experiment, config in experiments.iteritems():
                         target=config['reservoir_new_vols'],
                         action=ps.calc_new_res_volumes_zarfl)
 
+            env.Command(
+                    source=[config['reservoir_rast'].format(ver='', ext='tif'),
+                            config['basin_res_potential_rast'],
+                            config['reservoir_new_vols'],
+                            config['basin_networks']],
+                    target=res_rast,
+                    action=ps.add_new_reservoirs_on_network)
 
         else:
             res_rast = config['reservoir_rast'].format(ver='', ext='tif')

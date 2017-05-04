@@ -268,7 +268,6 @@ def calc_new_res_volumes(env, source, target):
     Compute volumes of new reservoirs to be added to river network
     '''
     with rasterio.open(str(source[0])) as rast:
-        res_meta = rast.meta
         res = rast.read(1)
     potential = pandas.read_pickle(str(source[1]))
     utilization = pandas.read_pickle(str(source[2]))
@@ -313,7 +312,6 @@ def calc_new_res_volumes_zarfl(env, source, target):
     Compute volumes of new reservoirs to be added to river network, from zarfl data
     '''
     with rasterio.open(str(source[0])) as rast:
-        res_meta = rast.meta
         res = rast.read(1)
     res_adj = pandas.read_pickle(str(source[1]))
     with rasterio.open(str(source[2])) as rast:
@@ -352,6 +350,110 @@ def calc_new_res_volumes_zarfl(env, source, target):
     return 0
 
 
+def add_new_reservoirs_on_network(env, source, target):
+    with rasterio.open(str(source[0]), 'r') as rast:
+        res_meta = rast.meta
+        del res_meta['transform']
+        res = rast.read(1)
+    with rasterio.open(str(source[1]), 'r') as rast:
+        potential = rast.read(1)
+    new_res_vols = pandas.read_pickle(str(source[2]))
+    networks = pandas.read_pickle(str(source[3]))
+
+    potential[potential<0] = 0
+
+    for (delta, basinid), G in networks.iteritems():
+        if isinstance(new_res_vols[(delta, basinid)], float): #scaling factor
+            for node in G:
+                res[node[1], node[0]] *= new_res_vols[(delta, basinid)]
+            continue
+
+        Grev = G.reverse()
+        pot_dist = 3
+        def compute_potentials(G, potential, res):
+            pos = {}
+            maxres = np.max([res[n[1],n[0]] for n in G])
+            for node in nx.topological_sort(G):
+                upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
+                G.node[node]['potential'] = potential[node[1], node[0]]
+                G.node[node]['potential_remaining'] = potential[node[1], node[0]]
+                if (maxres > 0) and (res[node[1], node[0]] > 0):
+                    factor = 1. - res[node[1],node[0]] / maxres
+                    for n in upstream:
+                        G.node[n]['potential_remaining'] *= factor
+            for node in nx.topological_sort(G):
+                upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
+                G.node[node]['potential_agg'] = sum([G.node[n]['potential'] for n in upstream])
+                G.node[node]['potential_rem_agg'] = sum([G.node[n]['potential_remaining'] for n in upstream])
+                pos[node] = (node[0], -node[1])
+            return G, pos, maxres
+
+        def adjust_potentials(G, res, placement, maxres):
+            # like compute_potentials, but only visits nodes where potential_remaining changes for each single reservoir placement
+            maxres = max(res[placement[1],placement[0]], maxres)
+            upstream = nx.single_source_shortest_path(Grev, placement, pot_dist).keys()
+            if (maxres > 0) and (res[placement[1], placement[0]] > 0):
+                factor = 1. - res[placement[1], placement[0]] / maxres
+                for n in upstream:
+                    G.node[n]['potential_remaining'] *= factor
+            downstream = nx.single_source_shortest_path(G, placement, pot_dist).keys()
+            for node in set(upstream+downstream):
+                n_upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
+                G.node[node]['potential_rem_agg'] = sum([G.node[n]['potential_remaining'] for n in n_upstream])
+            return G
+
+        G, pos, maxres = compute_potentials(G, potential, res)
+        for new_res in new_res_vols[(delta, basinid)]:
+            nodes = G.nodes()
+            pot_rem_agg = [G.node[n]['potential_rem_agg'] for n in nodes]
+            placement = nodes[np.argmax(pot_rem_agg)]
+            res[placement[1], placement[0]] += new_res
+            G = adjust_potentials(G, res, placement, maxres)
+
+    with rasterio.open(str(target[0]), 'w', **res_meta) as resout:
+        resout.write(res, 1)
+    return 0
+
+
+def draw_res_network(G, potential, res):
+
+    def draw(G, pos, field, vmin=None, vmax=None):
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+        mpl.style.use('ggplot')
+        fig, ax = plt.subplots(1, 1, figsize=(12,8))
+        nx.draw_networkx(G, pos=pos, with_labels=False, node_size=80, node_color=field, cmap=mpl.cm.viridis, vmin=vmin, vmax=vmax, ax=ax)
+        plt.ion()
+        plt.show()
+
+    def compute_potentials(G, potential, res):
+        Grev = G.reverse()
+        pot_dist = 3
+        pos = {}
+        maxres = np.max([res[n[1],n[0]] for n in G])
+        for node in nx.topological_sort(G):
+            upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
+            G.node[node]['potential'] = potential[node[1], node[0]]
+            G.node[node]['potential_remaining'] = potential[node[1], node[0]]
+            if (maxres > 0) and (res[node[1], node[0]] > 0):
+                factor = 1. - res[node[1],node[0]] / maxres
+                for n in upstream:
+                    G.node[n]['potential_remaining'] *= factor
+        for node in nx.topological_sort(G):
+            upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
+            G.node[node]['potential_agg'] = sum([G.node[n]['potential'] for n in upstream])
+            G.node[node]['potential_rem_agg'] = sum([G.node[n]['potential_remaining'] for n in upstream])
+            pos[node] = (node[0], -node[1])
+        return G, pos
+
+    G, pos = compute_potentials(G, potential, res)
+    nodes = G.nodes()
+    draw(G, pos, [res[n[1],n[0]] for n in nodes])
+    draw(G, pos, [G.node[n]['potential'] for n in nodes])
+    draw(G, pos, [G.node[n]['potential_agg'] for n in nodes])
+    draw(G, pos, [G.node[n]['potential_rem_agg'] for n in nodes])
+
+
 def compute_res_potential_and_utilization(env, source, target):
     with rasterio.open(str(source[0]), 'r') as rast:
         basins = rast.read(1)
@@ -365,7 +467,7 @@ def compute_res_potential_and_utilization(env, source, target):
         res = rast.read(1)
     basinids = pandas.read_pickle(str(source[4]))
 
-    invalid = np.logical_or(relief<0, runoff<np.percentile(runoff[runoff>0], 30.))
+    invalid = np.logical_or(relief<0, runoff<0)
     relief[relief < 0] = 0
     runoff[runoff < 0] = 0
     potential = relief * runoff
@@ -442,6 +544,7 @@ def make_res_maps(env, source, target):
     utilization = utilization.drop('Congo')
     with rasterio.open(str(source[2]), 'r') as rast:
         pot_rast = rast.read(1, masked=True)
+        pot_rast[pot_rast<np.percentile(pot_rast, 30)] = rast.meta['nodata']
     with rasterio.open(str(source[3]), 'r') as rast:
         basins = rast.read(1, masked=True)
         x1, y1, x2, y2 = rast.window_bounds(((0, rast.height), (0, rast.width)))
