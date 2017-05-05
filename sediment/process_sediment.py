@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -11,6 +12,9 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from collections import OrderedDict
 import networkx as nx
+
+from util import in_new_process
+import logging, logging.handlers
 
 
 def rasterize_grand_dams(env, target, source):
@@ -350,6 +354,7 @@ def calc_new_res_volumes_zarfl(env, source, target):
     return 0
 
 
+@in_new_process
 def add_new_reservoirs_on_network(env, source, target):
     with rasterio.open(str(source[0]), 'r') as rast:
         res_meta = rast.meta
@@ -361,6 +366,13 @@ def add_new_reservoirs_on_network(env, source, target):
         basins = rast.read(1)
     new_res_vols = pandas.read_pickle(str(source[3]))
     networks = pandas.read_pickle(str(source[4]))
+
+    pathdirs = str(target[0]).split(os.path.sep)
+    logger = logging.getLogger(pathdirs[pathdirs.index('experiments')+1])
+    logger.setLevel(logging.DEBUG)
+    socketHandler = logging.handlers.SocketHandler('localhost',
+            logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+    logger.addHandler(socketHandler)
 
     potential[potential<0] = 0
 
@@ -391,7 +403,7 @@ def add_new_reservoirs_on_network(env, source, target):
         return G, max_node
 
     for (delta, basinid), G in networks.iteritems():
-        print delta, basinid
+        logger.info('{0} - {1}'.format(delta, basinid))
         if isinstance(new_res_vols[(delta, basinid)], float): #scaling factor
             for node in G:
                 res[node[1], node[0]] *= new_res_vols[(delta, basinid)]
