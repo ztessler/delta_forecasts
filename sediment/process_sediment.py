@@ -404,7 +404,8 @@ def add_new_reservoirs_on_network(env, source, target):
 
     for (delta, basinid), G in networks.iteritems():
         logger.info('{0} - {1}'.format(delta, basinid))
-        if isinstance(new_res_vols[(delta, basinid)], float): #scaling factor
+        if isinstance(new_res_vols[(delta, basinid)], float) and np.isfinite(new_res_vols[(delta, basinid)]):
+            # simple scaling factor
             for node in G:
                 res[node[1], node[0]] *= new_res_vols[(delta, basinid)]
             continue
