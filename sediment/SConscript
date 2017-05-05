@@ -107,6 +107,7 @@ for experiment, config in experiments.iteritems():
             env.Command(
                     source=[config['reservoir_rast'].format(ver='', ext='tif'),
                             config['basin_res_potential_rast'],
+                            config['basins_rast'].format(ver='', ext='tif'),
                             config['reservoir_new_vols'],
                             config['basin_networks']],
                     target=res_rast,
