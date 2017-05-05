@@ -137,9 +137,7 @@ for experiment, config in experiments.iteritems():
 
             env.Command(
                     source=[res_rast,
-                            config['runoff_rast'].format(ver='', ext='tif'),
                             config['discharge_rast'].format(ver='', ext='tif'),
-                            config['pixarea_rast'].format(ver='', ext='tif'),
                             config['basins_rast'].format(ver='', ext='tif'),
                             config['basin_networks']],
                     target=config['Te_along_network_weighted'],

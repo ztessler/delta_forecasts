@@ -130,11 +130,11 @@ def res_trapping_along_network_flow_weighted(env, target, source):
 
     with rasterio.open(str(source[0]), 'r') as rast:
         resvol = rast.read(1)
-    with rasterio.open(str(source[2]), 'r') as rast:
+    with rasterio.open(str(source[1]), 'r') as rast:
         dis = rast.read(1)
-    with rasterio.open(str(source[4]), 'r') as rast:
+    with rasterio.open(str(source[2]), 'r') as rast:
         basins = rast.read(1)
-    networks = pandas.read_pickle(str(source[5]))
+    networks = pandas.read_pickle(str(source[3]))
 
     utilization = 0.67
     resvol = utilization * Q_(resvol, 'km**3').to('m**3').magnitude
