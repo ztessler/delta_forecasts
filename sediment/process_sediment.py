@@ -364,6 +364,32 @@ def add_new_reservoirs_on_network(env, source, target):
 
     potential[potential<0] = 0
 
+    agg_dist = 3
+
+    def setup_potentials(G, Grev, topo_sorted, potential):
+        for node in topo_sorted:
+            upstream = nx.single_source_shortest_path(Grev, node, agg_dist).keys()
+            G.node[node]['potential'] = potential[node[1], node[0]]
+            G.node[node]['potential_remaining'] = potential[node[1], node[0]]
+            G.node[node]['potential_agg'] = sum([G.node[n]['potential'] for n in upstream])
+        return G
+
+    def update_potentials(G, Grev, topo_sorted, potential, res, maxres):
+        if maxres > 0:
+            for node in topo_sorted:
+                upstream = nx.single_source_shortest_path(Grev, node, agg_dist).keys()
+                factor = 1. - res[node[1],node[0]] / maxres
+                for n in upstream:
+                    G.node[n]['potential_remaining'] = G.node[n]['potential'] * factor
+        max_rem_agg = -1
+        for node in topo_sorted:
+            upstream = nx.single_source_shortest_path(Grev, node, agg_dist).keys()
+            G.node[node]['potential_rem_agg'] = sum([G.node[n]['potential_remaining'] for n in upstream])
+            if G.node[node]['potential_rem_agg'] > max_rem_agg:
+                max_rem_agg = G.node[node]['potential_rem_agg']
+                max_node = node
+        return G, max_node
+
     for (delta, basinid), G in networks.iteritems():
         print delta, basinid
         if isinstance(new_res_vols[(delta, basinid)], float): #scaling factor
@@ -372,33 +398,16 @@ def add_new_reservoirs_on_network(env, source, target):
             continue
 
         Grev = G.reverse()
-        pot_dist = 3
         topo_sorted = nx.topological_sort(G)
-        def compute_potentials(G, potential, res, maxres):
-            pos = {}
-            for node in topo_sorted:
-                upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
-                G.node[node]['potential'] = potential[node[1], node[0]]
-                G.node[node]['potential_remaining'] = potential[node[1], node[0]]
-                if (maxres > 0) and (res[node[1], node[0]] > 0):
-                    factor = 1. - res[node[1],node[0]] / maxres
-                    for n in upstream:
-                        G.node[n]['potential_remaining'] *= factor
-            for node in topo_sorted:
-                upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
-                G.node[node]['potential_agg'] = sum([G.node[n]['potential'] for n in upstream])
-                G.node[node]['potential_rem_agg'] = sum([G.node[n]['potential_remaining'] for n in upstream])
-                pos[node] = (node[0], -node[1])
-            return G, pos
 
         maxres = res[basins==basinid].max()
-        G, pos = compute_potentials(G, potential, res, maxres)
+        G = setup_potentials(G, Grev, topo_sorted, potential)
+        G, max_node = update_potentials(G, Grev, topo_sorted, potential, res, maxres)
         for new_res in new_res_vols[(delta, basinid)]:
-            nodes = G.nodes()
-            pot_rem_agg = [G.node[n]['potential_rem_agg'] for n in nodes]
-            placement = nodes[np.argmax(pot_rem_agg)]
-            res[placement[1], placement[0]] += new_res
-            G, pos = compute_potentials(G, potential, res, maxres)
+            res[max_node[1], max_node[0]] += new_res
+            if res[max_node[1], max_node[0]] > maxres:
+                maxres = res[max_node[1], max_node[0]]
+            G, max_node = update_potentials(G, Grev, topo_sorted, potential, res, maxres)
 
     with rasterio.open(str(target[0]), 'w', **res_meta) as resout:
         resout.write(res, 1)
@@ -418,11 +427,11 @@ def draw_res_network(G, potential, res):
 
     def compute_potentials(G, potential, res):
         Grev = G.reverse()
-        pot_dist = 3
+        agg_dist = 3
         pos = {}
         maxres = np.max([res[n[1],n[0]] for n in G])
         for node in nx.topological_sort(G):
-            upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
+            upstream = nx.single_source_shortest_path(Grev, node, agg_dist).keys()
             G.node[node]['potential'] = potential[node[1], node[0]]
             G.node[node]['potential_remaining'] = potential[node[1], node[0]]
             if (maxres > 0) and (res[node[1], node[0]] > 0):
@@ -430,7 +439,7 @@ def draw_res_network(G, potential, res):
                 for n in upstream:
                     G.node[n]['potential_remaining'] *= factor
         for node in nx.topological_sort(G):
-            upstream = nx.single_source_shortest_path(Grev, node, pot_dist).keys()
+            upstream = nx.single_source_shortest_path(Grev, node, agg_dist).keys()
             G.node[node]['potential_agg'] = sum([G.node[n]['potential'] for n in upstream])
             G.node[node]['potential_rem_agg'] = sum([G.node[n]['potential_remaining'] for n in upstream])
             pos[node] = (node[0], -node[1])
