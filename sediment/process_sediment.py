@@ -95,7 +95,7 @@ def res_trapping_along_network(env, target, source):
     utilization = 0.67
     resvol = utilization * Q_(resvol, 'km**3').to('m**3').magnitude
     discharge = Q_(discharge, 'm**3/s').to('m**3/year').magnitude
-    cellflux = (Q_(runoff, 'mm/day') * Q_(pixarea, 'km**2')).to('m**3/year').magnitude
+    cellflux = (Q_(runoff, 'mm/year') * Q_(pixarea, 'km**2')).to('m**3/year').magnitude
 
     TE = pandas.Series(0.0, index=networks.index)
     for (delta, basinid), G in list(networks.iteritems()):

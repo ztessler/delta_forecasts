@@ -213,7 +213,7 @@ def build_basin_river_network(env, source, target):
     with rasterio.open(str(source[2]), 'r') as rast:
         pixarea = rast.read(1)
     with rasterio.open(str(source[3]), 'r') as rast:
-        runoff = (Q_(rast.read(1), 'mm/day') * Q_(pixarea, 'km**2')).to('m**3/year').magnitude
+        runoff = (Q_(rast.read(1), 'mm/year') * Q_(pixarea, 'km**2')).to('m**3/year').magnitude
     mouths = pandas.read_pickle(str(source[4]))
 
     neighbors = {
