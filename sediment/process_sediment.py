@@ -50,13 +50,16 @@ def compute_I(env, target, source):
 
 
 def res_trapping_bulk(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
     utilization = 0.67
     with rasterio.open(str(source[0]), 'r') as resrast,\
              rasterio.open(str(source[1]), 'r') as disrast,\
              rasterio.open(str(source[2]), 'r') as basinrast:
         kwargs = resrast.meta.copy()
-        resvol = resrast.read(1, masked=True) * utilization * (1000**3) # convert km**3 to m**3
-        dis = disrast.read(1, masked=True)  # m**3 / s
+        resvol = Q_(resrast.read(1, masked=True), 'km**3').to('m**3').magnitude * utilization
+        dis = Q_(disrast.read(1, masked=True), 'm**3/s').to('m**3/year').magnitude
         basins = basinrast.read(1, masked=True)
     resvol.mask[resvol==0] = True
     basin_ids = pandas.read_pickle(str(source[3]))
@@ -64,7 +67,7 @@ def res_trapping_bulk(env, target, source):
     Te = []
     for delta, basin_id in basin_ids.index:
         pix = np.logical_and(basins == basin_id, resvol>0)
-        res_time = resvol[pix].sum() / dis[basins==basin_id].max() / (60*60*24*365)
+        res_time = resvol[pix].sum() / dis[basins==basin_id].max()
         Te.append(1 - (0.05/np.sqrt(res_time)))
     Te = [te if (te is not np.ma.masked and te >= 0) else 0 for te in Te]
 
