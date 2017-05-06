@@ -374,14 +374,12 @@ experiments = {
             'parent': 'contemp',
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
-            'calc_Te_on_network': False,
             'compare_with': ['US-reservoir-utilization'],
             },
         'US-reservoir-utilization': {
             'parent': 'contemp',
             'name': 'Reservoir Growth (high utilization)',
             'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
-            'calc_Te_on_network': False,
             },
         'rgis-reservoirs': {
             'parent': 'contemp',
