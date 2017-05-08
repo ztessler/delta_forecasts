@@ -104,7 +104,7 @@ def res_trapping_along_network(env, target, source):
             total_flux += cellflux[y, x]
         max_discharge = discharge[basins==basinid].max()
         # mouth_discharge = discharge[y0, x0]
-        ratio = max_discharge / total_flux # account for evapotranspirative losses. scale by distance along flowpath?
+        ratio = ((total_flux + max_discharge) / 2.) / total_flux # account for evapotranspirative losses. scale by distance along flowpath? assume reservoirs interact with a water volume on average halfway between starting volume (flux) and ending vol (discharge)
 
         te_weighted = 0
         for y, x in zip(*np.where(basins==basinid)):
