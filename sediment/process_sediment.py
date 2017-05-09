@@ -104,7 +104,7 @@ def res_trapping_along_network(env, target, source):
             total_flux += cellflux[y, x]
         max_discharge = discharge[basins==basinid].max()
         # mouth_discharge = discharge[y0, x0]
-        ratio = ((total_flux + max_discharge) / 2.) / total_flux # account for evapotranspirative losses. scale by distance along flowpath? assume reservoirs interact with a water volume on average halfway between starting volume (flux) and ending vol (discharge)
+        et_loss_scaling = ((total_flux + max_discharge) / 2.) / total_flux # account for evapotranspirative losses. scale by distance along flowpath? assume reservoirs interact with a water volume on average halfway between starting volume (flux) and ending vol (discharge)
 
         te_weighted = 0
         for y, x in zip(*np.where(basins==basinid)):
@@ -115,7 +115,8 @@ def res_trapping_along_network(env, target, source):
                 if resvol[node[1], node[0]] > 0:
                     vol += resvol[node[1], node[0]]
             if (flux > 0) and (vol > 0):
-                dt = vol / (flux * ratio) # scale flux so that total flux matches discharge
+                # vol here should probably be scaled down by fraction of total flux coming from upstream node. this is done in weighted algo below.
+                dt = vol / (flux * et_loss_scaling) # scale flux so that total flux matches discharge
                 te = max((1 - (0.05 / np.sqrt(dt))), 0)
                 te_weighted += te * flux
         TE[(delta, basinid)] = te_weighted / total_flux
@@ -148,25 +149,36 @@ def res_trapping_along_network_flow_weighted(env, target, source):
         for y, x in zip(*np.where(basins==basinid)):
             flux = G.node[(x,y)]['runoff']
             downstream = nx.descendants(G, (x, y))
-            sumvol = max(0, resvol[y, x]) #self not included in descendants
-            local_dis_from_node = (flux / G.node[(x,y)]['contributing_runoff']) * dis[y,x]
-            sum_dis_weighted_by_resvol = local_dis_from_node * max(0, resvol[y,x])
+            # reservoir volume "felt" by flow should be scaled by local dis fraction also
+            # otherwise in super simple linear network, would compute a weighted average of TE where each component is too large, and overall TE would be too large
+            flux_frac = flux / G.node[(x,y)]['contributing_runoff']
+            localvol = max(0, resvol[y, x]) #self not included in descendants
+            scaledvol = flux_frac * localvol #self not included in descendants
+            local_dis_from_node = flux_frac * dis[y,x]
+            sum_dis_weighted_by_resvol = local_dis_from_node * localvol
+            sumvol = localvol
+            scaledsumvol = scaledvol
             for node in downstream:
                 nodex, nodey = node
                 if resvol[nodey, nodex] > 0:
-                    local_dis_from_node = (flux / G.node[(nodex,nodey)]['contributing_runoff']) * dis[nodey,nodex]
-                    sumvol += resvol[nodey, nodex]
-                    sum_dis_weighted_by_resvol += local_dis_from_node * resvol[nodey, nodex]
+                    flux_frac = (flux / G.node[(nodex,nodey)]['contributing_runoff'])
+                    local_dis_from_node = flux_frac * dis[nodey,nodex]
+                    localvol = resvol[nodey, nodex]
+                    scaledvol = flux_frac * localvol
+                    sum_dis_weighted_by_resvol += local_dis_from_node * localvol
+                    sumvol += localvol
+                    scaledsumvol += scaledvol
 
             flux_weight_at_mouth = (flux / G.node[(mouthx,mouthy)]['contributing_runoff']) * dis[mouthy, mouthx]
-            if (sum_dis_weighted_by_resvol > 0) and (sumvol > 0):
+            if (sum_dis_weighted_by_resvol > 0) and (scaledsumvol > 0):
                 weighted_dis = sum_dis_weighted_by_resvol / sumvol # average discharge along path of originating flux at locations of reservoirs, weighted by reservoir size
-                dt = sumvol / weighted_dis
+                dt = scaledsumvol / weighted_dis
                 te = max((1 - (0.05 / np.sqrt(dt))), 0)
                 te_weighted += te * flux_weight_at_mouth
             total_flux_weight += flux_weight_at_mouth
 
-        TE[(delta, basinid)] = te_weighted / total_flux_weight
+        if total_flux_weight > 0:
+            TE[(delta, basinid)] = te_weighted / total_flux_weight
 
     TE.to_pickle(str(target[0]))
     return 0
