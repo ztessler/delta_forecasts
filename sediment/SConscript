@@ -123,8 +123,8 @@ for experiment, config in experiments.iteritems():
             target=config['I'],
             action=ps.compute_I)
 
-    if config['calc_Te_subasins']: # need to have georef'ed locations for reservoirs
-        Te = config['Te_subasins']
+    if config['calc_Te_subbasins']: # need to have georef'ed locations for reservoirs
+        Te = config['Te_subbasins']
     else:
         Te = config['Te_bulk']
     env.Command(
