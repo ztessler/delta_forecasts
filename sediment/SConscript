@@ -116,32 +116,23 @@ for experiment, config in experiments.iteritems():
         else:
             res_rast = config['reservoir_rast'].format(ver='', ext='tif')
 
-        env.Command(
-                source=[res_rast,
-                        config['discharge_rast'].format(ver='', ext='tif'),
-                        config['basins_rast'].format(ver='', ext='tif'),
-                        config['basin_ids']],
-                target=config['Te_bulk'],
-                action=ps.res_trapping_bulk)
 
-        if config['calc_Te_on_network']: # need to have georef'ed locations for reservoirs
-            env.Command(
-                    source=[res_rast,
-                            config['runoff_rast'].format(ver='', ext='tif'),
-                            config['discharge_rast'].format(ver='', ext='tif'),
-                            config['pixarea_rast'].format(ver='', ext='tif'),
-                            config['basins_rast'].format(ver='', ext='tif'),
-                            config['basin_networks']],
-                    target=config['Te_along_network'],
-                    action=ps.res_trapping_along_network)
-
+        if config['calc_Te_subbasins']: # need to have georef'ed locations for reservoirs
             env.Command(
                     source=[res_rast,
                             config['discharge_rast'].format(ver='', ext='tif'),
                             config['basins_rast'].format(ver='', ext='tif'),
                             config['basin_networks']],
-                    target=config['Te_along_network_weighted'],
-                    action=ps.res_trapping_along_network_flow_weighted)
+                    target=config['Te_subbasins'],
+                    action=ps.res_trapping_subbasins)
+        else:
+            env.Command(
+                    source=[res_rast,
+                            config['discharge_rast'].format(ver='', ext='tif'),
+                            config['basins_rast'].format(ver='', ext='tif'),
+                            config['basin_ids']],
+                    target=config['Te_bulk'],
+                    action=ps.res_trapping_bulk)
 
         env.Command(
                 source=[config['per_capita_gdp'].format(ver='', ext='pd'),
@@ -154,8 +145,8 @@ for experiment, config in experiments.iteritems():
             target=config['I'],
             action=ps.compute_I)
 
-    if config['calc_Te_on_network']: # need to have georef'ed locations for reservoirs
-        Te = config['Te_along_network_weighted']
+    if config['calc_Te_subasins']: # need to have georef'ed locations for reservoirs
+        Te = config['Te_subasins']
     else:
         Te = config['Te_bulk']
     env.Command(

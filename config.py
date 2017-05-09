@@ -229,9 +229,10 @@ defaults = {
 
         'I': '#data/experiments/{exp}/bqart_I.pd',
         'Te_bulk': '#data/experiments/{exp}/bqart_Te_bulk.pd',
-        'Te_along_network': '#data/experiments/{exp}/bqart_Te_along_network.pd',
-        'Te_along_network_weighted': '#data/experiments/{exp}/bqart_Te_along_network_weighted.pd',
-        'calc_Te_on_network': True,
+        'Te_subbasins': '#data/experiments/{exp}/bqart_Te_subbasins.pd',
+        # 'Te_along_network': '#data/experiments/{exp}/bqart_Te_along_network.pd',
+        # 'Te_along_network_weighted': '#data/experiments/{exp}/bqart_Te_along_network_weighted.pd',
+        'calc_Te_subbasins': True,
         'Eh': '#data/experiments/{exp}/bqart_Eh.pd',
         'B': '#data/experiments/{exp}/bqart_B.pd',
         'Qs': '#data/experiments/{exp}/bqart_Qs.pd',
