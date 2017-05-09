@@ -15,6 +15,8 @@ from collections import OrderedDict, defaultdict
 import networkx as nx
 import pint
 
+from util import in_new_process, getLogger
+
 
 def clean_delta_name(delta):
     return delta.replace(' ','_').replace('-','_')
@@ -202,6 +204,7 @@ def delta_countries(env, target, source):
     return 0
 
 
+@in_new_process
 def build_basin_river_network(env, source, target):
     ureg = pint.UnitRegistry()
     Q_ = ureg.Quantity
@@ -211,6 +214,8 @@ def build_basin_river_network(env, source, target):
     with rasterio.open(str(source[1]), 'r') as rast:
         flowdir = rast.read(1)
     mouths = pandas.read_pickle(str(source[4]))
+
+    logger = getLogger(target)
 
     neighbors = {
             1: (1, 0),
@@ -225,6 +230,7 @@ def build_basin_river_network(env, source, target):
 
     nets = pandas.Series(index=mouths.index, dtype=object)
     for delta, basinid in nets.index:
+        logger.info('{0} - {1}'.format(delta, basinid))
         G = nx.DiGraph()
         for y, x in zip(*np.where(basins==basinid)):
             tocell = int(flowdir[y, x])

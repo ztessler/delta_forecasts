@@ -1,5 +1,7 @@
+import os
 from functools import wraps
 from multiprocessing import Process, Queue
+import logging, logging.handlers
 
 
 def in_new_process(func):
@@ -18,3 +20,19 @@ def in_new_process(func):
         p.join()
         return queue.get()
     return wrapper
+
+
+def getLogger(target):
+    pathdirs = str(target[0]).split(os.path.sep)
+    if 'experiments' in pathdirs:
+        name = '/'.join(pathdirs[pathdirs.index('experiments'):])
+    else:
+        name  = pathdirs[-1]
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    socketHandler = logging.handlers.SocketHandler('localhost',
+            logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+    logger.addHandler(socketHandler)
+
+    return logger

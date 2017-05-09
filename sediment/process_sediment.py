@@ -13,8 +13,7 @@ import cartopy.feature as cfeature
 from collections import OrderedDict
 import networkx as nx
 
-from util import in_new_process
-import logging, logging.handlers
+from util import in_new_process, getLogger
 
 
 def rasterize_grand_dams(env, target, source):
@@ -88,12 +87,15 @@ def res_trapping_subbasins(env, target, source):
         basins = rast.read(1)
     networks = pandas.read_pickle(str(source[3]))
 
+    logger = getLogger(target)
+
     utilization = 0.67
     resvol = utilization * Q_(resvol, 'km**3').to('m**3').magnitude
     dis = Q_(dis, 'm**3/s').to('m**3/year').magnitude
 
     TE = pandas.Series(0.0, index=networks.index)
     for (delta, basinid), G in list(networks.iteritems()):
+        logger.info('{0} - {1}'.format(delta, basinid))
         topo_sort = nx.topological_sort(G)
         for node in topo_sort:
             G.node[node]['resvol'] = resvol[node[1], node[0]]
@@ -318,12 +320,7 @@ def add_new_reservoirs_on_network(env, source, target):
     new_res_vols = pandas.read_pickle(str(source[3]))
     networks = pandas.read_pickle(str(source[4]))
 
-    pathdirs = str(target[0]).split(os.path.sep)
-    logger = logging.getLogger(pathdirs[pathdirs.index('experiments')+1])
-    logger.setLevel(logging.DEBUG)
-    socketHandler = logging.handlers.SocketHandler('localhost',
-            logging.handlers.DEFAULT_TCP_LOGGING_PORT)
-    logger.addHandler(socketHandler)
+    logger = getLogger(target)
 
     potential[potential<0] = 0
 
