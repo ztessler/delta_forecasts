@@ -184,6 +184,50 @@ def res_trapping_along_network_flow_weighted(env, target, source):
     return 0
 
 
+def res_trapping_subbasins(env, target, source):
+    ureg = pint.UnitRegistry()
+    Q_ = ureg.Quantity
+
+    with rasterio.open(str(source[0]), 'r') as rast:
+        resvol = rast.read(1)
+    with rasterio.open(str(source[1]), 'r') as rast:
+        dis = rast.read(1)
+    with rasterio.open(str(source[2]), 'r') as rast:
+        basins = rast.read(1)
+    networks = pandas.read_pickle(str(source[3]))
+
+    utilization = 0.67
+    resvol = utilization * Q_(resvol, 'km**3').to('m**3').magnitude
+    dis = Q_(dis, 'm**3/s').to('m**3/year').magnitude
+
+    TE = pandas.Series(0.0, index=networks.index)
+    for (delta, basinid), G in list(networks.iteritems()):
+        for node in nx.topological_sort(G):
+            G.node[node]['resvol'] = resvol[node[1], node[0]]
+            G.node[node]['resvol_agg'] = resvol[node[1], node[0]] + sum([G.node[n]['resvol_agg'] for n in G.predecessors(node)])
+
+        mouth = nx.topological_sort(G)[-1]
+        te_weighted = 0
+        tes = []
+        diss = []
+        to_visit = [mouth]
+        while to_visit:
+            curnode = to_visit.pop(0)
+            if resvol[curnode[1], curnode[0]] > 0:
+                localdis = dis[curnode[1], curnode[0]]
+                if localdis > 0:
+                    dt = G.node[curnode]['resvol_agg'] / localdis
+                    te = max(1 - (0.05 / np.sqrt(dt)), 0)
+                    tes.append(te)
+                    diss.append(localdis)
+            else:
+                to_visit.extend(G.predecessors(curnode))
+        TE[(delta, basinid)] = sum([t*d for t,d in zip(tes, diss)]) / dis[basins==basinid].max()
+
+    TE.to_pickle(str(target[0]))
+    return 0
+
+
 def parse_zarfl_xls(env, target, source):
     zarfl = pandas.read_excel(str(source[0]), sheetname='Table S7').iloc[:, 1:]
     deltas = pandas.read_pickle(str(source[1]))
