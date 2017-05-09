@@ -43,8 +43,6 @@ for experiment, config in experiments.iteritems():
     env.Command(
             source=[config['basins_rast'].format(ver='', ext='tif'),
                     config['flowdir_rast'].format(ver='', ext='tif'),
-                    config['pixarea_rast'].format(ver='', ext='tif'),
-                    config['runoff_rast'].format(ver='', ext='tif'),
                     config['basin_mouths']],
             target=config['basin_networks'],
             action=geo.build_basin_river_network)

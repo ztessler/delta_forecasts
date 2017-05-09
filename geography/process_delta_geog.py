@@ -210,10 +210,6 @@ def build_basin_river_network(env, source, target):
         basins = rast.read(1)
     with rasterio.open(str(source[1]), 'r') as rast:
         flowdir = rast.read(1)
-    with rasterio.open(str(source[2]), 'r') as rast:
-        pixarea = rast.read(1)
-    with rasterio.open(str(source[3]), 'r') as rast:
-        runoff = (Q_(rast.read(1), 'mm/year') * Q_(pixarea, 'km**2')).to('m**3/year').magnitude
     mouths = pandas.read_pickle(str(source[4]))
 
     neighbors = {
@@ -230,7 +226,6 @@ def build_basin_river_network(env, source, target):
     nets = pandas.Series(index=mouths.index, dtype=object)
     for delta, basinid in nets.index:
         G = nx.DiGraph()
-        # pos = {}
         for y, x in zip(*np.where(basins==basinid)):
             tocell = int(flowdir[y, x])
             G.add_node((x, y))
@@ -238,15 +233,6 @@ def build_basin_river_network(env, source, target):
                 dx, dy = neighbors[tocell]
                 if basins[y+dy, x+dx] == basinid:
                     G.add_edge((x, y), (x+dx, y+dy))
-                # pos[(x, y)] = (x, -y)
-                # pos[(x+dx, y+dy)] = (x+dx, -(y+dy))
-
-        # compute contributing area for each node
-        for node in nx.topological_sort(G):
-            G.node[node]['area'] = pixarea[node[1], node[0]]
-            G.node[node]['runoff'] = runoff[node[1], node[0]]
-            G.node[node]['contributing_area'] = pixarea[node[1], node[0]] + sum([G.node[n]['contributing_area'] for n in G.predecessors(node)])
-            G.node[node]['contributing_runoff'] = runoff[node[1], node[0]] + sum([G.node[n]['contributing_runoff'] for n in G.predecessors(node)])
 
         nets[(delta, basinid)] = G
 
