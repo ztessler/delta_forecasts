@@ -213,7 +213,7 @@ def build_basin_river_network(env, source, target):
         basins = rast.read(1)
     with rasterio.open(str(source[1]), 'r') as rast:
         flowdir = rast.read(1)
-    mouths = pandas.read_pickle(str(source[4]))
+    mouths = pandas.read_pickle(str(source[2]))
 
     logger = getLogger(target)
 
