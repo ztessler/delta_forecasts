@@ -25,7 +25,7 @@ def in_new_process(func):
 def getLogger(target):
     pathdirs = str(target[0]).split(os.path.sep)
     if 'experiments' in pathdirs:
-        name = '/'.join(pathdirs[pathdirs.index('experiments'):])
+        name = '/'.join(pathdirs[pathdirs.index('experiments')+1:])
     else:
         name  = pathdirs[-1]
 
