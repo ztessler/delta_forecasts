@@ -94,26 +94,26 @@ def res_trapping_subbasins(env, target, source):
 
     TE = pandas.Series(0.0, index=networks.index)
     for (delta, basinid), G in list(networks.iteritems()):
-        for node in nx.topological_sort(G):
+        topo_sort = nx.topological_sort(G)
+        for node in topo_sort:
             G.node[node]['resvol'] = resvol[node[1], node[0]]
             G.node[node]['resvol_agg'] = resvol[node[1], node[0]] + sum([G.node[n]['resvol_agg'] for n in G.predecessors(node)])
 
-        mouth = nx.topological_sort(G)[-1]
-        te_weighted = 0
+        mouth = topo_sort[-1]
         tes = []
         diss = []
         to_visit = [mouth]
         while to_visit:
-            curnode = to_visit.pop(0)
-            if resvol[curnode[1], curnode[0]] > 0:
-                localdis = dis[curnode[1], curnode[0]]
+            node = to_visit.pop(0)
+            if resvol[node[1], node[0]] > 0:
+                localdis = dis[node[1], node[0]]
                 if localdis > 0:
-                    dt = G.node[curnode]['resvol_agg'] / localdis
+                    dt = G.node[node]['resvol_agg'] / localdis
                     te = max(1 - (0.05 / np.sqrt(dt)), 0)
                     tes.append(te)
                     diss.append(localdis)
             else:
-                to_visit.extend(G.predecessors(curnode))
+                to_visit.extend(G.predecessors(node))
         TE[(delta, basinid)] = sum([t*d for t,d in zip(tes, diss)]) / dis[basins==basinid].max()
 
     TE.to_pickle(str(target[0]))
