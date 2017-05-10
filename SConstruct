@@ -7,6 +7,7 @@ import hashlib
 from config import experiments, common
 
 SetOption('max_drift', 1)
+SetOption('keep_going', True) # need to add option to 'settable' list in SCons/Script/SConsOptions.py
 
 env = Environment(ENV = {'PATH' : os.environ['PATH'],
                          'GDAL_DATA': os.environ['GDAL_DATA'],
@@ -37,26 +38,27 @@ def myCommand(target, source, action, **kwargs):
     return env.Command(target=target, source=source, action=action, **kwargs)
 Export('myCommand')
 
-SConscript('geography/SConscript')
-SConscript('population/SConscript')
-SConscript('srtm/SConscript')
-SConscript('rgis/SConscript')
-SConscript('upstream/SConscript')
-SConscript('sediment/SConscript')
-SConscript('subsidence/SConscript')
-SConscript('hazards/SConscript')
-SConscript('vulnerability/SConscript')
-SConscript('risk/SConscript')
+if not GetOption('help'):
+    SConscript('geography/SConscript')
+    SConscript('population/SConscript')
+    SConscript('srtm/SConscript')
+    SConscript('rgis/SConscript')
+    SConscript('upstream/SConscript')
+    SConscript('sediment/SConscript')
+    SConscript('subsidence/SConscript')
+    SConscript('hazards/SConscript')
+    SConscript('vulnerability/SConscript')
+    SConscript('risk/SConscript')
 
-def save_config(env, target, source):
-    config = env['config']
-    with open(str(target[0]), 'w') as f:
-        json.dump(config, f)
-    return 0
-for experiment, config in experiments.iteritems():
-    myCommand(
-            target=config['config_out'],
-            source=None,
-            action=save_config,
-            config=config)
+    def save_config(env, target, source):
+        config = env['config']
+        with open(str(target[0]), 'w') as f:
+            json.dump(config, f)
+        return 0
+    for experiment, config in experiments.iteritems():
+        myCommand(
+                target=config['config_out'],
+                source=None,
+                action=save_config,
+                config=config)
 
