@@ -34,5 +34,6 @@ def getLogger(target):
     socketHandler = logging.handlers.SocketHandler('localhost',
             logging.handlers.DEFAULT_TCP_LOGGING_PORT)
     logger.addHandler(socketHandler)
+    logger.propagate = False
 
     return logger
