@@ -18,7 +18,7 @@ def in_new_process(func):
         p = Process(target=worker, args=((queue, func) + args), kwargs=kwargs)
         p.start()
         p.join()
-        return queue.get()
+        return queue.get(block=False)
     return wrapper
 
 
