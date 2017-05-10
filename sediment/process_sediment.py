@@ -91,6 +91,7 @@ def res_trapping_subbasins(env, target, source):
 
     utilization = 0.67
     resvol = utilization * Q_(resvol, 'km**3').to('m**3').magnitude
+    resvol[resvol<0] = 0
     dis = Q_(dis, 'm**3/s').to('m**3/year').magnitude
 
     TE = pandas.Series(0.0, index=networks.index)
