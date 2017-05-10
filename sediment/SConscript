@@ -13,26 +13,25 @@ Import('*')
 # Saito 2007 for ratios) and delta surface area
 
 for experiment, config in experiments.iteritems():
-
-    env.Command(
-            source=[config['basins_rast'].format(ver='', ext='tif'),
-                    config['relief_rast'].format(ver='', ext='tif'),
-                    config['runoff_rast'].format(ver='', ext='tif'),
-                    config['reservoir_rast'].format(ver='', ext='tif'),
-                    config['basin_ids']],
-            target=[config['basin_res_potential'],
-                    config['basin_res_utilization'],
-                    config['basin_res_potential_rast']],
-            action=ps.compute_res_potential_and_utilization)
-    env.Command(
-            source=[config['basin_res_potential'],
-                    config['basin_res_utilization'],
-                    config['basin_res_potential_rast'],
-                    config['basins_rast'].format(ver='', ext='tif')],
-            target=config['basin_res_util_map'].format(ext='png'),
-            action=ps.make_res_maps)
-
     if experiment not in ['pristine', 'pristine-progradation', 'pristine-const-nat-sub']:
+        env.Command(
+                source=[config['basins_rast'].format(ver='', ext='tif'),
+                        config['relief_rast'].format(ver='', ext='tif'),
+                        config['runoff_rast'].format(ver='', ext='tif'),
+                        config['reservoir_rast'].format(ver='', ext='tif'),
+                        config['basin_ids']],
+                target=[config['basin_res_potential'],
+                        config['basin_res_utilization'],
+                        config['basin_res_potential_rast']],
+                action=ps.compute_res_potential_and_utilization)
+        env.Command(
+                source=[config['basin_res_potential'],
+                        config['basin_res_utilization'],
+                        config['basin_res_potential_rast'],
+                        config['basins_rast'].format(ver='', ext='tif')],
+                target=config['basin_res_util_map'].format(ext='png'),
+                action=ps.make_res_maps)
+
         if config['reservoir_source'][0] == 'grand':
             env.Command(
                     source=[config['reservoir_source'][1],
