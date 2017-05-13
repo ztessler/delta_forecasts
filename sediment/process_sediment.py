@@ -441,6 +441,7 @@ def compute_res_potential_and_utilization(env, source, target):
         basin_potential[(delta, basinid)] = potential[basins==basinid].sum()
         basin_resvol[(delta, basinid)] = res[basins==basinid].sum()
     utilization = basin_resvol / basin_potential
+    utilization[utilization.isnull()] = 0
 
     basin_potential.to_pickle(str(target[0]))
     utilization.to_pickle(str(target[1]))
