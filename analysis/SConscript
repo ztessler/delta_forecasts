@@ -1,0 +1,20 @@
+# vim: set fileencoding=UTF-8 :
+# vim:filetype=python
+
+import process_analysis as pa
+
+Import('*')
+
+myCommand(
+        source=[experiments['contemp']['rslr'],
+                experiments['US-reservoir-utilization']['rslr'],
+                experiments['retention-low']['rslr'],
+                experiments['USresutil-and-retentionlow']['rslr'],
+                experiments['pristine']['natural_subsidence'],
+                experiments['pristine']['Qs'],
+                experiments['contemp']['Qs'],
+                experiments['zarfl-reservoirs']['Qs'],
+                experiments['US-reservoir-utilization']['Qs'],
+                ],
+        target=experiments['contemp']['analysis'],
+        action=pa.analysis)

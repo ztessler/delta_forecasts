@@ -36,6 +36,7 @@ common = {'deltas': deltas,
 # EXPERIMENT configs
 defaults = {
         'config_out': '#data/experiments/{exp}/config_{exp}.json',
+        'analysis': '#data/analysis.txt',
         'deltas_source': ('tessler2015',
             '/Users/ztessler/data/deltas/maps/global_map_shp/global_map.shp'),
         'deltas': '#data/deltas.json',

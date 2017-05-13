@@ -49,6 +49,7 @@ if not GetOption('help'):
     SConscript('hazards/SConscript')
     SConscript('vulnerability/SConscript')
     SConscript('risk/SConscript')
+    SConscript('analysis/SConscript')
 
     def save_config(env, target, source):
         config = env['config']
