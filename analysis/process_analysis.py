@@ -18,6 +18,7 @@ def analysis(env, source, target):
     contemp_qs = pandas.read_pickle(str(source[7])).drop(['Congo', 'Tone']).groupby(level='Delta').sum()
     zarfl_qs = pandas.read_pickle(str(source[8])).drop(['Congo', 'Tone']).groupby(level='Delta').sum()
     usutil_qs = pandas.read_pickle(str(source[9])).drop(['Congo', 'Tone']).groupby(level='Delta').sum()
+    area = pandas.read_pickle(str(source[10])).drop(['Congo', 'Tone'])
 
     with open(str(target[0]), 'w') as fout:
         fout.write('Contemp rslr:\n\t')
@@ -32,7 +33,13 @@ def analysis(env, source, target):
         fout.write('Max: {0} ({1})\n\t'.format(natsub.max(), natsub.argmax()))
         fout.write('Mean: {0}\n\t'.format(natsub.mean()))
         fout.write('Mississippi: {0}\n\t'.format(natsub['Mississippi']))
-        fout.write('Indus: {0}\n'.format(natsub['Indus']))
+        fout.write('Sebou: {0}\n\t'.format(natsub['Sebou']))
+        fout.write('Moulouya: {0}\n\t'.format(natsub['Moulouya']))
+        fout.write('Indus: {0}\n\n'.format(natsub['Indus']))
+
+        fout.write('Moulouya sed / area: {}\n'.format(prist_qs['Moulouya'] / area['Moulouya']))
+        fout.write('Sebou sed / area: {}\n'.format(prist_qs['Sebou'] / area['Sebou']))
+        fout.write('Han sed / area: {}\n\n'.format(prist_qs['Han'] / area['Han']))
 
         percent_change = (prist_qs - contemp_qs)/prist_qs * 100
         fout.write('Percent change in sed flux, prist to contemp:\n\tMean: {}\n\tMedian: {}\n\tIndus: {}\n'.format(percent_change.mean(), percent_change.median(), percent_change['Indus']))

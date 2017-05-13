@@ -16,6 +16,7 @@ myCommand(
                 experiments['contemp']['Qs'],
                 experiments['zarfl-reservoirs']['Qs'],
                 experiments['US-reservoir-utilization']['Qs'],
+                experiments['contemp']['delta_areas'],
                 ],
         target=experiments['contemp']['analysis'],
         action=pa.analysis)
