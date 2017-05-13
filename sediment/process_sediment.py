@@ -504,8 +504,8 @@ def scale_reservoirs_by_utilization(env, source, target):
 def make_res_maps(env, source, target):
     potential = pandas.read_pickle(str(source[0]))
     utilization = pandas.read_pickle(str(source[1]))
-    potential = potential.drop('Congo')
-    utilization = utilization.drop('Congo')
+    potential = potential.drop(['Congo', 'Tone'])
+    utilization = utilization.drop(['Congo', 'Tone'])
     with rasterio.open(str(source[2]), 'r') as rast:
         pot_rast = rast.read(1, masked=True)
         pot_rast[pot_rast<np.percentile(pot_rast, 30)] = rast.meta['nodata']
@@ -617,7 +617,7 @@ def plot_delta_scalars(env, target, source):
         qs[scenarios[i]] = pandas.read_pickle(str(source[i])).groupby(level='Delta').sum()
     df = pandas.DataFrame(qs, columns=qs.keys())
     df = df.sort_values(by=scenarios[0], ascending=False)
-    df = df.drop('Congo')
+    df = df.drop(['Congo', 'Tone'])
 
     f, a = plt.subplots(1, 1, figsize=(16,8))
     a.set_yscale(yscale[0], **yscale[1])
@@ -668,7 +668,7 @@ def plot_delta_scalars_lit(env, target, source):
         qs[scenarios[i]] = pandas.read_pickle(str(source[i])).groupby(level='Delta').sum()
     df = pandas.DataFrame(qs, columns=qs.keys())
     df = df.sort_values(by=scenarios[0], ascending=False)
-    df = df.drop('Congo')
+    df = df.drop(['Congo', 'Tone'])
 
     f, a = plt.subplots(1, 1, figsize=(16,8))
     a.set_yscale(yscale[0], **yscale[1])
@@ -736,7 +736,7 @@ def plot_scalars_percent_change(env, target, source):
     qs1 = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
 
     change = (qs1-qs0)/qs0 * 100.
-    change = change.drop('Congo')
+    change = change.drop(['Congo', 'Tone'])
     if change.mean() > 0:
         ascending = False
     else:
