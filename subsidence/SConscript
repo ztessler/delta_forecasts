@@ -79,7 +79,7 @@ for experiment in ['pristine', 'retention-high', 'pristine-progradation', 'prist
             scenarios=[config['name']],
             ylabel='Subsidence rate, mm/yr',
             xlabel='Delta',
-            title='Steady-state natural subsidence rates',
+            title='Modeled natural subsidence rates',
             ylims=ylims,
             yscale=yscale,
             annot=annot,
