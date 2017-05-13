@@ -129,9 +129,9 @@ defaults = {
         'shape_factor': .5,
         'sed_dens': 1.5, # g/cm**3
         'sed_porosity': .45,
-        'retention_frac_low': .30,
-        'retention_frac': .50,
-        'retention_frac_high': .70,
+        'retention_frac_low': .10,
+        'retention_frac': .30,
+        'retention_frac_high': .50,
 
 
         'groundwater_source': ('wada', '/Users/ztessler/data/Groundwater_Wada2012/gwd02000.asc'),
@@ -403,8 +403,8 @@ experiments = {
             'name': 'Low Sediment Retention',
             'compare_with': ['retention-high'],
             'retention_frac_low': .05,
-            'retention_frac': .20,
-            'retention_frac_high': .35,
+            'retention_frac': .1,
+            'retention_frac_high': .2,
             },
         'retention-high': {
             'parent': 'contemp',
@@ -414,17 +414,17 @@ experiments = {
             'natural_subsidence_high_retention': '#data/experiments/retention-high/natural_subsidence_high.pd',
             'natural_subsidence_all_retention': '#data/experiments/retention-high/natural_subsidence_all.pd',
             'natural_subsidence_plot': '#figures/retention-high/natural_subsidence.png',
-            'retention_frac_low': .65,
-            'retention_frac': .80,
-            'retention_frac_high': .95,
+            'retention_frac_low': .3,
+            'retention_frac': .5,
+            'retention_frac_high': .7,
             },
         'USresutil-and-retentionlow': {
             'parent': 'contemp',
             'name': 'Reservoir Growth and Low Sediment Retention',
             'compare_with': ['US-reservoir-utilization', 'retention-high'],
             'retention_frac_low': .05,
-            'retention_frac': .20,
-            'retention_frac_high': .35,
+            'retention_frac': .1,
+            'retention_frac_high': .2,
             'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
             },
         }
