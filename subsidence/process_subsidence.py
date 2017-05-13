@@ -110,6 +110,7 @@ def sed_aggradation(env, target, source):
     # estimate from Blum and Roberts 2009, Nature GeoSci, mississippi value
     # sed_density = Q_(1.5, 'g/cm**3') # g/cm**3, also in BT/km**3
     sed_density = Q_(env['sed_dens'], 'g/cm**3')
+    sed_porosity = env['sed_poro']
 
     # estimate from same paper, range of 30-70%. references Ganges values of 30%, and 39-71%.
     # mississippi values from storage/load estimates are in this range. use 50%
@@ -118,7 +119,7 @@ def sed_aggradation(env, target, source):
 
     # biogenic sediment ??
 
-    aggradation = Qs * retention_frac / sed_density / area
+    aggradation = ((Qs * retention_frac / sed_density) / (1.0 - sed_porosity)) / area
     aggradation.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
 
@@ -137,10 +138,11 @@ def sed_aggradation_variable_retention(env, target, source):
 
     # estimate from Blum and Roberts 2009, Nature GeoSci, mississippi value
     sed_density = Q_(1.5, 'g/cm**3') # g/cm**3, also in BT/km**3
+    sed_porosity = env['sed_poro']
 
     # biogenic sediment ??
 
-    aggradation = Qs * retention_frac / sed_density / area
+    aggradation = ((Qs * retention_frac / sed_density) / (1.0 - sed_porosity)) / area
     aggradation.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
 
@@ -157,13 +159,14 @@ def sed_aggradation_with_progradation(env, target, source):
             'kg/s')
 
     sed_density = Q_(env['sed_dens'], 'g/cm**3')
+    sed_porosity = env['sed_poro']
     retention_frac = env['retention']
     delta_age = Q_(env['delta_age'], 'years')
 
     growth_rate = area / delta_age
     new_area = area + (growth_rate * Q_(1.0, 'year'))
 
-    aggradation = Qs * retention_frac / sed_density / new_area
+    aggradation = ((Qs * retention_frac / sed_density) / (1.0 - sed_porosity)) / new_area
     aggradation.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
 
@@ -331,6 +334,7 @@ def compute_retention_from_rslr_lit(env, source, target):
     gia_uplift = Q_(pandas.read_pickle(str(source[5])), 'mm/year')
     area = Q_(pandas.read_pickle(str(source[6])), 'km**2')
     dens = Q_(env['sed_dens'], 'g/cm**3')
+    sed_porosity = env['sed_poro']
     prist_slr = Q_(env['prist_slr'], 'mm/year')
     contemp_slr = Q_(env['contemp_slr'], 'mm/year')
 
@@ -340,7 +344,7 @@ def compute_retention_from_rslr_lit(env, source, target):
     # RSLR_contemp = (slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia) + ((Qs_prist - Qs_contemp) * retention / dens / area)
     # (Qs_contemp - Qs_prist) * (retention / dens / area) = slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia - RSLR_contemp
     # retention = (slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia - RSLR_contemp) / (Qs_contemp - Qs_prist) * dens * area
-    retention = ((contemp_slr - prist_slr + groundwater_sub + oilgas_sub - gia_uplift - rslr_lit['mean']) / (Qs_contemp - Qs_prist) * dens * area).to('').magnitude
+    retention = ((contemp_slr - prist_slr + groundwater_sub + oilgas_sub - gia_uplift - rslr_lit['mean']) / (((Qs_contemp - Qs_prist) * dens)*(1.0-sed_porosity)) * area).to('').magnitude
     retention.to_pickle(str(target[0]))
     return 0
 

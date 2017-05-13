@@ -97,6 +97,7 @@ myCommand(
         target=experiments['pristine']['retention_rate_rslr_lit'],
         action=ps.compute_retention_from_rslr_lit,
         sed_dens=experiments['contemp']['sed_dens'], # g/cm**3
+        sed_poro=experiments['contemp']['sed_porosity'], # g/cm**3
         prist_slr=experiments['pristine']['eustatic_slr'],
         contemp_slr=experiments['contemp']['eustatic_slr'])
 
@@ -128,6 +129,7 @@ for experiment, config in experiments.iteritems():
                 target=config['sed_aggradation_low_retention'],
                 action=ps.sed_aggradation_with_progradation,
                 sed_dens=config['sed_dens'],
+                sed_poro=config['sed_porosity'], # g/cm**3
                 retention=config['retention_frac_low'],
                 delta_age=8000.0)
         myCommand(
@@ -136,6 +138,7 @@ for experiment, config in experiments.iteritems():
                 target=config['sed_aggradation'],
                 action=ps.sed_aggradation_with_progradation,
                 sed_dens=config['sed_dens'],
+                sed_poro=config['sed_porosity'], # g/cm**3
                 retention=config['retention_frac'],
                 delta_age=8000.0)
         myCommand(
@@ -144,6 +147,7 @@ for experiment, config in experiments.iteritems():
                 target=config['sed_aggradation_high_retention'],
                 action=ps.sed_aggradation_with_progradation,
                 sed_dens=config['sed_dens'],
+                sed_poro=config['sed_porosity'], # g/cm**3
                 retention=config['retention_frac_high'],
                 delta_age=8000.0)
     else:
@@ -153,6 +157,7 @@ for experiment, config in experiments.iteritems():
                 target=config['sed_aggradation_low_retention'],
                 action=ps.sed_aggradation,
                 sed_dens=config['sed_dens'],
+                sed_poro=config['sed_porosity'], # g/cm**3
                 retention=config['retention_frac_low'])
         myCommand(
                 source=[config['delta_areas'],
@@ -160,6 +165,7 @@ for experiment, config in experiments.iteritems():
                 target=config['sed_aggradation'],
                 action=ps.sed_aggradation,
                 sed_dens=config['sed_dens'],
+                sed_poro=config['sed_porosity'], # g/cm**3
                 retention=config['retention_frac'])
         myCommand(
                 source=[config['delta_areas'],
@@ -167,6 +173,7 @@ for experiment, config in experiments.iteritems():
                 target=config['sed_aggradation_high_retention'],
                 action=ps.sed_aggradation,
                 sed_dens=config['sed_dens'],
+                sed_poro=config['sed_porosity'], # g/cm**3
                 retention=config['retention_frac_high'])
 
     env.Command(
