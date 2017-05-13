@@ -7,6 +7,7 @@ Import('*')
 
 myCommand(
         source=[experiments['contemp']['rslr'],
+                experiments['zarfl-reservoirs']['rslr'],
                 experiments['US-reservoir-utilization']['rslr'],
                 experiments['retention-low']['rslr'],
                 experiments['USresutil-and-retentionlow']['rslr'],
@@ -18,3 +19,10 @@ myCommand(
                 ],
         target=experiments['contemp']['analysis'],
         action=pa.analysis)
+
+myCommand(
+        source=experiments['contemp']['basin_mouths'],
+        target=experiments['contemp']['deltas_map'],
+        action=[pa.plot_global_map,
+                'convert -trim $TARGET $TARGET'],
+        drop=['Congo', 'Tone'])

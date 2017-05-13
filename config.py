@@ -49,6 +49,7 @@ defaults = {
         'delta_pop_dens': '#data/experiments/{exp}/delta_pop_dens_{popyear}.pd',
 
         'delta_map': '#data/{delta}.json',
+        'deltas_map': '#figures/global_delta_map.png',
         'delta_pop_rast':
             '#data/gpwv4/{delta}_pop_{popyear}.tif',
         'delta_srtm_rast':
