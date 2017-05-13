@@ -344,7 +344,7 @@ def compute_retention_from_rslr_lit(env, source, target):
     # RSLR_contemp = (slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia) + ((Qs_prist - Qs_contemp) * retention / dens / area)
     # (Qs_contemp - Qs_prist) * (retention / dens / area) = slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia - RSLR_contemp
     # retention = (slr_contemp - slr_prist + sub_groundwater + sub_oilgas - gia - RSLR_contemp) / (Qs_contemp - Qs_prist) * dens * area
-    retention = ((contemp_slr - prist_slr + groundwater_sub + oilgas_sub - gia_uplift - rslr_lit['mean']) / (((Qs_contemp - Qs_prist) * dens)*(1.0-sed_porosity)) * area).to('').magnitude
+    retention = ((contemp_slr - prist_slr + groundwater_sub + oilgas_sub - gia_uplift - rslr_lit['mean']) / (Qs_contemp - Qs_prist) * dens * (1 - sed_porosity) * area).to('').magnitude
     retention.to_pickle(str(target[0]))
     return 0
 
