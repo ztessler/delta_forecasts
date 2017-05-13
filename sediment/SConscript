@@ -193,7 +193,8 @@ for expA in experiments.keys():
                 title='Sediment flux scenario % change',
                 )
 
-        plot_deltas = ['Amazon', 'Ganges', 'Mekong']
+        plot_deltas = ['Amazon', 'Ganges', 'Mekong',
+                       'Indus', 'Mississippi', 'Magdalena']
         myCommand(
             source=[experiments[expA]['rslr_land'],
                     experiments[expB]['rslr_land']],

@@ -781,7 +781,17 @@ def plot_rslr_timeseries(env, source, target):
     slr_8p5 = pandas.Series(np.linspace(slr_cur, slr_2100_RCP8p5, len(yr_index)), index=yr_index) # 'mm/year'
     sl_8p5 = (slr_8p5.cumsum() - slr_8p5[0]) / 1000. # 'm'
 
-    fig, axs = plt.subplots(len(deltas), 1, figsize=(4, 3*len(deltas)))
+    if len(deltas) == 3:
+        fig, axs = plt.subplots(len(deltas), 1, figsize=(4, 3*len(deltas)))
+        doxlabel = [2]
+        doylabel = [0, 1, 2]
+    elif len(deltas) == 6:
+        fig, axarr = plt.subplots(3, 2, figsize=(4*2, 3*3))
+        axs = axarr.flatten()
+        doxlabel = [4, 5]
+        doylabel = [0, 2, 4]
+    else:
+        raise NotImplementedError
     mpl.rcParams.update({
                          'axes.labelsize': 'small',
                          'axes.titlesize': 'medium',
@@ -803,20 +813,21 @@ def plot_rslr_timeseries(env, source, target):
             ax.plot(rslr_2p6, color=c['color'], lw=2, linestyle=linestyle['2p6'])
             ax.plot(rslr_8p5, color=c['color'], lw=2, linestyle=linestyle['8p5'])
 
-            ax.set_title(delta)
-            ax.set_ylabel('Relative sea-level rise, (m)', fontsize='small')
 
             # print delta, j, rslr_const[2100], rslr_2p6[2100], rslr_8p5[2100]
 
         ax.plot([], [], color='.5', lw=2, linestyle=linestyle['const'], label='Const SLR')
         ax.plot([], [], color='.5', lw=2, linestyle=linestyle['2p6'], label='RCP 2.6 SLR')
         ax.plot([], [], color='.5', lw=2, linestyle=linestyle['8p5'], label='RCP 8.5 SLR')
+        ax.set_title(delta)
         if i == 0:
             ax.legend(loc=2, frameon=False, handlelength=3)
-        if i == len(deltas)-1:
+        if i in doxlabel:
             ax.set_xlabel('Year', fontsize='small')
         else:
             ax.xaxis.set_ticklabels([])
+        if i in doylabel:
+            ax.set_ylabel('Relative sea-level rise, (m)', fontsize='small')
         ax.tick_params(axis='both', which='major', labelsize='small')
 
     fig.tight_layout()
