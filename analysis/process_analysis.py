@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.transforms import offset_copy
+import seaborn as sns
 import pandas
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -173,4 +174,80 @@ def plot_global_map(env, source, target):
     fig.savefig(str(target[0]))
     plt.close(fig)
     return 0
+
+
+def rslr_distribution_plot(env, source, target):
+    drop = env['drop']
+    rslr_contemp = pandas.read_pickle(str(source[0])).drop(drop)
+    rslr_USres = pandas.read_pickle(str(source[1])).drop(drop)
+    rslr_lowret = pandas.read_pickle(str(source[2])).drop(drop)
+    names = env['names']
+
+    assert names[0] == 'Contemporary' # change names, but make sure sending in what we expect
+    assert names[1] == 'Reservoir Growth (high utilization)'
+    assert names[2] == 'Low Sediment Retention'
+    names[0] = '$\mathregular{S_{con}}$\n(Contemporary)'
+    names[1] = '$\mathregular{S_{rpot}}$\n(Potential Reservoir Growth)'
+    names[2] = '$\mathregular{S_{low}}$\n(Low Sediment Retention)'
+
+    mpl.style.use('ggplot')
+    fig, ax = plt.subplots(1, 2, figsize=(16,8))
+    ax[0].text(0.01, 0.99, 'A', fontweight='bold', fontsize=12, ha='left', va='top', transform=ax[0].transAxes)
+    ax[1].text(0.01, 0.99, 'B', fontweight='bold', fontsize=12, ha='left', va='top', transform=ax[1].transAxes)
+
+    r = pandas.DataFrame({names[0]: rslr_contemp, names[1]: rslr_USres, names[2]: rslr_lowret},
+                         columns=names)
+    rdiff = pandas.DataFrame({names[1]: rslr_USres - rslr_contemp,
+                              names[2]: rslr_lowret - rslr_contemp},
+                             columns=names[1:])
+
+    color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
+
+    sns.violinplot(data=r, inner='points', color=color, linewidth=1, ax=ax[0])
+    ax[0].set_ylabel('RSLR, mm/year')
+
+    sns.violinplot(data=rdiff, inner='points', color=color, linewidth=1, ax=ax[1])
+    ax[1].set_ylabel(r'Delta RSLR increase from $\mathregular{S_{con}}$, mm/year')
+
+    cutoff = 10
+    axlims = ax[1].get_ylim()
+    ax[1].set_ylim(-5, cutoff)
+    inset_ll = (.82, .65)
+    inset_ur = (.92, .95)
+    disp_xy1 = ax[1].transAxes.transform(inset_ll)
+    disp_xy2 = ax[1].transAxes.transform(inset_ur)
+    fig_xy1 = fig.transFigure.inverted().transform(disp_xy1)
+    fig_xy2 = fig.transFigure.inverted().transform(disp_xy2)
+    data_xy1 = ax[1].transData.inverted().transform(disp_xy1)
+    data_xy2= ax[1].transData.inverted().transform(disp_xy2)
+    fig_width = fig_xy2[0] - fig_xy1[0]
+    fig_height = fig_xy2[1] - fig_xy1[1]
+    inset = fig.add_axes([fig_xy1[0], fig_xy1[1], fig_width, fig_height])
+    inset.spines['left'].set_color('.2')
+    inset.spines['right'].set_color('.2')
+    inset.spines['top'].set_color('.2')
+    inset.spines['bottom'].set_color('.2')
+    sns.violinplot(data=rdiff[names[2]], inner='points', color=color, linewidth=1, ax=inset)
+    inset.set_ylim(cutoff, axlims[1])
+    inset.xaxis.set_ticks([])
+    inset.yaxis.set_ticks_position('right')
+    ax[1].plot([ax[1].xaxis.get_ticklocs()[1], data_xy1[0]], [cutoff, data_xy1[1]], linewidth=.5, color='.2')
+    ax[1].plot([ax[1].xaxis.get_ticklocs()[1], data_xy1[0]], [axlims[1], data_xy2[1]], linewidth=.5, color='.2')
+
+    # hacky. want to make inner points larger without making border larger. both controlled by "linewidth" param above
+    # change in collection after plotting. not sure if the collection index will change
+    ax[0].collections[1].set_linewidth(2)
+    ax[0].collections[3].set_linewidth(2)
+    ax[0].collections[5].set_linewidth(2)
+    ax[1].collections[1].set_linewidth(2)
+    ax[1].collections[3].set_linewidth(2)
+    inset.collections[1].set_linewidth(2)
+
+    fig.savefig(str(target[0]))
+    plt.close(fig)
+    return 0
+
+
+
+
 

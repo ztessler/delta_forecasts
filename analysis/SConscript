@@ -27,3 +27,15 @@ myCommand(
         action=[pa.plot_global_map,
                 'convert -trim $TARGET $TARGET'],
         drop=['Congo', 'Tone'])
+
+myCommand(
+        source=[experiments['contemp']['rslr'],
+                experiments['US-reservoir-utilization']['rslr'],
+                experiments['retention-low']['rslr']],
+        target=experiments['contemp']['rslr_dist_plot'],
+        action=[pa.rslr_distribution_plot,
+                'convert -trim +repage -bordercolor white -border 2 $TARGET $TARGET'],
+        names=[experiments['contemp']['name'],
+               experiments['US-reservoir-utilization']['name'],
+               experiments['retention-low']['name']],
+        drop=['Congo', 'Tone'])

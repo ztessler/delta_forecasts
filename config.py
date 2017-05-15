@@ -276,6 +276,8 @@ defaults = {
         'rslr_comparison_plot_lit': '#figures/joint/{scenarios}/rslr/rslr_{scenarios}_lit.{ext}',
         'rslr_change_plot': '#figures/joint/{scenarios}/rslr/rslr_change_{expA}_to_{expB}.{ext}',
 
+        'rslr_dist_plot': '#figures/rslr_distribution_plot.png',
+
         'vuln_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
         'vuln': '#data/experiments/{exp}/vuln.pd',
         'vuln_norm': 'unity',
