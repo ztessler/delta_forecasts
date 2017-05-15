@@ -641,7 +641,7 @@ def plot_delta_scalars(env, target, source):
 
     a.set_ylabel(ylabel)
     a.set_xlabel(xlabel)
-    a.set_title(title)
+    # a.set_title(title)
     plt.tight_layout()
     f.savefig(str(target[0]))
     plt.close(f)
@@ -718,7 +718,7 @@ def plot_delta_scalars_lit(env, target, source):
 
     a.set_ylabel(ylabel)
     a.set_xlabel(xlabel)
-    a.set_title(title)
+    # a.set_title(title)
     plt.tight_layout()
     f.savefig(str(target[0]))
     plt.close(f)
@@ -746,7 +746,7 @@ def plot_scalars_percent_change(env, target, source):
     change.plot(kind='bar', ax=a)
     a.set_ylabel(ylabel)
     a.set_xlabel(xlabel)
-    a.set_title(title + ', {} to {}'.format(scenarios[0], scenarios[1]))
+    # a.set_title(title + ', {} to {}'.format(scenarios[0], scenarios[1]))
     plt.tight_layout()
     f.savefig(str(target[0]))
     plt.close(f)
