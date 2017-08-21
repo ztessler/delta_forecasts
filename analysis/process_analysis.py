@@ -87,7 +87,7 @@ def plot_global_map(env, source, target):
     mouths = mouths.drop(drop)
 
     dodots = True
-    color = '.1'
+    color = '#000080'
     textcolor='.1'
     fontsize = 8
     circpts = 150
@@ -161,7 +161,7 @@ def plot_global_map(env, source, target):
                              fontsize=fontsize,
                              color=textcolor,
                              bbox=bboxprops,
-                             arrowprops=dict(arrowstyle='-', fc=color, ec=color,
+                             arrowprops=dict(arrowstyle='-', fc=textcolor, ec=textcolor,
                                              shrinkA=0,
                                              shrinkB=0))
                                              #shrinkB=1.1*radius))
@@ -170,6 +170,35 @@ def plot_global_map(env, source, target):
             ax.text(lon, lat, dispname, fontsize=fontsize, ha='center', va='center', color=textcolor,
                    transform=transoffset,
                    bbox=bboxprops)
+
+    # x0, x1, y0, y1 = ax.get_extent(crs)
+    length = 3000 # in kilometers
+    # sbcx = x0 + (x1 - x0) * 0.1
+    # sbcy = y0 + (y1 - y0) * 0.1
+    # bar_xs = [sbcx - length * 500, sbcx + length * 500] # in m
+    # ax.plot(bar_xs, [sbcy, sbcy], transform=crs, color='k', linewidth=3)
+    lon0, lat0 = -160, 0
+    moll = ccrs.Mollweide()
+    pc = ccrs.PlateCarree()
+    x0, y0 = moll.transform_point(lon0, lat0, pc)
+    lon1, lat1 = crs.transform_point(x0 + length*1000, y0, moll)
+    lon2, lat2 = crs.transform_point(x0, y0+100*1000, moll)
+    lon3, lat3 = crs.transform_point(x0, y0-100*1000, moll)
+    lon4, lat4 = crs.transform_point(x0 + length*1000, y0+100*1000, moll)
+    lon5, lat5 = crs.transform_point(x0 + length*1000, y0-100*1000, moll)
+    Nlon1, Nlat1 = crs.transform_point(x0 - 500*1000, y0 - 1000*1000, moll)
+    Nlon2, Nlat2 = crs.transform_point(x0 - 500*1000, y0 + 1000*1000, moll)
+    ax.plot([lon0, lon1], [lat0, lat1], transform=crs, color='.3', linewidth=3)
+    ax.plot([lon2, lon3], [lat2, lat3], transform=crs, color='.3', linewidth=3)
+    ax.plot([lon4, lon5], [lat4, lat5], transform=crs, color='.3', linewidth=3)
+    ax.text((lon0+lon1)/2., lat0+1.5, str(length) + ' km', color='k', transform=crs,
+		ha='center', va='bottom', fontsize=12)
+    ax.text((lon0+lon1)/2., lat0-2, 'at equator', color='k', transform=crs,
+		ha='center', va='top', fontsize=10)
+
+    ax.annotate('', xy=(Nlon2, Nlat2), xytext=(Nlon1, Nlat1),
+            arrowprops=dict(arrowstyle='->', color='.3', lw=2))
+    ax.text(Nlon2, Nlat2, 'N', fontsize=14, color='k', ha='center', va='bottom')
 
     fig.savefig(str(target[0]))
     plt.close(fig)
