@@ -39,3 +39,24 @@ myCommand(
                experiments['US-reservoir-utilization']['name'],
                experiments['retention-low']['name']],
         drop=['Congo', 'Tone'])
+
+myCommand(
+        source=[experiments['contemp']['natural_subsidence'],
+                experiments['pristine']['Qs'],
+                experiments['contemp']['Qs'],
+                experiments['contemp']['rslr'],
+                experiments['US-reservoir-utilization']['rslr'],
+                experiments['retention-low']['rslr'],
+                experiments['USresutil-and-retentionlow']['rslr'],
+            ],
+        target=experiments['contemp']['data_table_for_paper'],
+        action=pa.delta_data_to_csv,
+        columns=['Natural Subsidence (mm/year)',
+                 'Sediment Flux, Pristine (kg/s)',
+                 'Sediment Flux, Contemporary (kg/s)',
+                 'Relative Sea-Level Rise Rate, Contemporary (mm/year)',
+                 'Relative Sea-Level Rise Rate, Reservoir Growth (mm/year)',
+                 'Relative Sea-Level Rise Rate, Low Sediment Retention (mm/year)',
+                 'Relative Sea-Level Rise Rate, Reservoir Growth and Low Sediment Retention (mm/year)',
+            ])
+

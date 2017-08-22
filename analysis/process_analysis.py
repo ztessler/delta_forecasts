@@ -7,6 +7,7 @@ import pandas
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from collections import defaultdict
+import csv
 
 def analysis(env, source, target):
     contemp_rslr = pandas.read_pickle(str(source[0])).drop(['Congo', 'Tone'])
@@ -274,6 +275,32 @@ def rslr_distribution_plot(env, source, target):
 
     fig.savefig(str(target[0]))
     plt.close(fig)
+    return 0
+
+
+        # source=[experiments['contemp']['natural_subsidence'],
+                # experiments['pristine']['Qs'],
+                # experiments['contemp']['Qs'],
+                # experiments['contemp']['rslr'],
+                # experiments['US-reservoir-utilization']['rslr'],
+                # experiments['retention-low']['rslr'],
+                # experiments['USresutil-and-retentionlow']['rslr'],
+def delta_data_to_csv(env, source, target):
+    natsub = pandas.read_pickle(str(source[0]))
+    prist_Qs = pandas.read_pickle(str(source[1])).groupby(level='Delta').sum()
+    contemp_Qs = pandas.read_pickle(str(source[2])).groupby(level='Delta').sum()
+    contemp_rslr = pandas.read_pickle(str(source[3]))
+    resutil_rslr = pandas.read_pickle(str(source[4]))
+    lowret_rslr = pandas.read_pickle(str(source[5]))
+    res_lowret_rslr = pandas.read_pickle(str(source[6]))
+
+    column_data = [natsub, prist_Qs, contemp_Qs, contemp_rslr, resutil_rslr, lowret_rslr, res_lowret_rslr]
+    column_names = env['columns']
+
+    data = {c: d for c, d in zip(column_names, column_data)}
+    df = pandas.DataFrame(data, index=natsub.index, columns=env['columns'])
+    df.to_csv(str(target[0]), float_format='%0.2f')
+
     return 0
 
 

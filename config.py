@@ -43,6 +43,8 @@ defaults = {
         'delta_areas': '#data/delta_areas.pd',
         'delta_countries': '#data/delta_countries.json',
 
+        'data_table_for_paper': '#data/data_table.csv',
+
         'pop_dens_source': ('gpwv4',
             '/Users/ztessler/data/GPWv4_beta/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-{popyear}/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals_{popyear}.tif'),
         'pop_dens_rast': '#data/experiments/{exp}/pop_dens_{popyear}{ver}.{ext}',
