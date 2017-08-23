@@ -310,14 +310,14 @@ defaults = {
 
         'rslr_plot_contemp_USres_lowretention_lit': '#figures/contemp/rslr_contemp_USres_lowretention_lit.png',
 
-        'name': 'Contemporary',
+        'name': 'Contemporary, const delta area',
         'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'US-reservoir-utilization', 'retention-low', 'retention-high', 'USresutil-and-retentionlow'],
         }
 
 experiments = {
         'pristine': {
             'parent': 'contemp',
-            'name': 'Pristine',
+            'name': 'Pristine, const delta area',
             'Te_bulk': defaults['upstream_zeros'],
             'Te_subbasins': defaults['upstream_zeros'],
             'Eh': defaults['upstream_ones'],
@@ -328,13 +328,14 @@ experiments = {
             },
         'pristine-progradation': {
             'parent': 'pristine',
-            'name': 'Pristine with progradation',
+            'name': 'Pristine',
             'natural_subsidence_low_retention': '#data/experiments/pristine-progradation/natural_subsidence_low.pd',
             'natural_subsidence': '#data/experiments/pristine-progradation/natural_subsidence.pd',
             'natural_subsidence_high_retention': '#data/experiments/pristine-progradation/natural_subsidence_high.pd',
             'natural_subsidence_all_retention': '#data/experiments/pristine-progradation/natural_subsidence_all.pd',
             'natural_subsidence_plot': '#figures/pristine-progradation/natural_subsidence.png',
             'delta_age': 8000.0,
+            'compare_with': ['contemp-prograde', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high', 'US-reservoir-utilization'],
             },
         'pristine-const-nat-sub': {
             'parent': 'pristine',
@@ -351,7 +352,7 @@ experiments = {
         'contemp': defaults,
         'contemp-prograde': {
             'parent': 'contemp',
-            'name': 'Contemporary with progradation',
+            'name': 'Contemporary',
             'natural_subsidence_low_retention': '#data/experiments/pristine-progradation/natural_subsidence_low.pd',
             'natural_subsidence': '#data/experiments/pristine-progradation/natural_subsidence.pd',
             'natural_subsidence_high_retention': '#data/experiments/pristine-progradation/natural_subsidence_high.pd',
@@ -368,42 +369,42 @@ experiments = {
             'natural_subsidence_plot': '#figures/pristine-const-nat-sub/natural_subsidence.png',
             },
         'accel-slr': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'Accelerated SLR',
             'eustatic_slr': 5.0,
             },
         'double-reservoirs': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'Doubled Reservoirs',
             'reservoir_adj_source': ('factor', 2.0),
             },
         'zarfl-reservoirs': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'Reservoir Growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
             'compare_with': ['US-reservoir-utilization'],
             },
         'US-reservoir-utilization': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'Reservoir Growth (high utilization)',
             'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
             },
         'rgis-reservoirs': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'RGIS reservoirs',
             'reservoir_source': ('rgis',),
             'reservoir_rast': '#data/rgis/reservoir{ver}.{ext}',
             'compare_with': ['contemp', 'zarfl-reservoirs', 'double-reservoirs'],
             },
         'SSPpops': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'SSP-based population growth scenarios',
             'compare_with': ['contemp'],
             # 'ssp_scenario': 3,
             'pop_growth_source': defaults['ssp_pop_source'],
             },
         'retention-low': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'Low Sediment Retention',
             'compare_with': ['retention-high'],
             'retention_frac_low': .05,
@@ -411,7 +412,7 @@ experiments = {
             'retention_frac_high': .2,
             },
         'retention-high': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'High Sediment Retention',
             'natural_subsidence_low_retention': '#data/experiments/retention-high/natural_subsidence_low.pd',
             'natural_subsidence': '#data/experiments/retention-high/natural_subsidence.pd',
@@ -423,7 +424,7 @@ experiments = {
             'retention_frac_high': .7,
             },
         'USresutil-and-retentionlow': {
-            'parent': 'contemp',
+            'parent': 'contemp-prograde',
             'name': 'Reservoir Growth and Low Sediment Retention',
             'compare_with': ['US-reservoir-utilization', 'retention-high'],
             'retention_frac_low': .05,
