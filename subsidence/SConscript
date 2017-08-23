@@ -417,7 +417,7 @@ for expA in experiments.keys():
                 )
 
 myCommand(
-        source=[experiments['contemp']['rslr'],
+        source=[experiments['contemp-prograde']['rslr'],
                 experiments['US-reservoir-utilization']['rslr'],
                 experiments['retention-low']['rslr'],
                 experiments['USresutil-and-retentionlow']['rslr'],
@@ -425,11 +425,12 @@ myCommand(
         target=experiments['contemp']['rslr_plot_contemp_USres_lowretention_lit'],
         action=[psed.plot_delta_scalars_lit,
                 'convert -trim $TARGET $TARGET'],
-        scenarios=[experiments['contemp']['name'],
+        scenarios=[experiments['contemp-prograde']['name'],
                    experiments['US-reservoir-utilization']['name'],
                    experiments['retention-low']['name'],
                    experiments['USresutil-and-retentionlow']['name']],
         ylabel='RSLR, mm/yr',
         xlabel='Delta',
         title='RSLR scenario differences',
+        npanels=1,
         )
