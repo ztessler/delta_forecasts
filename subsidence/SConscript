@@ -83,6 +83,7 @@ for experiment in ['pristine', 'retention-high', 'pristine-progradation', 'prist
             ylims=ylims,
             yscale=yscale,
             annot=annot,
+            npanels=2,
             )
 
 

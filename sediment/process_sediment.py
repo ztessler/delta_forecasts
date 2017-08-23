@@ -611,37 +611,47 @@ def plot_delta_scalars(env, target, source):
     nsources = env['nsources']
     ylims = env.get('ylims', None)
     annot = env.get('annot', False)
+    npanels = env.get('npanels', 1)
 
     qs = OrderedDict()
     for i in range(nsources):
         qs[scenarios[i]] = pandas.read_pickle(str(source[i])).groupby(level='Delta').sum()
-    df = pandas.DataFrame(qs, columns=qs.keys())
-    df = df.sort_values(by=scenarios[0], ascending=False)
-    df = df.drop(['Congo', 'Tone'])
+    df_all = pandas.DataFrame(qs, columns=qs.keys())
+    df_all = df_all.sort_values(by=scenarios[0], ascending=False)
+    df_all = df_all.drop(['Congo', 'Tone'])
+    df_all.index = [d.replace('_',' ') if 'Shatt' not in d else d.replace('_','-') for d in df_all.index]
 
-    f, a = plt.subplots(1, 1, figsize=(16,8))
-    a.set_yscale(yscale[0], **yscale[1])
-    if exp_num is None:
-        df.plot(kind='bar', ax=a)
-    else:
-        color = next(itertools.islice(iter(mpl.rcParams['axes.prop_cycle']), exp_num, exp_num+1))['color']
-        df.plot(kind='bar', ax=a, color=color)
+    f, axs = plt.subplots(npanels, 1, figsize=(16/npanels,8))
+    if npanels == 1:
+        axs = [axs]
+    n0, n1 = 0, int(np.ceil(df_all.shape[0]/float(npanels)))
 
-    if annot:
-        for p, yval in zip(a.patches, df.values.flatten('F')): # flatten in Fortran order to patch patches list, which goes over each data series first
-            a.annotate(s='{:0.1f}'.format(yval),
-                       xy=(p.get_x(), p.get_height()),
-                       xytext=(p.get_x()+p.get_width()/2., p.get_height()),
-                       textcoords='data',
-                       ha='center', va='bottom',
-                       fontsize='small',
-                       )
-    if ylims is not None:
-        a.set_ylim(*ylims)
+    for a in axs:
+        df = df_all.iloc[n0:n1,:]
+        n0, n1 = n1, n1 + n1 - n0
 
-    a.set_ylabel(ylabel)
-    a.set_xlabel(xlabel)
-    # a.set_title(title)
+        a.set_yscale(yscale[0], **yscale[1])
+        if exp_num is None:
+            df.plot(kind='bar', width=.8, ax=a)
+        else:
+            color = next(itertools.islice(iter(mpl.rcParams['axes.prop_cycle']), exp_num, exp_num+1))['color']
+            df.plot(kind='bar', width=.8, ax=a, color=color)
+
+        if annot:
+            for p, yval in zip(a.patches, df.values.flatten('F')): # flatten in Fortran order to patch patches list, which goes over each data series first
+                a.annotate(s='{:0.1f}'.format(yval),
+                           xy=(p.get_x(), p.get_height()),
+                           xytext=(p.get_x()+p.get_width()/2., p.get_height()),
+                           textcoords='data',
+                           ha='center', va='bottom',
+                           fontsize=10,
+                           )
+        if ylims is not None:
+            a.set_ylim(*ylims)
+
+        a.set_ylabel(ylabel)
+        a.set_xlabel(xlabel)
+        # a.set_title(title)
     plt.tight_layout()
     f.savefig(str(target[0]))
     plt.close(f)
