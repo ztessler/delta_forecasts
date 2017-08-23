@@ -41,10 +41,10 @@ myCommand(
         drop=['Congo', 'Tone'])
 
 myCommand(
-        source=[experiments['contemp']['natural_subsidence'],
-                experiments['pristine']['Qs'],
-                experiments['contemp']['Qs'],
-                experiments['contemp']['rslr'],
+        source=[experiments['contemp-prograde']['natural_subsidence'],
+                experiments['pristine-progradation']['Qs'],
+                experiments['contemp-prograde']['Qs'],
+                experiments['contemp-prograde']['rslr'],
                 experiments['US-reservoir-utilization']['rslr'],
                 experiments['retention-low']['rslr'],
                 experiments['USresutil-and-retentionlow']['rslr'],
