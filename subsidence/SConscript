@@ -432,5 +432,5 @@ myCommand(
         ylabel='RSLR, mm/yr',
         xlabel='Delta',
         title='RSLR scenario differences',
-        npanels=1,
+        npanels=2,
         )

@@ -625,17 +625,19 @@ def plot_delta_scalars(env, target, source):
     if npanels == 1:
         axs = [axs]
     n0, n1 = 0, int(np.ceil(df_all.shape[0]/float(npanels)))
+    for axi, a in enumerate(axs):
+        firstpanel = (axi == 0)
+        lastpanel = (axi == (len(axs) - 1))
 
-    for a in axs:
         df = df_all.iloc[n0:n1,:]
         n0, n1 = n1, n1 + n1 - n0
 
         a.set_yscale(yscale[0], **yscale[1])
         if exp_num is None:
-            df.plot(kind='bar', width=.8, ax=a)
+            df.plot(kind='bar', width=.8, ax=a, legend=firstpanel)
         else:
             color = next(itertools.islice(iter(mpl.rcParams['axes.prop_cycle']), exp_num, exp_num+1))['color']
-            df.plot(kind='bar', width=.8, ax=a, color=color)
+            df.plot(kind='bar', width=.8, ax=a, color=color, legend=firstpanel)
 
         if annot:
             for p, yval in zip(a.patches, df.values.flatten('F')): # flatten in Fortran order to patch patches list, which goes over each data series first
@@ -650,7 +652,8 @@ def plot_delta_scalars(env, target, source):
             a.set_ylim(*ylims)
 
         a.set_ylabel(ylabel)
-        a.set_xlabel(xlabel)
+        if lastpanel:
+            a.set_xlabel(xlabel)
         # a.set_title(title)
     plt.tight_layout()
     f.savefig(str(target[0]))
@@ -687,7 +690,10 @@ def plot_delta_scalars_lit(env, target, source):
         axs = [axs]
     n0, n1 = 0, int(np.ceil(df_all.shape[0]/float(npanels)))
 
-    for a in axs:
+    for axi, a in enumerate(axs):
+        firstpanel = (axi == 0)
+        lastpanel = (axi == (len(axs) - 1))
+
         df = df_all.iloc[n0:n1,:]
         n0, n1 = n1, n1 + n1 - n0
 
@@ -725,19 +731,33 @@ def plot_delta_scalars_lit(env, target, source):
             if lit_val['max'] > ylims[1]:
                 a.annotate(s='({:0.0f})'.format(lit_val['max']),
                            xy=(lit_val['x'], ylims[1]),
-                           xytext=(5, 5),
+                           xytext=(3, 3),
                            textcoords='offset points',
                            ha='left', va='bottom',
                            fontsize='small',
                            )
+                # annotate to cover line with arrow
+                a.annotate(s='',
+                           xy=(lit_val['x'], ylims[1]),
+                           xytext=(lit_val['x'], lit_val['min']),
+                           xycoords='data',
+                           textcoords='data',
+                           arrowprops=dict(
+                               arrowstyle='->',
+                               color='k',
+                               ),
+                           zorder=0,
+                           )
 
-        patches, labels = a.get_legend_handles_labels()
-        patches = patches[:-1] # remove errorbars from legend
-        labels = labels[:-1]
-        a.legend(patches, labels, loc='best', framealpha=.5)
+        if lastpanel:
+            patches, labels = a.get_legend_handles_labels()
+            patches = patches[:-1] # remove errorbars from legend
+            labels = labels[:-1]
+            a.legend(patches, labels, loc='best', framealpha=0)
 
         a.set_ylabel(ylabel)
-        a.set_xlabel(xlabel)
+        if lastpanel:
+            a.set_xlabel(xlabel)
         # a.set_title(title)
     plt.tight_layout()
     f.savefig(str(target[0]))
