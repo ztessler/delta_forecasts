@@ -217,11 +217,12 @@ def rslr_distribution_plot(env, source, target):
     assert names[1] == 'Reservoir Growth (high utilization)'
     assert names[2] == 'Low Sediment Retention'
     names[0] = '$\mathregular{S_{con}}$\n(Contemporary)'
-    names[1] = '$\mathregular{S_{rpot}}$\n(Potential Reservoir Growth)'
-    names[2] = '$\mathregular{S_{low}}$\n(Low Sediment Retention)'
+    names[1] = '$\mathregular{S_{rpot}}$\n(Potential Reservoir\nGrowth)'
+    names[2] = '$\mathregular{S_{low}}$\n(Low Sediment\nRetention)'
 
     mpl.style.use('ggplot')
-    fig, ax = plt.subplots(1, 2, figsize=(16,8))
+    fig, ax = plt.subplots(1, 2, figsize=(10,5))
+    fig.subplots_adjust(bottom=.3) # add lots of padding so labels fit, will get trimmed by convert later
     ax[0].text(0.01, 0.99, 'A', fontweight='bold', fontsize=12, ha='left', va='top', transform=ax[0].transAxes)
     ax[1].text(0.01, 0.99, 'B', fontweight='bold', fontsize=12, ha='left', va='top', transform=ax[1].transAxes)
 
@@ -237,7 +238,7 @@ def rslr_distribution_plot(env, source, target):
     ax[0].set_ylabel('RSLR, mm/year')
 
     sns.violinplot(data=rdiff, inner='points', color=color, linewidth=1, ax=ax[1])
-    ax[1].set_ylabel(r'Delta RSLR increase from $\mathregular{S_{con}}$, mm/year')
+    ax[1].set_ylabel(r'RSLR increase from $\mathregular{S_{con}}$, mm/year')
 
     cutoff = 10
     axlims = ax[1].get_ylim()
@@ -261,6 +262,12 @@ def rslr_distribution_plot(env, source, target):
     inset.set_ylim(cutoff, axlims[1])
     inset.xaxis.set_ticks([])
     inset.yaxis.set_ticks_position('right')
+    hide_lines_patch = mpl.patches.Rectangle((fig_xy2[0], fig_xy1[1]),
+                                              1-fig_xy2[0], 1-fig_xy1[1],
+                                              facecolor=mpl.rcParams['axes.facecolor'],
+                                              edgecolor='none',
+                                              transform=fig.transFigure)
+    ax[1].add_patch(hide_lines_patch)
     ax[1].plot([ax[1].xaxis.get_ticklocs()[1], data_xy1[0]], [cutoff, data_xy1[1]], linewidth=.5, color='.2')
     ax[1].plot([ax[1].xaxis.get_ticklocs()[1], data_xy1[0]], [axlims[1], data_xy2[1]], linewidth=.5, color='.2')
 
@@ -273,7 +280,7 @@ def rslr_distribution_plot(env, source, target):
     ax[1].collections[3].set_linewidth(2)
     inset.collections[1].set_linewidth(2)
 
-    fig.savefig(str(target[0]))
+    fig.savefig(str(target[0]), dpi=200)
     plt.close(fig)
     return 0
 
