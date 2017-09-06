@@ -6,17 +6,17 @@ import process_analysis as pa
 Import('*')
 
 myCommand(
-        source=[experiments['contemp']['rslr'],
+        source=[experiments['contemp-prograde']['rslr'],
                 experiments['zarfl-reservoirs']['rslr'],
                 experiments['US-reservoir-utilization']['rslr'],
                 experiments['retention-low']['rslr'],
                 experiments['USresutil-and-retentionlow']['rslr'],
                 experiments['pristine']['natural_subsidence'],
                 experiments['pristine']['Qs'],
-                experiments['contemp']['Qs'],
+                experiments['contemp-prograde']['Qs'],
                 experiments['zarfl-reservoirs']['Qs'],
                 experiments['US-reservoir-utilization']['Qs'],
-                experiments['contemp']['delta_areas'],
+                experiments['contemp-prograde']['delta_areas'],
                 ],
         target=experiments['contemp']['analysis'],
         action=pa.analysis)
@@ -29,13 +29,13 @@ myCommand(
         drop=['Congo', 'Tone'])
 
 myCommand(
-        source=[experiments['contemp']['rslr'],
+        source=[experiments['contemp-prograde']['rslr'],
                 experiments['US-reservoir-utilization']['rslr'],
                 experiments['retention-low']['rslr']],
-        target=experiments['contemp']['rslr_dist_plot'],
+        target=experiments['contemp-prograde']['rslr_dist_plot'],
         action=[pa.rslr_distribution_plot,
                 'convert -trim +repage -bordercolor white -border 2 $TARGET $TARGET'],
-        names=[experiments['contemp']['name'],
+        names=[experiments['contemp-prograde']['name'],
                experiments['US-reservoir-utilization']['name'],
                experiments['retention-low']['name']],
         drop=['Congo', 'Tone'])
