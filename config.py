@@ -308,7 +308,7 @@ defaults = {
         'slr_rate_2100_RCP6.0': 7.4,
         'slr_rate_2100_RCP8.5': 11.2,
 
-        'rslr_plot_contemp_USres_lowretention_lit': '#figures/contemp/rslr_contemp_USres_lowretention_lit.png',
+        'rslr_plot_contemp_USres_lowretention_lit': '#figures/rslr_contemp_USres_lowretention_lit.png',
 
         'name': 'Contemporary',
         'compare_with': ['accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'US-reservoir-utilization', 'retention-low', 'retention-high', 'USresutil-and-retentionlow'],
