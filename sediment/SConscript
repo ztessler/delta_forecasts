@@ -13,7 +13,7 @@ Import('*')
 # Saito 2007 for ratios) and delta surface area
 
 for experiment, config in experiments.iteritems():
-    if experiment not in ['pristine', 'pristine-progradation', 'pristine-const-nat-sub']:
+    if experiment not in ['pristine', 'pristine-progradation', 'pristine-progradation-6000', 'pristine-const-nat-sub']:
         env.Command(
                 source=[config['basins_rast'].format(ver='', ext='tif'),
                         config['relief_rast'].format(ver='', ext='tif'),

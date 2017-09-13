@@ -337,6 +337,16 @@ experiments = {
             'delta_age': 8000.0,
             'compare_with': ['contemp-prograde', 'accel-slr', 'double-reservoirs', 'zarfl-reservoirs', 'retention-low', 'retention-high', 'US-reservoir-utilization'],
             },
+        'pristine-progradation-6000': {
+            'parent': 'pristine-progradation',
+            'name': 'Pristine (6000 year delta age)',
+            'natural_subsidence_low_retention': '#data/experiments/pristine-progradation-6000/natural_subsidence_low.pd',
+            'natural_subsidence': '#data/experiments/pristine-progradation-6000/natural_subsidence.pd',
+            'natural_subsidence_high_retention': '#data/experiments/pristine-progradation-6000/natural_subsidence_high.pd',
+            'natural_subsidence_all_retention': '#data/experiments/pristine-progradation-6000/natural_subsidence_all.pd',
+            'natural_subsidence_plot': '#figures/pristine-progradation-6000/natural_subsidence.png',
+            'delta_age': 6000.0,
+            },
         'pristine-const-nat-sub': {
             'parent': 'pristine',
             'name': 'Pristine with constant natural subsidence',

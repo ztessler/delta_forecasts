@@ -165,6 +165,7 @@ def sed_aggradation_with_progradation(env, target, source):
 
     growth_rate = area / delta_age
     new_area = area + (growth_rate * Q_(1.0, 'year'))
+    # but this assumes constant growth rate in AREA, not VOLUME of delta...
 
     aggradation = ((Qs * retention_frac / sed_density) / (1.0 - sed_porosity)) / new_area
     aggradation.to('mm/year').magnitude.to_pickle(str(target[0]))

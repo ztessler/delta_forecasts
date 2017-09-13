@@ -21,7 +21,7 @@ Import('*')
 ###
 
 # only compute natural subsidence for "pristine-like" scenarios
-for experiment in ['pristine', 'retention-high', 'pristine-progradation', 'pristine-const-nat-sub']:
+for experiment in ['pristine', 'retention-high', 'pristine-progradation', 'pristine-progradation-6000', 'pristine-const-nat-sub']:
     config = experiments[experiment]
 
     if experiment == 'pristine-const-nat-sub':
@@ -63,7 +63,7 @@ for experiment in ['pristine', 'retention-high', 'pristine-progradation', 'prist
                 target=config['natural_subsidence_all_retention'],
                 action=ps.retention_merge_to_df)
 
-    if experiment in ['pristine', 'pristine-progradation', 'pristine-const-nat-sub']:
+    if experiment in ['pristine', 'pristine-progradation', 'pristine-progradation-6000', 'pristine-const-nat-sub']:
         yscale = ('symlog', {'linthreshy': 1, 'linscaley': 0.5})
         ylims = [-.3, 60]
         annot = True
