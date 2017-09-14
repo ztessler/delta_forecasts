@@ -232,7 +232,8 @@ def rslr_distribution_plot(env, source, target):
                               names[2]: rslr_lowret - rslr_contemp},
                              columns=names[1:])
 
-    color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
+    # color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
+    color = '.7'
 
     sns.violinplot(data=r, inner='points', color=color, linewidth=1, ax=ax[0])
     ax[0].set_ylabel('RSLR, mm/year')
