@@ -178,11 +178,12 @@ def steady_state_subsidence(env, target, source):
 
     aggradation = Q_(pandas.read_pickle(str(source[0])),
             'mm/year')
+    gia_uplift = Q_(pandas.read_pickle(str(source[1])), 'mm/year')
     eustatic_slr = Q_(env['eustatic_slr'], 'mm/year')
 
     # 0 = rslr = slr + subsidence - sedimentation  # Ericson 2006 Eq. 1
     # subsidence = aggradation - slr
-    subsidence = aggradation - eustatic_slr
+    subsidence = aggradation - eustatic_slr - gia_uplift # so subsidence here is compaction+techtonic(non-gia)+gia_sub, (since gia_uplift is positive upwards, but subsidence should be pos down, so subtract)
     subsidence.to('mm/year').magnitude.to_pickle(str(target[0]))
     return 0
 
@@ -301,11 +302,10 @@ def compute_rslr(env, target, source):
     natural_sub = pandas.read_pickle(str(source[1]))
     groundwater_sub = pandas.read_pickle(str(source[2]))
     oilgas_sub = pandas.read_pickle(str(source[3]))
-    gia_uplift = pandas.read_pickle(str(source[4]))
     eustatic_slr = env['eustatic_slr']
 
     # Ericson 2006 Eq. 2
-    rslr = eustatic_slr + natural_sub + groundwater_sub + oilgas_sub - gia_uplift - aggradation
+    rslr = eustatic_slr + natural_sub + groundwater_sub + oilgas_sub - aggradation
 
     eps = np.finfo(np.float).eps
     rslr.to_pickle(str(target[0]))

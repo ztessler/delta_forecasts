@@ -42,17 +42,20 @@ for experiment in ['pristine', 'retention-high', 'pristine-progradation', 'prist
                 action=ps.const_nat_subsidence)
     else:
         myCommand(
-                source=config['sed_aggradation_low_retention'],
+                source=[config['sed_aggradation_low_retention'],
+                        config['gia_uplift'].format(ext='pd')],
                 target=config['natural_subsidence_low_retention'],
                 action=ps.steady_state_subsidence,
                 eustatic_slr=config['eustatic_slr'])
         myCommand(
-                source=config['sed_aggradation'],
+                source=[config['sed_aggradation'],
+                        config['gia_uplift'].format(ext='pd')],
                 target=config['natural_subsidence'],
                 action=ps.steady_state_subsidence,
                 eustatic_slr=config['eustatic_slr'])
         myCommand(
-                source=config['sed_aggradation_high_retention'],
+                source=[config['sed_aggradation_high_retention'],
+                        config['gia_uplift'].format(ext='pd')],
                 target=config['natural_subsidence_high_retention'],
                 action=ps.steady_state_subsidence,
                 eustatic_slr=config['eustatic_slr'])
@@ -266,8 +269,7 @@ for experiment, config in experiments.iteritems():
             source=[config['sed_aggradation_low_retention'],
                     config['natural_subsidence_low_retention'],
                     config['groundwater_subsidence'],
-                    config['oilgas_subsidence'],
-                    config['gia_uplift'].format(ext='pd')],
+                    config['oilgas_subsidence']],
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr_low_retention'],
             action=ps.compute_rslr)
@@ -275,8 +277,7 @@ for experiment, config in experiments.iteritems():
             source=[config['sed_aggradation'],
                     config['natural_subsidence'],
                     config['groundwater_subsidence'],
-                    config['oilgas_subsidence'],
-                    config['gia_uplift'].format(ext='pd')],
+                    config['oilgas_subsidence']],
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr'],
             action=ps.compute_rslr)
@@ -284,8 +285,7 @@ for experiment, config in experiments.iteritems():
             source=[config['sed_aggradation_high_retention'],
                     config['natural_subsidence_high_retention'],
                     config['groundwater_subsidence'],
-                    config['oilgas_subsidence'],
-                    config['gia_uplift'].format(ext='pd')],
+                    config['oilgas_subsidence']],
             eustatic_slr=config['eustatic_slr'],
             target=config['rslr_high_retention'],
             action=ps.compute_rslr)
@@ -300,8 +300,7 @@ for experiment, config in experiments.iteritems():
             source=[config['sed_aggradation'],
                     config['natural_subsidence'],
                     config['groundwater_subsidence'],
-                    config['oilgas_subsidence'],
-                    config['gia_uplift'].format(ext='pd')],
+                    config['oilgas_subsidence']],
             eustatic_slr=0,
             target=config['rslr_land'],
             action=ps.compute_rslr)
