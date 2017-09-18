@@ -80,7 +80,7 @@ for experiment in ['pristine', 'retention-high', 'pristine-progradation', 'prist
             action=[psed.plot_delta_scalars,
                     'convert -trim $TARGET $TARGET'],
             scenarios=[config['name']],
-            ylabel='Subsidence rate, mm/yr',
+            ylabel='Natural subsidence rate for delta maintenance, mm/yr',
             xlabel='Delta',
             title='Modeled natural subsidence rates',
             ylims=ylims,

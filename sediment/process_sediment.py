@@ -622,6 +622,7 @@ def plot_delta_scalars(env, target, source):
     df_all.index = [d.replace('_',' ') if 'Shatt' not in d else d.replace('_','-') for d in df_all.index]
 
     f, axs = plt.subplots(npanels, 1, figsize=(16/npanels,8))
+    f.subplots_adjust(left=.15)
     if npanels == 1:
         axs = [axs]
     n0, n1 = 0, int(np.ceil(df_all.shape[0]/float(npanels)))
@@ -651,11 +652,14 @@ def plot_delta_scalars(env, target, source):
         if ylims is not None:
             a.set_ylim(*ylims)
 
-        a.set_ylabel(ylabel)
+        if (npanels == 1):
+            a.set_ylabel(ylabel)
         if lastpanel:
             a.set_xlabel(xlabel)
         # a.set_title(title)
-    plt.tight_layout()
+    if (npanels > 1):
+        f.text(0, .5, ylabel, ha='left', va='center', rotation='vertical', fontsize=mpl.rcParams['axes.labelsize'], color=mpl.rcParams['axes.labelcolor'])
+    plt.tight_layout(rect=(.01,0,1,1))
     f.savefig(str(target[0]))
     plt.close(f)
     return 0
@@ -686,6 +690,7 @@ def plot_delta_scalars_lit(env, target, source):
     df_all.index = [d.replace('_',' ') if 'Shatt' not in d else d.replace('_','-') for d in df_all.index]
 
     f, axs = plt.subplots(npanels, 1, figsize=(16/npanels,8))
+    f.subplots_adjust(left=.15)
     if npanels == 1:
         axs = [axs]
     n0, n1 = 0, int(np.ceil(df_all.shape[0]/float(npanels)))
@@ -755,11 +760,14 @@ def plot_delta_scalars_lit(env, target, source):
             labels = labels[:-1]
             a.legend(patches, labels, loc='best', framealpha=0)
 
-        a.set_ylabel(ylabel)
+        if (npanels == 1):
+            a.set_ylabel(ylabel)
         if lastpanel:
             a.set_xlabel(xlabel)
         # a.set_title(title)
-    plt.tight_layout()
+    if (npanels > 1):
+        f.text(.01, .5, ylabel, ha='left', va='center', rotation='vertical', fontsize=mpl.rcParams['axes.labelsize'], color=mpl.rcParams['axes.labelcolor'])
+    plt.tight_layout(rect=(.025,0,1,1))
     f.savefig(str(target[0]))
     plt.close(f)
     return 0
