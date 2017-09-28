@@ -214,11 +214,11 @@ def rslr_distribution_plot(env, source, target):
     names = env['names']
 
     assert names[0] == 'Contemporary' # change names, but make sure sending in what we expect
-    assert names[1] == 'Reservoir Growth (high utilization)'
-    assert names[2] == 'Low Sediment Retention'
+    assert names[1] == 'Reservoir growth (high utilization)'
+    assert names[2] == 'Low sediment retention'
     names[0] = '$\mathregular{S_{con}}$\n(Contemporary)'
-    names[1] = '$\mathregular{S_{rpot}}$\n(Potential Reservoir\nGrowth)'
-    names[2] = '$\mathregular{S_{low}}$\n(Low Sediment\nRetention)'
+    names[1] = '$\mathregular{S_{rpot}}$\n(Potential reservoir\ngrowth)'
+    names[2] = '$\mathregular{S_{low}}$\n(Low sediment\nretention)'
 
     mpl.style.use('ggplot')
     fig, ax = plt.subplots(1, 2, figsize=(10,5))
@@ -236,10 +236,10 @@ def rslr_distribution_plot(env, source, target):
     color = '.7'
 
     sns.violinplot(data=r, inner='points', color=color, linewidth=1, ax=ax[0])
-    ax[0].set_ylabel('RSLR, mm/year')
+    ax[0].set_ylabel('RSLR, mm/y')
 
     sns.violinplot(data=rdiff, inner='points', color=color, linewidth=1, ax=ax[1])
-    ax[1].set_ylabel(r'RSLR increase from $\mathregular{S_{con}}$, mm/year')
+    ax[1].set_ylabel(r'RSLR increase from $\mathregular{S_{con}}$, mm/y')
 
     cutoff = 10
     axlims = ax[1].get_ylim()

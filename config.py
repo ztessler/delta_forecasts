@@ -384,18 +384,18 @@ experiments = {
             },
         'double-reservoirs': {
             'parent': 'contemp',
-            'name': 'Doubled Reservoirs',
+            'name': 'Doubled reservoirs',
             'reservoir_adj_source': ('factor', 2.0),
             },
         'zarfl-reservoirs': {
             'parent': 'contemp',
-            'name': 'Reservoir Growth (Zarfl, 2015)',
+            'name': 'Reservoir growth (Zarfl, 2015)',
             'reservoir_adj_source': ('zarfl2015', '/Users/ztessler/data/Dams_Zarfl_2015/zarfl_2015_dams_data.xls'),
             'compare_with': ['US-reservoir-utilization'],
             },
         'US-reservoir-utilization': {
             'parent': 'contemp',
-            'name': 'Reservoir Growth (high utilization)',
+            'name': 'Reservoir growth (high utilization)',
             'reservoir_adj_source': ('match_basin_utilization', 'Mississippi'),
             },
         'rgis-reservoirs': {
@@ -414,7 +414,7 @@ experiments = {
             },
         'retention-low': {
             'parent': 'contemp',
-            'name': 'Low Sediment Retention',
+            'name': 'Low sediment retention',
             'compare_with': ['retention-high'],
             'retention_frac_low': .05,
             'retention_frac': .1,
@@ -422,7 +422,7 @@ experiments = {
             },
         'retention-high': {
             'parent': 'contemp',
-            'name': 'High Sediment Retention',
+            'name': 'High sediment retention',
             'natural_subsidence_low_retention': '#data/experiments/retention-high/natural_subsidence_low.pd',
             'natural_subsidence': '#data/experiments/retention-high/natural_subsidence.pd',
             'natural_subsidence_high_retention': '#data/experiments/retention-high/natural_subsidence_high.pd',
@@ -434,7 +434,7 @@ experiments = {
             },
         'USresutil-and-retentionlow': {
             'parent': 'contemp',
-            'name': 'Reservoir Growth and Low Sediment Retention',
+            'name': 'Reservoir growth and low sediment retention',
             'compare_with': ['US-reservoir-utilization', 'retention-high'],
             'retention_frac_low': .05,
             'retention_frac': .1,
