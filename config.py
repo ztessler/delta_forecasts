@@ -295,6 +295,10 @@ defaults = {
         # 'governance_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
         'governance_source': ('worldwide_gov_indicators', '/Users/ztessler/data/Worldwide_Governance_Indicators/wgidataset.xlsx'),
         'governance': '#data/experiments/{exp}/governance.pd',
+        'gov_norm': '#data/experiments/{exp}/gov_norm.pd',
+
+        'capacity': '#data/experiments/{exp}/capacity.pd',
+        'capacity_adj': '#data/experiments/{exp}/capacity_adj.pd',
 
         'risk_quadrants_plot_snapshot': '#figures/{exp}/risk_quadrants/risk_quadrants_snapshot.png',
         'rslr_timeseries_plot': '#figures/joint/{scenarios}/rslr_timeseries_{expA}_{expB}.{ext}',
