@@ -292,6 +292,10 @@ defaults = {
         'energy_cost_index_key': '18-AEO2017.23.ref2017-d120816a', # Macroeconomic Indicators: Wholesale Price Index: Fuel and Power: Reference case
         'energy_cost_index_data': '#data/experiments/{exp}/energy_costs.pd',
 
+        # 'governance_source': ('tessler2015', '/Users/ztessler/data/deltas/idi_data.csv'),
+        'governance_source': ('worldwide_gov_indicators', '/Users/ztessler/data/Worldwide_Governance_Indicators/wgidataset.xlsx'),
+        'governance': '#data/experiments/{exp}/governance.pd',
+
         'risk_quadrants_plot_snapshot': '#figures/{exp}/risk_quadrants/risk_quadrants_snapshot.png',
         'rslr_timeseries_plot': '#figures/joint/{scenarios}/rslr_timeseries_{expA}_{expB}.{ext}',
 
