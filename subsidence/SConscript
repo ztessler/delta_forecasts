@@ -327,7 +327,7 @@ for experiment, config in experiments.iteritems():
             title='Relative Sea-Level Rise Rate',
             )
 
-    if experiment not in ['pristine', 'pristine-progradation', 'pristine-const-nat-sub', 'contemp-const-nat-sub']:
+    if experiment not in ['pristine', 'pristine-progradation', 'pristine-progradation-6000', 'pristine-const-nat-sub', 'contemp-const-nat-sub']:
         myCommand(
                 source=[config['natural_subsidence'],
                         config['sed_aggradation'],
