@@ -120,7 +120,8 @@ def compute_exposure_ranges(env, target, source):
 
 def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     def round_to_1digit(x):
-        return int(round(x, -int(np.floor(np.log10(abs(x))))))
+        mult10 = float(10**np.floor(np.log10(x)))
+        return np.ceil(x / mult10) * mult10
     exposures = [pandas.read_pickle(str(s)) for s in source[:2]]
     ranges = pandas.read_pickle(str(source[2]))
     deltas = exposures[0].sum(level='Delta').dropna().index
@@ -139,7 +140,6 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
     for a in axs.flat:
         a.set_visible(False)
 
-
     for i, (delta, a) in enumerate(zip(deltas, axs.flat)):
         a.set_visible(True)
         pops = [e.loc[delta].unstack(level='Pop_Scenario').iloc[:, ::-1] for e in exposures]
@@ -154,13 +154,17 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
         # a.set_ylim(ranges.loc[delta, 'min'], ranges.loc[delta, 'max'])
         year0 = pops.index.get_level_values(level='Forecast').min()
         year1 = pops.index.get_level_values(level='Forecast').max()
-        a.set_ylim(0, round_to_1digit(ranges.loc[delta, 'max']))
-        a.yaxis.set_ticks([0, round_to_1digit(ranges.loc[delta, 'max'])])
+        # a.set_ylim(0, round_to_1digit(ranges.loc[delta, 'max']))
+        ymax = round_to_1digit(pops.max().max())
+        a.set_ylim(0, ymax)
+        print delta, ranges.loc[delta, 'max'], a.get_ylim()
+        a.yaxis.set_ticks([0, ymax])
         if i == len(deltas)-1:
             a.xaxis.set_ticks([year0, year1])
         else:
             a.xaxis.set_ticks([])
         a.yaxis.set_ticks_position('left')
+        a.tick_params(axis='y', pad=-3)
         a.set_xlabel('')
         a.text(.5, .99, delta, ha='center', va='top', transform=a.transAxes)
 
