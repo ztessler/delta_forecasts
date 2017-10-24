@@ -89,8 +89,8 @@ def storm_surge_populations(env, source, target):
 
     # for (delta, forecast), _ in pop_elevs.groupby(level=['delta', 'forecast'], axis=1):
     for (delta, forecast, pop_scenario), pop in populations.iteritems():
-        spline = scipy.interpolate.InterpolatedUnivariateSpline(np.array(pop.index), pop.values)
-        exposure.loc[:,(delta, forecast, pop_scenario)] = spline(np.array(surge.loc[delta,:]))
+        interpolator = scipy.interpolate.interp1d(np.array(pop.index), pop.values, kind='linear')
+        exposure.loc[:,(delta, forecast, pop_scenario)] = interpolator(np.array(surge.loc[delta,:]))
 
     exposure.to_pickle(str(target[0]))
     return 0

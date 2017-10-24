@@ -87,6 +87,9 @@ def pop_elevation_bins(env, target, source):
     elevs = np.r_[np.arange(35+1, dtype='float'), np.inf]
     for elev in elevs:
         under = np.logical_and(good, srtm <= elev)
+        if under.sum() == 0: # no populated grid cells under this elev
+            pops[elev] = 0
+            continue
         over = np.logical_and(good, srtm > elev)
         frac_under = under.sum() / float(good.sum())
         pops[elev] = pop[under].mean() * frac_under * area_sqkm
@@ -219,7 +222,8 @@ def adjust_hypso_for_rslr(env, source, target):
         pops = pop_elevs[delta, forecast].loc[target_elevs]
         pops.index = new_elevs # old values but now at adjusted elevations
         pops = pops.reindex(all_elevs) # add original elevations back into index (0,1,2,...) now with nans
-        pops = pops.interpolate('spline', order=3)
+        pops = pops.interpolate('index') # cubic causes large swings near 0 and some negative populations, 'index' is piecewise linear using index values for spacing
+        pops = pops.fillna(method='backfill').fillna(method='pad') # fill any nans at new lowest or highest elevations that couldn't be interpolated
         pops = pops.reindex(target_elevs) # drop new_elevs, keeping only whole elevations (0,1,2,...)
 
         adj_pop[delta, forecast] = pops
