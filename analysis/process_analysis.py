@@ -312,6 +312,66 @@ def delta_data_to_csv(env, source, target):
     return 0
 
 
+def plot_resilience_cartoons(env, source, target):
+    mpl.style.use('ggplot')
+    mpl.rcParams['axes.facecolor'] = 'white'
+    colors = iter(mpl.rcParams['axes.prop_cycle'])
+    c1 = next(colors)['color']
+    c2 = next(colors)['color']
+    c3 = next(colors)['color']
+    c4 = next(colors)['color']
 
+    def setup_ax(a):
+        a.clear()
+        a.plot([0, 0], [0, 1], lw=2, color='.2')
+        a.plot([0, 1], [0, 0], lw=2, color='.2')
+        a.yaxis.set_ticks([])
+        a.xaxis.set_ticks([])
+
+    def set_axlims(a):
+        a.set_xlim(0, 1)
+        a.set_ylim(-.2, 1)
+
+    f, a = plt.subplots(1, 1, figsize=(12, 5))
+
+    # rslr plot
+    setup_ax(a)
+    a.plot([0, 1], [0, 1], lw=6, color=c1)
+    set_axlims(a)
+    f.savefig(str(target[0]))
+
+    # resilience plot 1 - "natural"
+    setup_ax(a)
+    a.plot([0, 1], [.2, .2], lw=6, color=c2)
+    set_axlims(a)
+    f.savefig(str(target[1]))
+
+    # resilience plot 2 - "infrastructure"
+    x_harden = .6
+    a.plot([0, .2], [.2, .2], lw=6, color=c3)
+    a.plot([.2, .2], [.2, .4], lw=6, color=c3)
+    a.plot([.2, x_harden], [.4, .4], lw=6, color=c3)
+    a.plot([x_harden, 1], [.4, -.2], lw=6, color=c3)
+    set_axlims(a)
+    f.savefig(str(target[2]))
+
+    # flood plot
+    setup_ax(a)
+    n = 200
+    x = np.linspace(0, 1, n)
+    y = np.r_[np.random.rand(int(n*.2)) * .2,
+              np.random.rand(int(n*(x_harden-.2))) * .02,
+              np.random.rand(int(n*(1-x_harden))) * np.linspace(.02, .8, n*(1-x_harden))]
+    a.plot(x, y, lw=3, color=c4)
+    set_axlims(a)
+    f.savefig(str(target[3]))
+
+    return 0
+
+
+
+
+
+    return 0
 
 

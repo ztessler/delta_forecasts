@@ -303,6 +303,11 @@ defaults = {
         'risk_quadrants_plot_snapshot': '#figures/{exp}/risk_quadrants/risk_quadrants_snapshot.png',
         'rslr_timeseries_plot': '#figures/joint/{scenarios}/rslr_timeseries_{expA}_{expB}.{ext}',
 
+        'cartoon_rslr': '#figures/cartoon_rslr.png',
+        'cartoon_resilience1': '#figures/cartoon_resilience1.png',
+        'cartoon_resilience2': '#figures/cartoon_resilience2.png',
+        'cartoon_floods': '#figures/cartoon_floods.png',
+
         'basin_pixel_areas': '#data/basin_pixel_areas.tif',
         'upstream_zeros': '#data/upstream_zeros.pd',
         'upstream_ones': '#data/upstream_ones.pd',

@@ -60,3 +60,10 @@ myCommand(
                  'Relative Sea-Level Rise Rate, Reservoir Growth and Low Sediment Retention (mm/year)',
             ])
 
+myCommand(
+        source=None,
+        target=[experiments['contemp']['cartoon_rslr'],
+                experiments['contemp']['cartoon_resilience1'],
+                experiments['contemp']['cartoon_resilience2'],
+                experiments['contemp']['cartoon_floods']],
+        action=pa.plot_resilience_cartoons)
