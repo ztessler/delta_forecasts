@@ -124,7 +124,11 @@ def plot_surge_annual_exposure_multiscenario_multidelta(env, target, source):
         return np.ceil(x / mult10) * mult10
     exposures = [pandas.read_pickle(str(s)) for s in source[:2]]
     ranges = pandas.read_pickle(str(source[2]))
-    deltas = exposures[0].sum(level='Delta').dropna().index
+    okdata = pandas.Series(False, index=exposures[0].sum(level='Delta').index)
+    for e in exposures:
+        ok_this_scenario = np.logical_and(~e.sum(level='Delta').isnull(), e.sum(level='Delta')!=0)
+        okdata = np.logical_or(okdata, ok_this_scenario)
+    deltas = exposures[0].sum(level='Delta').index[okdata]
     scenarios = env['scenarios']
 
     # need level names to match for concat to work
