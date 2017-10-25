@@ -87,10 +87,11 @@ def storm_surge_populations(env, source, target):
     # value is people exposed
     exposure = pandas.DataFrame(index=surge.columns, columns=populations.columns, dtype='float')
 
-    # for (delta, forecast), _ in pop_elevs.groupby(level=['delta', 'forecast'], axis=1):
     for (delta, forecast, pop_scenario), pop in populations.iteritems():
         interpolator = scipy.interpolate.interp1d(np.array(pop.index), pop.values, kind='linear')
-        exposure.loc[:,(delta, forecast, pop_scenario)] = interpolator(np.array(surge.loc[delta,:]))
+        expo = interpolator(np.array(surge.loc[delta,:]))
+        expo[expo<0] = 0
+        exposure.loc[:,(delta, forecast, pop_scenario)] = expo
 
     exposure.to_pickle(str(target[0]))
     return 0

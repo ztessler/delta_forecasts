@@ -208,7 +208,8 @@ def adjust_hypso_for_rslr(env, source, target):
 
     target_elevs = pop_elevs.index.tolist()
     target_elevs.remove(np.inf)
-    target_elevs = np.array(target_elevs)
+    new_interval = .1
+    target_elevs = np.arange(0, max(target_elevs)+new_interval, new_interval)
     adj_pop = pandas.DataFrame(index=target_elevs, columns=pop_elevs.columns, dtype='float')
 
     for (delta, forecast), _ in pop_elevs.groupby(level=['Delta', 'Forecast'], axis=1):
@@ -217,12 +218,13 @@ def adjust_hypso_for_rslr(env, source, target):
         rise = rslr * years
 
         new_elevs = (Q_(target_elevs, 'm') - rise).to('m').magnitude
-        all_elevs = np.sort(list(set(np.r_[new_elevs, np.arange(np.max(target_elevs)+1)])))
+        all_elevs = np.sort(list(set(np.r_[new_elevs, target_elevs])))
 
         pops = pop_elevs[delta, forecast].loc[target_elevs]
         pops.index = new_elevs # old values but now at adjusted elevations
         pops = pops.reindex(all_elevs) # add original elevations back into index (0,1,2,...) now with nans
         pops = pops.interpolate('index') # cubic causes large swings near 0 and some negative populations, 'index' is piecewise linear using index values for spacing
+        pops[pops<0] = 0
         pops = pops.fillna(method='backfill').fillna(method='pad') # fill any nans at new lowest or highest elevations that couldn't be interpolated
         pops = pops.reindex(target_elevs) # drop new_elevs, keeping only whole elevations (0,1,2,...)
 
