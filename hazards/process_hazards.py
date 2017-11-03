@@ -423,6 +423,8 @@ def combine_hazard_scores(env, source, target):
 
     common_names = {
             # RCPs
+            'RCPnone': 'none',
+
             'RCP2p6': 'low',
             'RCP4.5': 'low',
 
@@ -430,11 +432,14 @@ def combine_hazard_scores(env, source, target):
             'RCP8.5': 'high',
 
             # Windows
-            '2006 to 2035': 'early',
-            'MID21C': 'early',
+            '1950 to 2005': 'historical',
+            'HISTORICAL': 'historical',
 
-            '2070 to 2099': 'late',
-            'END21C': 'late',
+            '2006 to 2035': 'early21C',
+            'MID21C': 'early21C',
+
+            '2070 to 2099': 'late21C',
+            'END21C': 'late21C',
             }
 
     dis.rename(common_names, inplace=True)
@@ -442,6 +447,7 @@ def combine_hazard_scores(env, source, target):
 
     hazards = pandas.concat({'Discharge': dis, 'Waves': waves}, axis=1)
     hazards.index.names = dis.index.names
+    hazards = hazards.reindex(['none', 'low', 'high'], level='RCP')
     hazards.to_pickle(str(target[0]))
     return 0
 

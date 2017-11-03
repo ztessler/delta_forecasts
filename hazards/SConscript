@@ -238,5 +238,4 @@ for experiment, config in experiments.iteritems():
                 source=[config['dis_future_extremes'],
                         config['waves_future_extremes']],
                 target=config['hazards_future'],
-                action=ph.combine_hazard_scores
-                )
+                action=ph.combine_hazard_scores)
