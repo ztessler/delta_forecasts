@@ -451,3 +451,14 @@ def combine_hazard_scores(env, source, target):
     hazards.to_pickle(str(target[0]))
     return 0
 
+
+def normalize_hazards(env, source, target):
+    hazards = pandas.read_pickle(str(source[0]))
+
+    normed = pandas.DataFrame(index=hazards.index, columns=hazards.columns)
+    for hazname, hazvals in hazards.iteritems():
+        hazvals[hazvals.isnull()] = hazvals.mean()
+        normed[hazname] = (hazvals - hazvals.min()) / (hazvals.max() - hazvals.min())
+
+    normed.to_pickle(str(target[0]))
+    return 0

@@ -229,6 +229,7 @@ defaults = {
         'waves_future_delta_indices': '#data/waves/delta_indices.json',
 
         'hazards_future': '#data/experiments/{exp}/hazard_scores.pd',
+        'hazards_norm': '#data/experiments/{exp}/hazard_norm.pd',
 
 
 

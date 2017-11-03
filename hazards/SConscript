@@ -239,3 +239,8 @@ for experiment, config in experiments.iteritems():
                         config['waves_future_extremes']],
                 target=config['hazards_future'],
                 action=ph.combine_hazard_scores)
+
+        env.Command(
+                source=config['hazards_future'],
+                target=config['hazards_norm'],
+                action=ph.normalize_hazards)
