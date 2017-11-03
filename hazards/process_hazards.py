@@ -462,3 +462,13 @@ def normalize_hazards(env, source, target):
 
     normed.to_pickle(str(target[0]))
     return 0
+
+
+def hazards_index(env, source, target):
+    normed = pandas.read_pickle(str(source[0]))
+
+    index = normed.sum(axis=1)
+    index = (index - index.min()) / (index.max() - index.min())
+
+    index.to_pickle(str(target[0]))
+    return 0

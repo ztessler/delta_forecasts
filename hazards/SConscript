@@ -244,3 +244,8 @@ for experiment, config in experiments.iteritems():
                 source=config['hazards_future'],
                 target=config['hazards_norm'],
                 action=ph.normalize_hazards)
+
+        env.Command(
+                source=config['hazards_norm'],
+                target=config['hazards_index'],
+                action=ph.hazards_index)

@@ -230,6 +230,7 @@ defaults = {
 
         'hazards_future': '#data/experiments/{exp}/hazard_scores.pd',
         'hazards_norm': '#data/experiments/{exp}/hazard_norm.pd',
+        'hazards_index': '#data/experiments/{exp}/hazard_index.pd',
 
 
 
