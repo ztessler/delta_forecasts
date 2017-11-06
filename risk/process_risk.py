@@ -207,18 +207,33 @@ def plot_risk_quadrants(env, source, target):
     hazard = hazard.loc[(slice(None), RCP, hazard_window)]
     vuln = vuln.loc[:, (SSP, forecast)]
 
-    df = pandas.DataFrame({'h': hazard, 'e': exposure, 'v': vuln})
-
     hazard_name = env['hazard_name']
     exposure_name = env['exposure_name']
     vuln_name = env['vuln_name']
+    delta_labels = env['delta_labels']
 
-    # import ipdb;ipdb.set_trace()
+    df = pandas.DataFrame({exposure_name: exposure, hazard_name: hazard, vuln_name: vuln})
+    x = df[exposure_name]
+    y = df[hazard_name]
+    s = df[vuln_name]
+
     mpl.style.use('ggplot')
+    color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
     f, a = plt.subplots(1,1)
-    marker_size = 200 * df['v']
-    a.scatter(x=df['e'], y=df['h'], s=marker_size)
-    # df.plot(kind='scatter', x='Exposure', y='Hazard', s=df['Vulnerability']*100, ax=a)
+
+    marker_size = s*200
+    minmarker = 10
+    if marker_size.min() < minmarker:
+        marker_size += minmarker - marker_size.min()
+    a.scatter(x=x, y=y, s=marker_size, facecolor=color, edgecolor='none', alpha=.5)
+    a.scatter(x=x, y=y, s=marker_size, facecolor='none', edgecolor=color, lw=1)
+
+    for d in delta_labels:
+        a.text(df.loc[d, exposure_name], df.loc[d, hazard_name], d, ha='center', va='center', alpha=.8)
+
+    a.set_xlabel(exposure_name)
+    a.set_ylabel(hazard_name)
+
     f.savefig(str(target[0]))
 
     return 0

@@ -21,22 +21,21 @@ for experiment, config in experiments.iteritems():
             target=config['surge_percap_risk'],
             action=pr.per_capita_exposure)
 
-    ######
     myCommand(
-            source=[config['dis_future_extremes'],
-                    # config['ssp_pop_hypso_growth_rslr'],
+            source=[config['hazards_index'],
                     config['rslr'],
-                    config['econ_vuln']],
+                    config['capacity']],
             target=config['risk_quadrants_plot_snapshot'],
             action=[pr.plot_risk_quadrants,
                     'convert -trim $TARGET $TARGET'],
-            hazard_name='Discharge',
-            exposure_name='RSLR',
-            vuln_name='Economic Capacity',
-            RCP='RCPnone',
-            hazard_window='1950 to 2005',
+            hazard_name='Hazard Index',
+            exposure_name='RSLR, mm/y',
+            vuln_name='Socio-economic Capacity',
+            RCP='none',
+            hazard_window='historical',
             SSP='SSP2',
             forecast=2010,
+            delta_labels=[],
             )
 
     for delta in common['deltas']:
