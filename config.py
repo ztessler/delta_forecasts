@@ -301,6 +301,8 @@ defaults = {
 
         'capacity': '#data/experiments/{exp}/capacity.pd',
         'capacity_adj': '#data/experiments/{exp}/capacity_adj.pd',
+        'total_vuln': '#data/experiments/{exp}/total_vuln.pd',
+        'total_vuln_adj': '#data/experiments/{exp}/total_vuln_adj.pd',
 
         'risk_quadrants_plot_snapshot': '#figures/{exp}/risk_quadrants/risk_quadrants_snapshot.png',
         'rslr_timeseries_plot': '#figures/joint/{scenarios}/rslr_timeseries_{expA}_{expB}.{ext}',
