@@ -306,6 +306,18 @@ for experiment, config in experiments.iteritems():
             action=ps.compute_rslr)
 
     myCommand(
+            source=config['rslr_land'],
+            target=config['rsl_timeseries'],
+            slr_cur=config['eustatic_slr'],
+            slr_2100_rcps=[config['slr_rate_2100_RCP2.6'],
+                           config['slr_rate_2100_RCP4.5'],
+                           config['slr_rate_2100_RCP6.0'],
+                           config['slr_rate_2100_RCP8.5']],
+            rcp_names=['2p6', '4p5', '6p0', '8p5'],
+            years=[2000, 2100],
+            action=ps.compute_rsl_timeseries)
+
+    myCommand(
             source=config['rslr'],
             target=config['rslr_plot'].format(ext='png'),
             action=[psed.plot_delta_scalars,

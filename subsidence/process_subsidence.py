@@ -437,3 +437,35 @@ def rslr_regression_model(env, target, source):
 
     return 0
 
+
+def compute_rsl_timeseries(env, source, target):
+    rslr_land = pandas.read_pickle(str(source[0]))
+
+    slr_cur = env['slr_cur']
+    slr_2100_rcps = env['slr_2100_rcps']
+    rcp_names = env['rcp_names']
+
+    years = env['years']
+    years = pandas.Series(range(years[0], years[1]+1))
+    yr_index = pandas.Series(years.index) # 'year'
+
+    slr_const = pandas.Series(slr_cur, index=yr_index) # 'mm/year'
+    sl_const = (slr_const.cumsum() - slr_const[0]) / 1000. # 'm'
+
+    sl_rcps = []
+    for slr_2100_rcp in slr_2100_rcps:
+        slr_rcp = pandas.Series(np.linspace(slr_cur, slr_2100_rcp, len(yr_index)), index=yr_index) # 'mm/year'
+        sl_rcps.append((slr_rcp.cumsum() - slr_rcp[0]) / 1000.) # 'm'
+
+    allrcps = ['const'] + rcp_names
+    rcpcats = pandas.Categorical(allrcps, categories=allrcps, ordered=True)
+    rcpyears = pandas.MultiIndex.from_product([years, rcpcats], names=['Year', 'RCP'])
+    rsl = pandas.DataFrame(0.0, index=rslr_land.index, columns=rcpyears)
+
+    for delta in rslr_land.index:
+        rsl.loc[delta, (slice(None), 'const')] = ((yr_index * (rslr_land[delta] + slr_cur)) / 1000.).values # 'm'
+        for sl_rcp, rcp_name in zip(sl_rcps, rcp_names):
+            rsl.loc[delta, (slice(None), rcp_name)] = (((yr_index * rslr_land[delta]) / 1000.) + sl_rcp).values # 'm'
+
+    rsl.to_pickle(str(target[0]))
+    return 0
