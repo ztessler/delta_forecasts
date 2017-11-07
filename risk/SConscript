@@ -24,7 +24,7 @@ for experiment, config in experiments.iteritems():
     myCommand(
             source=[config['hazards_index'],
                     config['rslr'],
-                    config['capacity']],
+                    config['total_vuln']],
             target=config['risk_quadrants_plot_snapshot'],
             action=[pr.plot_risk_quadrants,
                     'convert -trim $TARGET $TARGET'],

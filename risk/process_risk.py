@@ -221,18 +221,23 @@ def plot_risk_quadrants(env, source, target):
     color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
     f, a = plt.subplots(1,1)
 
-    marker_size = s*200
-    minmarker = 10
-    if marker_size.min() < minmarker:
-        marker_size += minmarker - marker_size.min()
-    a.scatter(x=x, y=y, s=marker_size, facecolor=color, edgecolor='none', alpha=.5)
-    a.scatter(x=x, y=y, s=marker_size, facecolor='none', edgecolor=color, lw=1)
+    marker_size = 400 * (s-s.min()) / (s.max()-s.min()) + 20
+    alpha = .5
+    lw = 1
+    a.scatter(x=x, y=y, s=marker_size, facecolor=color, edgecolor='none', alpha=alpha)
+    a.scatter(x=x, y=y, s=marker_size, facecolor='none', edgecolor=color, lw=lw)
+    dummy1, = a.plot([], [], marker='o', linestyle='none', markerfacecolor=color, markeredgecolor='none', alpha=alpha)
+    dummy2, = a.plot([], [], marker='o', linestyle='none', markerfacecolor='none', markeredgecolor=color, lw=lw)
 
     for d in delta_labels:
         a.text(df.loc[d, exposure_name], df.loc[d, hazard_name], d, ha='center', va='center', alpha=.8)
 
     a.set_xlabel(exposure_name)
     a.set_ylabel(hazard_name)
+    # a.legend([(dummy1, dummy2)]
+             # ['Marker size scales with vulnerability'],
+             # loc='upper right')
+    a.text(.95, .95, 'Marker size scales with vulnerability', transform=a.transAxes, ha='right', va='center')
 
     f.savefig(str(target[0]))
 
