@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas
+from adjustText import adjust_text
 
 
 def adj_annual_exposure_for_vuln(env, target, source):
@@ -224,19 +225,28 @@ def plot_risk_quadrants(env, source, target):
     marker_size = 400 * (s-s.min()) / (s.max()-s.min()) + 20
     alpha = .5
     lw = 1
-    a.scatter(x=x, y=y, s=marker_size, facecolor=color, edgecolor='none', alpha=alpha)
-    a.scatter(x=x, y=y, s=marker_size, facecolor='none', edgecolor=color, lw=lw)
+    a.scatter(x=x, y=y, s=marker_size, facecolor=color, edgecolor='none', alpha=alpha, zorder=2)
+    a.scatter(x=x, y=y, s=marker_size, facecolor='none', edgecolor=color, lw=lw, zorder=2)
     dummy1, = a.plot([], [], marker='o', linestyle='none', markerfacecolor=color, markeredgecolor='none', alpha=alpha)
     dummy2, = a.plot([], [], marker='o', linestyle='none', markerfacecolor='none', markeredgecolor=color, lw=lw)
 
+    lims = np.array(a.axis())
+    adjw = .1 * (lims[1] - lims[0])
+    adjh = .1 * (lims[3] - lims[2])
+    newlims = lims + (-adjw, adjw, -adjh, adjh)
+    a.axis(newlims)
+    texts = []
     for d in delta_labels:
-        a.text(df.loc[d, exposure_name], df.loc[d, hazard_name], d, ha='center', va='center', alpha=.8)
+        a.scatter(x=x[d], y=y[d], s=marker_size[d], facecolor='none', edgecolor='.3', lw=lw*2, zorder=2)
+        t = a.text(df.loc[d, exposure_name], df.loc[d, hazard_name], d, ha='center', va='center', alpha=.8)
+        texts.append(t)
+    if delta_labels:
+        adjust_text(texts=texts, x=df.loc[:, exposure_name], y=df.loc[:, hazard_name], arrowprops=dict(arrowstyle='-', color='.3', shrinkA=0, shrinkB=0), ax=a, expand_text=(2.,2.), expand_points=(2.,2.), force_text=0.5, force_points=0.5)
 
     a.set_xlabel(exposure_name)
     a.set_ylabel(hazard_name)
-    # a.legend([(dummy1, dummy2)]
-             # ['Marker size scales with vulnerability'],
-             # loc='upper right')
+    a.plot([0, newlims[1]], [0, 0], '0.3', lw=1, zorder=1)
+    a.plot([0, 0], [0, newlims[3]], '0.3', lw=1, zorder=1)
     a.text(.95, .95, 'Marker size scales with vulnerability', transform=a.transAxes, ha='right', va='center')
 
     f.savefig(str(target[0]))

@@ -35,7 +35,7 @@ for experiment, config in experiments.iteritems():
             hazard_window='historical',
             SSP='SSP2',
             forecast=2010,
-            delta_labels=[],
+            delta_labels=['Mississippi', 'Nile', 'Ganges', 'Amazon', 'Pearl'],
             )
 
     for delta in common['deltas']:
