@@ -1,3 +1,4 @@
+import os
 import csv
 import numpy as np
 import matplotlib as mpl
@@ -103,7 +104,7 @@ def plot_surge_annual_exposure_multiscenario(env, target, source):
         # action=pr.compute_exposure_ranges,
         # scenarios=scenarios)
 def compute_exposure_ranges(env, target, source):
-    exposures = [pandas.read_pickle(str(s)) for s in source]
+    exposures = [pandas.read_pickle(str(s)) for s in source if os.path.exists(str(s))]
 
     deltas = exposures[0].index.get_level_values(level='Delta').drop_duplicates()
     ranges = pandas.DataFrame(index=deltas, columns=['min', 'max'], dtype='float')
