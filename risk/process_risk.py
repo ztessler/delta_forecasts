@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas
+import itertools
 from adjustText import adjust_text
 
 
@@ -248,7 +249,203 @@ def plot_risk_quadrants(env, source, target):
     a.set_ylabel(hazard_name)
     a.plot([0, newlims[1]], [0, 0], '0.3', lw=1, zorder=1)
     a.plot([0, 0], [0, newlims[3]], '0.3', lw=1, zorder=1)
-    a.text(.95, .95, 'Marker size scales with vulnerability', transform=a.transAxes, ha='right', va='center')
+    a.text(.95, .95, 'Marker size scales with {0}'.format(vuln_name.lower()), transform=a.transAxes, ha='right', va='center')
+
+    f.savefig(str(target[0]))
+
+    return 0
+
+
+    # env.Command(
+            # source=[config['hazards_index'],
+                    # config['rsl_timeseries'],
+                    # config['total_vuln']],
+            # target=config['risk_quadrant_projection'],
+            # action=pr.plot_risk_quad_projection,
+            # deltas=common['deltas'],
+            # plottype='lines',
+            # )
+def plot_risk_quad_projection(env, source, target):
+    hazards = pandas.read_pickle(str(source[0]))
+    rsl = pandas.read_pickle(str(source[1]))
+    vuln = pandas.read_pickle(str(source[2]))
+
+    deltas = env['deltas']
+    plottype = env['plottype']
+    plotdir = env['plotdir']
+    RCPs = env['RCPs']
+    SSPs = env['SSPs']
+    hazard_name = env['hazard_name']
+    exposure_name = env['exposure_name']
+    vuln_name = env['vuln_name']
+    date_labels = env['date_labels']
+    rescale_hazard = env['rescale_hazard']
+
+    color = next(iter(mpl.rcParams['axes.prop_cycle']))['color']
+
+    datemapper = {
+            'historical': 2000,
+            'early21C': 2030,
+            'late21C': 2080,
+            }
+
+    f, a = plt.subplots(1,1)
+
+    # vnorm = mpl.colors.Normalize(vuln.loc[deltas,:].min().min(), vuln.loc[deltas,:].max().max())
+    alpha = .5
+    minh = 999
+    maxh = -999
+    minv = 999
+    maxv = -999
+    mine = 999
+    maxe = -999
+    # method = 'linecollection'
+    method = 'fillbetween'
+    if plotdir == 'hor':
+        cols = ['e', 'h']
+    elif plotdir == 'vert':
+        cols = ['h', 'e']
+    for d in deltas:
+        for rcp in RCPs:
+            for ssp in SSPs:
+                h = hazards.loc[(d, ('none',)+rcp, slice(None))]
+                e = rsl.loc[d, (slice(None), rcp)]
+                v = vuln.loc[d, (ssp, slice(None))]
+                if rescale_hazard:
+                    h = h - h.iloc[0]
+                h.index = h.index.droplevel('Delta').droplevel('RCP').rename('Year')
+                e.index = e.index.droplevel('RCP')
+                v.index = v.index.droplevel('SSP').rename('Year')
+                h = h.rename_axis(datemapper)
+                h = h.interpolate('index')
+                h = h.fillna(method='backfill')
+                h = h.fillna(method='pad')
+                v = v.interpolate('index')
+                v = v.fillna(method='backfill')
+                v = v.fillna(method='pad')
+                e = e.interpolate('index')
+                e = e.fillna(method='backfill')
+                e = e.fillna(method='pad')
+                minh = min(minh, h.min())
+                maxh = max(maxh, h.max())
+                minv = min(minv, v.min())
+                maxv = max(maxv, v.max())
+                mine = min(mine, e.min())
+                maxe = max(maxe, e.max())
+    if plotdir == 'hor':
+        buffh = (maxh - minh) * 0.1
+        minh -= buffh
+        maxh += buffh
+        a.set_xlim(mine, maxe)
+        a.set_ylim(minh, maxh)
+    elif plotdir == 'vert':
+        buffe = (maxe - mine) * 0.1
+        mine -= buffe
+        maxe += buffe
+        a.set_xlim(minh, maxh)
+        a.set_ylim(mine, maxe)
+    vnorm = mpl.colors.Normalize(vmin=minv, vmax=maxv)
+    for d in deltas:
+        for rcp in RCPs:
+            for ssp in SSPs:
+                h = hazards.loc[(d, ('none',)+rcp, slice(None))]
+                e = rsl.loc[d, (slice(None), rcp)]
+                v = vuln.loc[d, (ssp, slice(None))]
+
+                if rescale_hazard:
+                    h = h - h.iloc[0]
+
+                h.index = h.index.droplevel('Delta').droplevel('RCP').rename('Year')
+                h = h.rename_axis(datemapper)
+                e.index = e.index.droplevel('RCP')
+                v.index = v.index.droplevel('SSP').rename('Year')
+
+                df = pandas.DataFrame(dict(h=h, e=e, v=v))
+                df = df.interpolate('index')
+                df = df.fillna(method='backfill')
+                df = df.fillna(method='pad')
+
+                if np.isnan(df['v'].mean()):
+                    continue
+
+                if plottype == 'lines':
+                    # import ipdb;ipdb.set_trace()
+                    segments = map(lambda s: (s[0].tolist(), s[1].tolist()),
+                            zip(df[cols].iloc[:-1,:].values,
+                                df[cols].iloc[1:,:].values))
+                    if method == 'linecollection':
+                        lc = mpl.collections.LineCollection(
+                                segments=segments,
+                                linewidths=vnorm(df['v'])*20,
+                                colors=color,
+                                alpha=.5)
+                        a.add_collection(lc)
+                    if method == 'fillbetween':
+                        x = []
+                        y1 = []
+                        y2 = []
+                        widths = vnorm(df['v'])*(maxh-minh)/30
+                        for seg, width in zip(segments, widths):
+                            if seg[0] == seg[1]:
+                                continue
+                            coords0 = a.transData.transform(seg[0])
+                            coords1 = a.transData.transform(seg[1])
+                            theta = np.arctan2(coords1[1]-coords0[1], coords1[0]-coords0[0])
+                            if plotdir == 'hor':
+                                dy = (width/2.) / np.cos(theta)
+                                x.append(seg[0][0])
+                                y1.append(seg[0][1]-dy)
+                                y2.append(seg[0][1]+dy)
+                            elif plotdir == 'vert':
+                                dy = (width/2.) / np.sin(theta)
+                                x.append(seg[0][1])
+                                y1.append(seg[0][0]-dy)
+                                y2.append(seg[0][0]+dy)
+                            print dy
+                            if dy>.4:
+                                import ipdb;ipdb.set_trace()
+                        if plotdir == 'hor':
+                            x.append(seg[1][0])
+                            y1.append(seg[1][1]-dy)
+                            y2.append(seg[1][1]+dy)
+                            a.fill_between(x=x, y1=y1, y2=y2, alpha=.5)
+                        elif plotdir == 'vert':
+                            x.append(seg[1][1])
+                            y1.append(seg[1][0]-dy)
+                            y2.append(seg[1][0]+dy)
+                            a.fill_betweenx(y=x, x1=y1, x2=y2, alpha=.5)
+
+                    for i, ((date1, data1), (date2, data2)) in enumerate(itertools.izip(df.iloc[:-1,:].iterrows(), df.iloc[1:,:].iterrows())):
+                        if method == 'lotsoflines':
+                            lw = vnorm(data1['v']) * 5
+                            a.plot([data1[cols[0]], data2[cols[0]]],
+                                   [data1[cols[1]], data2[cols[1]]],
+                                   lw=vnorm(data1['v'])*4,
+                                   color=color,
+                                   alpha=.5,
+                                   solid_capstyle='butt')
+                        if (date1 % date_labels == 0) and (date1 >= 2000):
+                            a.text(data1['e'], data1['h'], date1, fontsize=8, ha='center', va='center')
+
+                elif plottype == 'circles':
+                    ms = vnorm(data1['v']) * 400 + 20
+                    a.scatter(x=data1[cols[0]], y=data1[cols[1]], s=ms, facecolor=color, edgecolor='none', alpha=alpha, zorder=2)
+                    a.scatter(x=data1[cols[0]], y=data1[cols[1]], s=ms, facecolor='none', edgecolor=color, lw=1, zorder=2)
+                else:
+                    raise NotImplementedError
+
+    if plottype == 'lines':
+        a.text(.95, .95, 'Line width scales with {0}'.format(vuln_name.lower()), transform=a.transAxes, ha='right', va='center')
+    elif plottype == 'circles':
+        a.text(.95, .95, 'Marker size scales with {0}'.format(vuln_name.lower()), transform=a.transAxes, ha='right', va='center')
+    if plotdir == 'hor':
+        a.set_xlabel(exposure_name)
+        a.set_ylabel(hazard_name)
+    elif plotdir == 'vert':
+        a.set_xlabel(hazard_name)
+        a.set_ylabel(exposure_name)
+    # a.plot([0, newlims[1]], [0, 0], '0.3', lw=1, zorder=1)
+    # a.plot([0, 0], [0, newlims[3]], '0.3', lw=1, zorder=1)
 
     f.savefig(str(target[0]))
 

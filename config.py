@@ -305,6 +305,8 @@ defaults = {
         'total_vuln_adj': '#data/experiments/{exp}/total_vuln_adj.pd',
 
         'risk_quadrants_plot_snapshot': '#figures/{exp}/risk_quadrants/risk_quadrants_snapshot.png',
+        'risk_quadrant_projection': '#figures/{exp}/risk_quadrants/risk_quad_projection.png',
+        'risk_quadrant_projection_adj': '#figures/{exp}/risk_quadrants/risk_quad_projection_adj.png',
 
         'rsl_timeseries': '#data/experiments/{exp}/rsl_timeseries.pd',
         'rslr_timeseries_plot': '#figures/joint/{scenarios}/rslr_timeseries_{expA}_{expB}.{ext}',

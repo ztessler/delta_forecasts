@@ -30,13 +30,23 @@ for experiment, config in experiments.iteritems():
                     'convert -trim $TARGET $TARGET'],
             hazard_name='Hazard Index',
             exposure_name='RSLR, mm/y',
-            vuln_name='Socio-economic Capacity',
+            vuln_name='Socio-economic Vulnerability',
             RCP='none',
             hazard_window='historical',
             SSP='SSP2',
             forecast=2010,
             delta_labels=['Mississippi', 'Nile', 'Ganges', 'Amazon', 'Pearl'],
             )
+
+
+
+
+
+
+    # myCommand(
+            # source=[],
+            # target=config['risk_quadrants_plot_future_range'],
+            # action=pr.plot_risk_quadrants_future_range)
 
     for delta in common['deltas']:
         myCommand(
@@ -46,6 +56,21 @@ for experiment, config in experiments.iteritems():
                         'convert -trim $TARGET $TARGET'],
                 delta=delta,
                 exp=config['name'])
+
+        ######
+        # myCommand(
+                # source=[],
+                # target=config['risk_quadrants_plot_delta_trajectory'],
+                # action=pr.plot_risk_quadrants_delta_trajectory,
+                # delta=delta)
+        ######
+
+    ######
+    # myCommand(
+            # source=[],
+            # target=config['risk_quadrants_plot_future_range'],
+            # action=pr.plot_risk_quadrants_future_range)
+    ######
 
 scenarios, configs = zip(*list(experiments.iteritems()))
 myCommand(
@@ -74,3 +99,26 @@ for expA in experiments.keys():
                             'convert -trim $TARGET $TARGET'],
                     delta=delta,
                     scenarios=[experiments[expA]['name'], experiments[expB]['name']])
+
+
+
+for experiment, config in [('contemp', experiments['contemp'])]:
+    myCommand(
+            source=[config['hazards_index'],
+                    config['rsl_timeseries'],
+                    config['total_vuln']],
+            target=config['risk_quadrant_projection'],
+            action=pr.plot_risk_quad_projection,
+            deltas=common['deltas'],
+            # deltas=['Mississippi'],
+            plottype='lines',
+            # plotdir='hor',
+            plotdir='vert',
+            RCPs=[('low', '2p6')],#('high', '8p5')], # list of different lines, tuple for different name for single type
+            SSPs=['SSP2'],
+            hazard_name='Hazard Index',
+            exposure_name='RSL increase from 2000, m',
+            vuln_name='Socio-economic Vulnerability',
+            date_labels=9999, # value larger than any year to turn off labels
+            rescale_hazard=False,
+            )
