@@ -5,7 +5,7 @@
 Estimates of relative sea level rise for a global suite of deltas under a range
 of environmental, climatic, and anthropogenic scenarios.
 
-![Global deltas modeled]('figures/global_delta_map.png')
+![Global deltas modeled](figures/global_delta_map.png?raw=true)
 
 This code runs through SCons and generates all the figures in the `figures/`
 directory. There are many hardcoded paths in config.py that would need to be
